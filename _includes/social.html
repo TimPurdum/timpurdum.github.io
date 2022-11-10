@@ -27,7 +27,7 @@
         href="https://www.pinterest.com/{{ site.pinterest_username| cgi_escape | escape }}"><svg class="svg-icon">
           <use xlink:href="{{ '/assets/minima-social-icons.svg#pinterest' | relative_url }}"></use>
         </svg> <span class="username">{{ site.pinterest_username| escape }}</span></a></li>{%- endif -%}
-    {%- for mst in site.mastodon -%}{%- if mst.username and mst.instance -%}<li><a
+    {%- for mst in site.mastodon -%}{%- if mst.username and mst.instance -%}<li><a rel="me"
         href="https://{{ mst.instance| cgi_escape | escape}}/@{{mst.username}}"><svg class="svg-icon">
           <use xlink:href="{{ '/assets/minima-social-icons.svg#mastodon' | relative_url }}"></use>
         </svg> <span class="username">@{{ mst.username|escape }}@{{ mst.instance|escape }}</span></a></li>{%- endif -%}{%- endfor -%}
