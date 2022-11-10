@@ -253,6 +253,10 @@ table td {
 .site-title:visited {
     color: black;
 }
+.site-title:hover {
+    text-decoration: none;
+    color: #7cb3fa;
+}
 
 .site-logo {
     height: 3rem;

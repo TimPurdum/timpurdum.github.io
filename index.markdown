@@ -4,7 +4,7 @@
 
 layout: home
 ---
-# Welcome
+# Home
 
 I'm a .NET Software Engineer, Engineering Manager, and former Music Teacher. I love coding and sharing what I learn.
 
