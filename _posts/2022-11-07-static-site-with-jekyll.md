@@ -19,3 +19,13 @@ There's a lot to recommend about Jekyll. The main downside? I had to install Rub
 10. Open your browser and navigate to <a target="_blank" href="http://localhost:4000">http://localhost:4000</a>. You should see your new site rendered!
 
 You don't actually need the `--livereload` flag to build your site, but I choose to always use this while developing, so that I can quickly see the changes I make to markdown and css sites rendered in the browser.
+
+These steps got me up and running locally. However, when I went to publish to GitHub Pages, 
+I found a few more things I needed to add.
+
+1. In your `Gemfile`, comment out the line starting with `gem "jekyll"`
+2. Also in the `Gemfile`, uncomment the line starting with `gem "github-pages"`, and replace with `gem "github-pages", "~> 227", group: :jekyll_plugins` where 227 is the latest version of the `github-pages` gem available.
+3. Run `bundle install` to install the `github-pages` gem.
+4. Run `bundle add webrick` (no idea, but you'll get an error without it).
+
+Once these steps are added, try pushing your code up to GitHub, and navigate to `https://YOURNAME.github.io` to see the code in action!
