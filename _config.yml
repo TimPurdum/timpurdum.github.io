@@ -25,8 +25,8 @@ description: >- # this means to ignore newlines until "baseurl:"
   He is the creator and chief maintainer of <a target="_blank" href="https://www.geoblazor.com">GeoBlazor</a>, 
   <a target="_blank" href="https://tocode.software">ToCode.Software</a>, 
   and <a target="_blank" href="https://unison.school">Unison.School</a>.
-baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
+baseurl: /
+url: https://timpurdum.github.io
 twitter_username: TimPurdum
 github_username:  TimPurdum
 mastodon:
