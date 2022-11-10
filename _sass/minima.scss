@@ -375,18 +375,18 @@ table td {
 }
 
 .footer-col-1 {
+    width: -webkit-calc(25% - (30px / 2));
+    width: calc(25% - (30px / 2));
+}
+
+.footer-col-2 {
     width: -webkit-calc(35% - (30px / 2));
     width: calc(35% - (30px / 2));
 }
 
-.footer-col-2 {
-    width: -webkit-calc(20% - (30px / 2));
-    width: calc(20% - (30px / 2));
-}
-
 .footer-col-3 {
-    width: -webkit-calc(45% - (30px / 2));
-    width: calc(45% - (30px / 2));
+    width: -webkit-calc(40% - (30px / 2));
+    width: calc(40% - (30px / 2));
 }
 
 .social-media-list svg {
