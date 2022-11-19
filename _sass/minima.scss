@@ -154,6 +154,7 @@ pre>code {
     border: 0;
     padding-right: 0;
     padding-left: 0;
+    background-color: inherit;
 }
 
 /** Wrapper */
@@ -515,7 +516,7 @@ table td {
 }
 
 .highlighter-rouge .highlight {
-    background: rgb(47, 47, 49);
+    // background: rgb(47, 47, 49);
 }
 
 .highlight .c {
@@ -675,11 +676,15 @@ table td {
 }
 
 .highlight .nt {
-    color: #0000ff;
+    color: #6262f9;
 }
 
 .highlight .nv {
     color: #00ffff;
+}
+
+.highlight .nx {
+    color: rgb(255, 255, 166);
 }
 
 .highlight .ow {
@@ -793,6 +798,8 @@ table td {
     border: 1px solid white;
     padding: 0.5rem;
     background-color: #2990d7;
+    word-wrap: break-word;
+    overflow-x: hidden;
 }
 
 #mastodon > a {
