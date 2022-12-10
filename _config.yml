@@ -27,7 +27,6 @@ description: >- # this means to ignore newlines until "baseurl:"
   and <a target="_blank" href="https://unison.school">Unison.School</a>.
 baseurl: /
 url: https://timpurdum.github.io
-twitter_username: TimPurdum
 github_username:  TimPurdum
 mastodon:
   - username: TimPurdum
