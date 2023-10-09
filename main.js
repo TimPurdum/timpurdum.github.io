@@ -1,4 +1,4 @@
-const rss_url = 'https://fosstodon.org/@TimPurdum.rss';
+const rss_url = 'https://dotnet.social/@TimPurdum.rss';
 let mastoDiv = document.getElementById('mastodon');
 
 fetch(rss_url)
