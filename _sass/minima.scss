@@ -150,10 +150,10 @@ blockquote> :last-child {
 /** Code formatting */
 pre,
 code {
-    font-size: 15px;
+    font-size: 16px;
     // border: 1px solid #e8e8e8;
     // border-radius: 3px;
-    background-color: rgb(32, 32, 32);
+    background-color: #323232;
 }
 
 code {
@@ -531,7 +531,7 @@ table td {
 
 /** Syntax highlighting styles */
 .highlight {
-    background: rgb(0, 0, 0);
+    background: #242424;
 }
 
 .highlighter-rouge .highlight {
