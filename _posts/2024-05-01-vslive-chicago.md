@@ -7,6 +7,8 @@ title: "VS Live Chicago Presentation Links"
 
 If you came to my presentations at VS Live Chicago this year, here are the promised links!
 
+Please also check out my employer, [dymaptic](https://dymaptic.com) for Geospatial/Mapping solutions and consulting!
+
 ## Wrapping JavaScript APIs for use in Asp.NET Core Blazor
 
 [EasyPicker Demo Code](https://github.com/timpurdum/easepickerdemo)
