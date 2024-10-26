@@ -9,6 +9,8 @@ If you came to my presentation at ICC this year, here are the promised links!
 
 Please also check out my employer, [dymaptic](https://dymaptic.com) for Geospatial/Mapping solutions and consulting!
 
+[Presentation Slides](https://1drv.ms/p/s!AiQrCeaKzoIlpKgXA0O2BqsbVYRnJQ?e=0DpGuE)
+
 [ToDo App Demo Code](https://github.com/TimPurdum/Blazor.Demo.ToDo)
 
 [Nation Finder Game Code](https://github.com/dymaptic/GeoBlazor-Samples/tree/main/NationFinder)
