@@ -13,7 +13,7 @@ In today’s data-driven world, mapping business trends and insights can turn co
 
 Geospatial data refers to information linked directly to specific geographical locations—a definition that comes to life through everyday examples. Addresses, for instance, are vital for shipping, billing, home construction, and public works. (click on any of the orange polygons in the map below to see address details.)
 
-<iframe style="display: block; margin: 0px auto;" role="img" xml="lang" src="https://static-hosting.geoblazor.com/embed/feature/ddcaa5e1a9e24c27bff3c3ce16ea2944?longitude=-77&amp;latitude=38.9&amp;zoom=14" width="800" height="600" loading="lazy"></iframe>
+<iframe style="display: block; margin: 0px auto;" role="img" xml="lang" src="https://static-hosting.geoblazor.com/embed/feature/ddcaa5e1a9e24c27bff3c3ce16ea2944?longitude=-77&amp;latitude=38.9&amp;zoom=14" height="600" loading="lazy"></iframe>
 
 [National Address Database - Overview (arcgis.com)](https://www.arcgis.com/home/item.html?id=ddcaa5e1a9e24c27bff3c3ce16ea2944)
 
