@@ -21,14 +21,15 @@
 title: Tim Purdum
 email: tim@cedarrivertech.com
 description: >- # this means to ignore newlines until "baseurl:"
-  Tim Purdum is Engineering Manager and Senior Engineer at <a target="_blank" href="https://www.dymaptic.com">dymaptic</a>. 
-  He is the creator and chief maintainer of <a target="_blank" href="https://www.geoblazor.com">GeoBlazor</a>.
+  Tim Purdum is the Director of Product Development at <a target="_blank" href="https://www.dymaptic.com"><img src="https://www.dymaptic.com/wp-content/uploads/2021/02/dymaptic-smaller.png" alt="dymaptic logo" />dymaptic</a>. 
+  He is the creator and chief maintainer of <a target="_blank" href="https://www.geoblazor.com"><img src="/assets/geoblazor.png">GeoBlazor</a>.
 baseurl: /
 url: https://timpurdum.github.io
 github_username:  TimPurdum
 mastodon:
   - username: TimPurdum
     instance: dotnet.social
+bsky_username: timpurdum.dev
 linkedin_username: crttim
 
 # Build settings

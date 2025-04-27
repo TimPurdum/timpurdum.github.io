@@ -26,6 +26,15 @@
               <a class="page-link" href="{{ my_page.url | relative_url }}">{{ my_page.title | escape }}</a>
               {%- endif -%}
             {%- endfor -%}
+            {%- if site.posts.size > 0 -%}
+                {%- for post in site.posts -%}
+                  <a class="page-link" href="{{ post.url | relative_url }}">
+                    {{ post.title | escape }}
+                  </a>
+                {%- endfor -%}
+          
+              <p class="rss-subscribe">subscribe <a href="{{ "/feed.xml" | relative_url }}">via RSS</a></p>
+            {%- endif -%}
           </div>
         </nav>
       {%- endif -%}
