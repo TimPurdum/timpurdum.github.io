@@ -20,6 +20,12 @@
           </label>
   
           <div class="trigger">
+            <a class="page-link" href="{{ "/" | relative_url }}">
+              <span class="home-icon">
+                <svg viewBox="0 0 24 24" width="24px" height="24px">
+                  <path d="M12,3L2,12h3v7h5v-5h4v5h5v-7h3L12,3z" fill="#4FD1C5" />
+                </svg>
+              </span>
             {%- for path in page_paths -%}
               {%- assign my_page = site.pages | where: "path", path | first -%}
               {%- if my_page.title -%}

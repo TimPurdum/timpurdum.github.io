@@ -4,11 +4,6 @@
 
 layout: home
 ---
-# Home
-
-Tim Purdum is the visionary behind the <a target="_blank" href="https://www.geoblazor.com">
-    <img style="display: inline;" width="16" src="/assets/geoblazor.png">GeoBlazor</a> open-source library and currently serves as the Director of Product Development at <a target="_blank" href="https://www.dymaptic.com">
-            <img style="display: inline;" width="16" src="https://www.dymaptic.com/wp-content/uploads/2021/02/dymaptic-smaller.png" alt="dymaptic logo" />dymaptic</a>. With a robust background in .NET and web technologies, Tim has been a dedicated Software Engineer in the GIS field since 2021. His expertise and passion for technology have made him a sought-after speaker at numerous conferences, including VS Live, TechBash, Iowa Code Camp, and DevUp.
 
 <div id="social-col">
     <div id="bsky-section">
