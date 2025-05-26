@@ -226,7 +226,7 @@ pre>code {
 
 /** Wrapper */
 .wrapper {
-    max-width: 1200px;
+    max-width: 800px;
     padding: 0 5%;
     margin: 0 auto;
 }
@@ -832,7 +832,34 @@ table td {
     align-items: end;
 }
 
-#mastodon-section, #bsky-section {
+.sessionize-wrapper .sz-caption svg {
+    fill: #1085fd;
+}
+
+.sessionize-wrapper .sz-caption {
+    font-size: 2.3rem;
+    font-weight: bold;
+    color: var(--background);
+    border-radius: 8px 8px 0 0;
+    background: linear-gradient(to left, #1185fe, #f1fbff);
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+}
+
+.sz-powered-by {
+    margin: 0.5rem;
+    font-style: italic;
+}
+
+.sz-group {
+    margin-right: 0.5rem;
+}
+
+dl.sz-group {
+    margin-left: 1rem;
+}
+
+#mastodon-section, #bsky-section, .sessionize-wrapper {
     background: rgba(17, 133, 254, 0.1);
     border-radius: 12px;
     border: 2px solid rgba(17, 133, 254, 0.3);
@@ -864,8 +891,8 @@ table td {
     right: 0;
 }
 
-#mastodon-section {
-    margin-top: 2rem;
+#mastodon-section, #bsky-section, .sz-root {
+    margin-bottom: 2rem;
 }
 
 #mastodon-header {

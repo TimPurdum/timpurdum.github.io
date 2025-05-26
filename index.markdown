@@ -6,6 +6,8 @@ layout: home
 ---
 
 <div id="social-col">
+    <script type="text/javascript" src="https://sessionize.com/api/speaker/events/9r5t5or9de/0x1x3fb393x"></script>
+  <script type="text/javascript" src="https://sessionize.com/api/speaker/sessions/9r5t5or9de/1x1x4fd1c5x"></script>
     <div id="bsky-section">
         <div id="bsky-header">
             <img alt="Bluesky" style="width: 16rem;" src="images/bsky.webp">
