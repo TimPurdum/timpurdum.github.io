@@ -77,6 +77,10 @@ main {
     text-align: justify;
 }
 
+#intro img {
+    width: 16px;
+}
+
 /** Images */
 .post-content img {
     max-width: 100%;
@@ -239,6 +243,10 @@ pre>code {
     clear: both;
 }
 
+.footer-col img {
+    width: 16px;
+}
+
 /** Icons */
 .svg-icon {
     width: 16px;
@@ -397,18 +405,13 @@ table td {
 }
 
 .footer-col-1 {
-    width: -webkit-calc(25% - (30px / 2));
-    width: calc(25% - (30px / 2));
+    width: -webkit-calc(50% - (30px / 2));
+    width: calc(50% - (30px / 2));
 }
 
 .footer-col-2 {
-    width: -webkit-calc(35% - (30px / 2));
-    width: calc(35% - (30px / 2));
-}
-
-.footer-col-3 {
-    width: -webkit-calc(40% - (30px / 2));
-    width: calc(40% - (30px / 2));
+    width: -webkit-calc(50% - (30px / 2));
+    width: calc(50% - (30px / 2));
 }
 
 .social-media-list svg {
@@ -423,11 +426,6 @@ table td {
     .footer-col-2 {
         width: -webkit-calc(50% - (30px / 2));
         width: calc(50% - (30px / 2));
-    }
-
-    .footer-col-3 {
-        width: -webkit-calc(100% - (30px / 2));
-        width: calc(100% - (30px / 2));
     }
 }
 
@@ -1029,7 +1027,7 @@ dl.sz-group {
         flex-direction: column;
     }
     
-    #mastodon-section, #bsky-section {
+    #mastodon-section, #bsky-section, .sessionize-wrapper, .sz-root {
         width: 100%;
         margin: 1rem 0;
     }
