@@ -1,0 +1,224 @@
+@page "/post/2023/10/8/using-esbuild-with-blazor"
+<PageTitle>Using ESBuild with Blazor</PageTitle>
+
+<article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+    <header class="post-header">
+        <h1 class="post-title p-name" itemprop="name headline">Using ESBuild with Blazor</h1>
+        <h2 class="post-subtitle" itemprop="name subtitle">How to Bundle JavaScript packages and Compile TypeScript for your Blazor project</h2>
+        <p class="post-meta">
+            <time class="dt-published" 
+                  datetime="2023-10-08T00:00:00Z" 
+                  itemprop="datePublished">Oct 08, 2023</time>
+        </p>
+    </header>
+    <div class="post-content e-content" itemprop="articleBody">
+        <p><a href="https://blog.dymaptic.com/using-esbuild-with-blazor">Originally posted on the dymaptic blog on April 21, 2023</a></p>
+<p>With Blazor, .NET developers can create fully-featured client or server web applications using only C#, HTML, and CSS. But Blazor developers can also access any JavaScript libraries, as I discussed in <a href="https://blog.dymaptic.com/using-objectreferences-to-embed-a-javascript-text-editor-in-blazor">Using ObjectReferences to Embed a JavaScript Text Editor in Blazor</a>. In that example, we referenced the JS library via a <code>script</code> tag from a CDN, but it is also possible to use NPM and import packages into your Blazor application using a build tool like <a href="https://esbuild.github.io/">ESBuild</a>.</p>
+<p>ESBuild also provides a simple path to compile TypeScript into JavaScript, which means .NET developers used to statically-typed languages like C# can enjoy the same static typing benefits in their JavaScript code. While Microsoft does offer a <a href="https://learn.microsoft.com/en-us/visualstudio/javascript/compile-typescript-code-nuget?view=vs-2022">Nuget package to compile TypeScript</a>, this does not support the bundling mentioned above, so if you want to do both, you should use a tool like ESBuild.</p>
+<p><a href="https://github.com/dymaptic/dy-esbuild-sample">Get the Full Source Code Sample</a></p>
+<p><img src="/images/Using-ESBuild-with-Blazor-1.webp" alt="ESBuild allows you to construct a new project with TypeScript and Blazor" /></p>
+<h2 id="getting-started">Getting Started</h2>
+<p>First, you need to <a href="https://docs.npmjs.com/downloading-and-installing-node-js-and-npm">download and install npm</a>, which is the JavaScript package manager used to install ESBuild and other resources. Next, from your Blazor project folder, open a terminal window and run the following commands. We will use the npm package <a href="https://litepicker.com/">litepicker</a>, a drop-down date range selector component, as an example to bundle into our application for this demonstration.</p>
+<pre><code class="language-bash">npm install esbuild
+npm install litepicker
+</code></pre>
+<h2 id="setting-up-the-sample-component">Setting Up the Sample Component</h2>
+<p>In that same folder, create a new subfolder called <code>Scripts</code>, and a new file called <code>components.ts</code>. This is where we will add our own logic to set up the litepicker and call from C#.</p>
+<pre><code class="language-typescript">import Litepicker from &quot;litepicker&quot;;
+import 'litepicker/dist/plugins/ranges';
+
+export function createDateRangePicker(element: HTMLElement,
+    dotNetRef: any,
+    startDate: string | null,
+    endDate: string | null,
+    minDate: string,
+    maxDate: string,
+    minYear: number,
+    maxYear: number): Litepicker | null {
+    try {        
+        const picker = new Litepicker({
+            element: element,
+            startDate: startDate ?? undefined,
+            endDate: endDate ?? undefined,
+            firstDay: 0,
+            numberOfColumns: 2,
+            numberOfMonths: 2,
+            switchingMonths: 1,
+            resetButton: true,
+            singleMode: false,
+            minDate: minDate,
+            maxDate: maxDate,
+            dropdowns: { 
+                &quot;minYear&quot;: minYear, 
+                &quot;maxYear&quot;: maxYear, 
+                &quot;months&quot;: true, 
+                &quot;years&quot;: true },
+            plugins: ['ranges']
+        });
+
+        picker.on(&quot;selected&quot;,
+            async (startDate: Date, endDate: Date) =&gt; {
+                await dotNetRef.invokeMethodAsync(&quot;JsDateRangeSelected&quot;,
+                    startDate.toDateString(),
+                    endDate.toDateString());
+            });
+        return picker;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+}
+</code></pre>
+<p>Now let's create a Razor Component class that wraps this logic into .NET.</p>
+<h3 id="daterangepicker.razor">DateRangePicker.razor</h3>
+<pre><code class="language-html">@inject IJSRuntime JsRuntime
+&lt;div&gt;
+    &lt;div class=&quot;date-range-picker&quot; @onclick=&quot;TogglePicker&quot; attributes=&quot;AdditionalAttributes&quot;&gt;
+        &lt;i class=&quot;material-icons&quot;&gt;today&lt;/i&gt; 
+        @StartDate?.ToString(DisplayFormat) - @EndDate?.ToString(DisplayFormat)
+    &lt;/div&gt;
+    &lt;div @ref=&quot;_container&quot; /&gt;
+&lt;/div&gt;
+</code></pre>
+<pre><code class="language-csharp">@code {
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IDictionary&lt;string, object&gt;? AdditionalAttributes { get; set; }
+
+    [Parameter]
+    public DateOnly? StartDate { get; set; } = 
+        DateOnly.FromDateTime(DateTime.Now).AddMonths(-1);
+
+    [Parameter]
+    public DateOnly? EndDate { get; set; } = 
+        DateOnly.FromDateTime(DateTime.Now);
+
+    [Parameter]
+    public EventCallback DateRangeSelected { get; set; }
+
+    [Parameter]
+    public string DisplayFormat { get; set; } = &quot;MMM d, yyyy&quot;;
+
+    [Parameter]
+    public DateOnly MaxDate { get; set; } = new(2050, 1, 1);
+
+    [Parameter]
+    public DateOnly MinDate { get; set; } = new(2000, 1, 1);
+
+    public async Task&lt;DateRange?&gt; GetDateRange()
+    {
+        DateOnly? startDate = await _litePicker!.InvokeAsync&lt;DateOnly?&gt;(&quot;getStartDate&quot;);
+        DateOnly? endDate = await _litePicker!.InvokeAsync&lt;DateOnly?&gt;(&quot;getEndDate&quot;);
+        if (startDate is null || endDate is null) return null;
+
+        return new DateRange(startDate.Value, endDate.Value);
+    }
+
+    public async Task Clear()
+    {
+        await _litePicker!.InvokeVoidAsync(&quot;clearSelection&quot;);
+    }
+
+    [JSInvokable]
+    public async Task JsDateRangeSelected(string startDateString, string endDateString)
+    {
+        Console.WriteLine($&quot;Start Date: {startDateString}, End Date: {endDateString}&quot;);
+        StartDate = DateOnly.Parse(startDateString);
+        EndDate = DateOnly.Parse(endDateString);
+        await DateRangeSelected.InvokeAsync(new DateRange(StartDate!.Value, EndDate!.Value));
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (_litePicker is not null)
+        {
+            await _litePicker.InvokeVoidAsync(&quot;setStartDate&quot;, StartDate);
+            await _litePicker.InvokeVoidAsync(&quot;setEndDate&quot;, EndDate);
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_litePicker is null)
+        {
+            try
+            {
+                IJSObjectReference module =
+                    await JsRuntime.InvokeAsync&lt;IJSObjectReference&gt;(&quot;import&quot;, &quot;./js/components.js&quot;);
+                _litePicker = 
+                    await module.InvokeAsync&lt;IJSObjectReference&gt;(&quot;createDateRangePicker&quot;, _container,
+                    DotNetObjectRef, StartDate, EndDate, MinDate, MaxDate, MinDate.Year, MaxDate.Year);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+    }
+
+    private async Task TogglePicker()
+    {
+        if (_open)
+        {
+            await _litePicker!.InvokeVoidAsync(&quot;hide&quot;);
+        }
+        else
+        {
+            await _litePicker!.InvokeVoidAsync(&quot;show&quot;);
+        }
+
+        _open = !_open;
+    }
+
+    private ElementReference _container;
+    private IJSObjectReference? _litePicker;
+    private DotNetObjectReference&lt;DateRangePicker&gt; DotNetObjectRef =&gt; 
+        DotNetObjectReference.Create(this);
+    private bool _open;
+    
+    public record DateRange(DateOnly StartDate, DateOnly EndDate);
+}
+</code></pre>
+<h3 id="daterangepicker.razor.css">DateRangePicker.razor.css</h3>
+<pre><code class="language-css">.date-range-picker {
+    border: 1px solid black;
+    cursor: pointer;
+    font-size: 1rem;
+    height: 2.25rem;
+    line-height: 2rem;
+    min-width: 12rem;
+    padding: 0 0.25rem;
+}
+</code></pre>
+<h3 id="index.razor">Index.razor</h3>
+<pre><code class="language-html">&lt;DateRangePicker /&gt;
+</code></pre>
+<p>Note that although we created a TypeScript file <code>components.ts</code>, the module import reference in this component is to <code>./js/components.js</code>. This is where ESBuild will come in, to transpile (convert from TypeScript to JavaScript) and bundle the litepicker npm package and our own code into a new minimized and bundled JavaScript file.</p>
+<h2 id="bundling-and-transpiling">Bundling and Transpiling</h2>
+<p>When you ran <code>npm install</code> previously, it created a JSON file in your directory called <code>package.json</code>. Open this file in an editor, and create or add to the scripts element the following lines.</p>
+<pre><code class="language-json">    &quot;scripts&quot;: {
+        &quot;debugBuild&quot;: &quot;esbuild ./Scripts/components.ts --format=esm --bundle --sourcemap --outdir=wwwroot/js&quot;,
+        &quot;releaseBuild&quot;: &quot;esbuild ./Scripts/components.ts --format=esm --bundle --sourcemap --minify --outdir=wwwroot/js&quot;
+    },
+</code></pre>
+<p>These two scripts are nearly identical, with the exception of calling <code>--minify</code> on a release build, which makes the file smaller and more portable, but harder to inspect. You may also remove the <code>--sourcemap</code> option from the release build, if you don't want to support debugging the original TypeScript files in the browser in release mode.</p>
+<p>To test ESBuild, you can run these scripts from the command line with <code>npm run debugBuild</code> or <code>npm run releaseBuild</code>. Try that now and take a look at the generated JavaScript file inside the <code>wwwroot/js</code> folder.  In my testing, with this single component, the ESBuild step takes less than 100ms to complete!</p>
+<h2 id="automating-the-build">Automating the Build</h2>
+<p>Since we are building a .NET Blazor web application, we already have a build and run process, either from the command line like <code>dotnet run</code> or using our IDE. It would be a challenge to remember to separately trigger the ESBuild script every time we want to run our application. So we will tap into the extensibility of MSBuild and the project file. Open your project's <code>.csproj</code> file, and add the following elements.</p>
+<pre><code class="language-xml">    &lt;Target Name=&quot;NPM Install&quot; AfterTargets=&quot;PreBuildEvent&quot;&gt;
+        &lt;Exec Command=&quot;npm install&quot; /&gt;
+    &lt;/Target&gt;
+    
+    &lt;Target Name=&quot;NPM Debug Build&quot; AfterTargets=&quot;NPM Install&quot; Condition=&quot;$(Configuration) == 'DEBUG'&quot;&gt;
+        &lt;Exec Command=&quot;npm run debugBuild&quot; /&gt;
+    &lt;/Target&gt;
+    
+    &lt;Target Name=&quot;NPM Release Build&quot; AfterTargets=&quot;NPM Install&quot; Condition=&quot;$(Configuration) == 'RELEASE'&quot;&gt;
+        &lt;Exec Command=&quot;npm run releaseBuild&quot; /&gt;
+    &lt;/Target&gt;
+</code></pre>
+<p>Run your .NET application now, and you should see the NPM commands and ESBuild script outputs directly in the build output window. When the application opens, test out the date range picker element. If you find any issues, check out the <a href="https://github.com/dymaptic/dy-esbuild-sample">full code sample on GitHub</a>, or leave a comment below. I will leave it to you to explore the parameter and callback bindings available in the <code>DateRangePicker</code>.</p>
+<h2 id="esbuild-a-simple-solution-that-scales">ESBuild - A Simple Solution that Scales</h2>
+<p>Even though this sample only had a single, simple component, we have used <a href="https://esbuild.github.io/">ESBuild</a> as the transpiler and bundler for <a href="https://geoblazor.com/">GeoBlazor</a>, a large-scale open-source library that provides a wrapper around the <a href="https://developers.arcgis.com/javascript/latest/">ArcGIS Maps for JavaScript</a> library, allowing .NET developers to easily add interactive, custom mapping solutions to any website. ESBuild has easily scaled to be able to compile the large GeoBlazor and ArcGIS libraries into a single bundle, and is still fast and reliable at a much larger scale. If you have any questions about GeoBlazor or Blazor development, please reach out!</p>
+
+    </div>
+</article>

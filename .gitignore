@@ -1,5 +1,8 @@
-_site
-.sass-cache
-.jekyll-cache
-.jekyll-metadata
-vendor
+bin/
+obj/
+/packages/
+riderModule.iml
+/_ReSharper.Caches/
+.idea/
+TimPurdum.Dev/wwwroot/appsettings.*
+TimPurdum.Dev.sln.DotSettings.user

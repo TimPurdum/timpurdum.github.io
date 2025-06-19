@@ -1,0 +1,222 @@
+@page "/post/2022/12/10/let-the-sunshine-in-blazor"
+<PageTitle>Let the Sunshine In</PageTitle>
+
+<article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+    <header class="post-header">
+        <h1 class="post-title p-name" itemprop="name headline">Let the Sunshine In</h1>
+        <h2 class="post-subtitle" itemprop="name subtitle">Finding Your Daylight with GeoBlazor</h2>
+        <p class="post-meta">
+            <time class="dt-published" 
+                  datetime="2022-12-10T00:00:00Z" 
+                  itemprop="datePublished">Dec 10, 2022</time>
+        </p>
+    </header>
+    <div class="post-content e-content" itemprop="articleBody">
+        <p><a href="https://www.dymaptic.com/let-the-sunshine-in-blazor/"><em>Originally posted on the dymaptic blog on 12/9/22</em></a></p>
+<p>Here in the Northern Hemisphere, we are rapidly approaching the Winter Solstice, also known as the shortest day of the year. Yet sunshine is crucial to human wellbeing. Want to know how to find out when the sun rises and set in your location? We can build a Blazor application that shows the Day/Night Terminator, which is a shadow graphic laid on top of a map that shows exactly where the line is between day and night for any given date and time.</p>
+<p><em>Let’s build a simple Day/Night Terminator web application with Asp.NET Core Blazor and GeoBlazor!</em></p>
+<p><img src="/images/Advent-2022-White-300x284.jpg" :style="display:block; margin-left:auto; margin-right:auto" alt="Graphic of a world map with day/night terminator line, overlaid with a sun and moon icon." /></p>
+<p><a href="https://github.com/dymaptic/GeoBlazor-Samples/SolarTracker">Get the Full Source Code on GitHub</a></p>
+<p><a href="https://advent2022.geoblazor.com/">See the Live Demo</a></p>
+<h2 id="getting-started">Getting Started</h2>
+<p>First, make sure you have the [.NET 7 SDK](<a href="https://dotnet.microsoft.com/en-us/download">Download .NET (Linux, macOS, and Windows) (microsoft.com)</a>) installed on your computer. Now, open up a command prompt (Cmd, Bash, PowerShell, Windows Terminal), navigate to where you like to store code, and type <code>dotnet new blazorwasm-empty -o SolarTracker</code>. This will create a new empty Blazor WebAssembly (wasm) project named <code>SolarTracker</code> inside a folder of the same name. Navigate into the folder with <code>cd SolarTracker</code>, and type <code>dotnet run</code> to see your <code>Hello World</code>.</p>
+<h2 id="add-geoblazor">Add GeoBlazor</h2>
+<p>Hit <code>Ctrl-C</code> to stop your application, then type <code>dotnet add package dymaptic.GeoBlazor.Core</code>. This will import the free and Open-Source <a href="https://www.geoblazor.com">GeoBlazor</a> package into your project.</p>
+<p>To complete this quest, you will also need to sign up for a free ArcGIS Developer account at <a href="https://developers.arcgis.com/sign-up/">https://developers.arcgis.com/sign-up/</a>. Once you create this account, head to <a href="https://developers.arcgis.com/api-keys/">https://developers.arcgis.com/api-keys/</a>, and click <code>New API Key</code>. Give it a title like <code>Solar Tracker</code>, and copy down the generated token.</p>
+<p>Now it's time to fire up your favorite IDE and open your SolarTracker project. Inside, create a new file called <code>appsettings.json</code> inside the <code>wwwroot</code> folder. If you're familiar with Asp.NET Core, you know this is a configuration file. However, by default Blazor WASM doesn't include this file. Paste your ArcGIS API key into the file with the key &quot;ArcGISApiKey&quot;.</p>
+<pre><code class="language-json">{
+    &quot;ArcGISApiKey&quot;: &quot;PASTE_YOUR_KEY_HERE&quot;
+}
+</code></pre>
+<p>Let's add some references to make GeoBlazor work. In <code>wwwroot/index.html</code>, add the following three lines to the <code>head</code> tag. (The third line should already be there, just un-comment it).</p>
+<pre><code class="language-html">&lt;link href=&quot;_content/dymaptic.GeoBlazor.Core&quot;/&gt;
+&lt;link href=&quot;_content/dymaptic.GeoBlazor.Core/assets/esri/themes/light/main.css&quot; rel=&quot;stylesheet&quot; /&gt;
+&lt;link href=&quot;SolarTracker.styles.css&quot; rel=&quot;stylesheet&quot; /&gt;
+</code></pre>
+<p>Next, open up <code>_Imports.razor</code>, and let's add some <code>@@using</code> statements to make sure we have access to the GeoBlazor types.</p>
+<pre><code class="language-csharp">@using dymaptic.GeoBlazor.Core.Components
+@using dymaptic.GeoBlazor.Core.Components.Geometries
+@using dymaptic.GeoBlazor.Core.Components.Layers
+@using dymaptic.GeoBlazor.Core.Components.Popups
+@using dymaptic.GeoBlazor.Core.Components.Symbols
+@using dymaptic.GeoBlazor.Core.Components.Views
+@using dymaptic.GeoBlazor.Core.Components.Widgets
+@using dymaptic.GeoBlazor.Core.Model
+@using dymaptic.GeoBlazor.Core.Objects
+</code></pre>
+<p>Finally, open <code>Program.cs</code> and add the following line to import the GeoBlazor &quot;services&quot;.</p>
+<pre><code class="language-csharp">builder.Services.AddGeoBlazor()
+</code></pre>
+<h2 id="add-a-map-to-your-blazor-page">Add a Map to your Blazor Page</h2>
+<p>Now to see the reason for all these imports! Let's open <code>Pages/Imports.razor</code>. Delete the <code>Hello World</code> and add the following.</p>
+<pre><code class="language-html">&lt;MapView Style=&quot;height: 600px; width: 100%;&quot; Zoom=&quot;1.5&quot;&gt;
+    &lt;Map ArcGISDefaultBasemap=&quot;arcgis-streets&quot;&gt;
+        &lt;GraphicsLayer /&gt;
+    &lt;/Map&gt;
+    &lt;LocateWidget Position=&quot;OverlayPosition.TopLeft&quot; /&gt;
+    &lt;SearchWidget Position=&quot;OverlayPosition.TopRight&quot; /&gt;
+&lt;/MapView&gt;
+</code></pre>
+<p>Run your application again, and you should see a world map!</p>
+<p><img src="/images/simple_map_with_search.png" alt="Simple Map with Search" /></p>
+<p>Go ahead and play around with the<code>Locate</code> and <code>Search</code> widgets. Notice that when using either one, there will be a nice dot added to the map to show the location of your device or the search result.</p>
+<p><img src="/images/map_with_point.png" alt="Map with Search Point" /></p>
+<h2 id="calculate-and-draw-the-day-night-terminator">Calculate and Draw the Day / Night Terminator</h2>
+<p>We want to create an interactive graphic that shows where the line is between day and night, so we can figure out when the sun will rise and set. Add the following methods inside a <code>@@code { }</code> block at the bottom of <code>Index.razor</code>.</p>
+<pre><code class="language-csharp">private async Task OnMapRendered()
+{
+    // generate the night-time shadow graphic, and store it in _polygon
+    await CreateTerminator();
+    await _graphicsLayer!.Add(new Graphic(_polygon!)
+    {
+        // this constructor will throw a compile-time warning, 
+        // which is safe to ignore and will be fixed in a future 
+        // version of GeoBlazor
+        Symbol = new SimpleFillSymbol
+        {
+            FillStyle = FillStyle.Solid,
+            Color = new MapColor(0, 0, 0, 0.3),
+            Outline = new Outline
+            {
+                Color = new MapColor(0, 0, 0, 0)
+            }
+        }
+    });
+}
+
+private MapView? _mapView;
+private GraphicsLayer? _graphicsLayer;
+private Polygon? _polygon;
+private DateTime _selectedDateTime = DateTime.Now;
+private TimeSpan _timeZoneOffset = TimeSpan.FromHours(-6);
+private const double _k = Math.PI / 180;
+</code></pre>
+<p>We also need to hook up <code>MapView</code> and <code>GraphicsLayer</code> to the reference fields and the <code>OnMapRendered</code> Event Callback, and add an <code>@@inject</code> reference at the top of the file.</p>
+<pre><code class="language-html">@page &quot;/&quot;
+@inject Projection Projection
+
+&lt;MapView @ref=&quot;_mapView&quot; OnMapRendered=&quot;OnMapRendered&quot; ...&gt;
+    &lt;Map ArcGISDefaultBasemap=&quot;arcgis-streets&quot;&gt;
+        &lt;GraphicsLayer @ref=&quot;_graphicsLayer&quot; /&gt;
+    &lt;/Map&gt;
+    ...
+</code></pre>
+<p>The next bit I borrowed logic heavily from <a href="https://github.com/jgravois/midnight-commander/blob/master/js/SolarTerminator.js">midnight-commander by Jim Blaney</a>, who in turn used <a href="https://en.wikipedia.org/wiki/Declination">Declination on Wikipedia</a> to build the calculations. Add the following two methods to your <code>@@code</code> block.</p>
+<pre><code class="language-csharp">private async Task CreateTerminator()
+{
+    // clear out the graphics from previous runs
+    foreach (var graphic in _graphicsLayer!.Graphics)
+    {
+        await _graphicsLayer.Remove(graphic);
+    }
+
+    int ordinalDay = _selectedDateTime.DayOfYear;
+    
+    double solarDeclination = -57.295779 * 
+                              Math.Asin(0.397788 * 
+                                        Math.Cos(0.017203 * 
+                                                 (ordinalDay + 10) + 0.052465 * 
+                                                 Math.Sin(0.017203 * (ordinalDay - 2))));
+    
+    SpatialReference spatialReference = (await _mapView!.GetSpatialReference())!;
+
+    bool isWebMercator = spatialReference.Wkid is null ||
+        (int)spatialReference.Wkid == 102100 ||
+        (int)spatialReference.Wkid == 3857 ||
+        (int)spatialReference.Wkid == 102113;
+    
+    double yMax = isWebMercator ? 85 : 90;
+    double latitude = yMax * (solarDeclination &gt; 0 ? -1 : 1);
+    
+    List&lt;MapPath&gt; rings = new();
+    
+    DateTime utcDateTime = _selectedDateTime.Subtract(_timeZoneOffset);
+
+    for (double lon = -180; lon &lt; 180; lon++)
+    {
+        MapPath path = new(new(lon + 1, latitude), 
+                           new(lon, latitude), 
+                           new(lon, 
+                               GetLatitude(lon, solarDeclination, -yMax, yMax, utcDateTime)), 
+                           new(lon + 1, 
+                               GetLatitude(lon, solarDeclination, -yMax, yMax, utcDateTime)),
+                           new(lon + 1, latitude));
+
+        rings.Add(path);
+    }
+
+    _polygon = new Polygon(rings.ToArray(), SpatialReference.Wgs84);
+    if (isWebMercator)
+    {
+        _polygon = (Polygon)(await Projection.Project(_polygon, SpatialReference.WebMercator))!;
+    }
+}
+
+private double GetLatitude(double longitude, double solarDeclination, 
+                           double yMin, double yMax, DateTime utcDateTime)
+{
+    double lt = utcDateTime.Hour + utcDateTime.Minute / 60.0 + utcDateTime.Second / 3600.0;
+    double tau = 15 * (lt - 12);
+    longitude += tau;
+    double tanLat = -Math.Cos(longitude * _k) / Math.Tan(solarDeclination * _k);
+    double arctanLat = Math.Atan(tanLat) / _k;
+    return Math.Max(Math.Min(arctanLat, yMax), yMin);
+}
+</code></pre>
+<p>Running your application now should show the Day/Night Terminator laid on top of the map!</p>
+<p><img src="/images/DayNightTerminator.png" alt="Day / Night Terminator" /></p>
+<h2 id="control-the-date-and-time">Control The Date and Time</h2>
+<p>Let's give our application some controls and a header. Right after the <code>@@inject</code> line at the top, add the following.</p>
+<pre><code class="language-html">&lt;h1&gt;Day/Night Terminator&lt;/h1&gt;
+
+&lt;div&gt;
+    &lt;label&gt;
+    	Date:
+        &lt;input type=&quot;date&quot; 
+               value=&quot;@_selectedDateTime.ToString(&quot;yyyy-MM-dd&quot;)&quot; 
+               @onchange=&quot;UpdateDate&quot; /&gt;
+    &lt;/label&gt; 
+    &lt;label&gt;
+        Time:
+        &lt;input style=&quot;width: 96px;&quot; 
+               type=&quot;time&quot; 
+               value=&quot;@_selectedDateTime.ToString(&quot;HH:mm&quot;)&quot; 
+               @onchange=&quot;UpdateTime&quot; /&gt;
+    &lt;/label&gt;
+&lt;/div&gt;
+</code></pre>
+<p>In the <code>@@code</code> block, add the new methods.</p>
+<pre><code class="language-csharp">private async Task UpdateDate(ChangeEventArgs arg)
+{
+    string[]? dateSegments = arg.Value?.ToString()?.Split('-');
+    if (dateSegments is null || dateSegments.Length != 3) return;
+    int year = int.Parse(dateSegments[0]);
+    int month = int.Parse(dateSegments[1]);
+    int day = int.Parse(dateSegments[2]);
+    _selectedDateTime = new DateTime(year, month, day, 
+                                     _selectedDateTime.Hour, 
+                                     _selectedDateTime.Minute, 0);
+    await OnMapRendered();
+}
+
+private async Task UpdateTime(ChangeEventArgs arg)
+{
+    string[]? timeSegments = arg.Value?.ToString()?.Split(':');
+    if (timeSegments is null || timeSegments.Length &lt; 2) return;
+    int hour = int.Parse(timeSegments[0]);
+    int minutes = int.Parse(timeSegments[1]);
+    _selectedDateTime = new DateTime(_selectedDateTime.Year, 
+                                     _selectedDateTime.Month, 
+                                     _selectedDateTime.Day, hour, minutes, 0);
+    await OnMapRendered();
+}
+</code></pre>
+<p>Run the application, and you will be able to control the terminator graphic by changing the date/time. Try switching to a summer month, and notice the drastically different shadow!</p>
+<h3 id="winter">Winter</h3>
+<p><img src="/images/winterTerminator.png" alt="Winter Terminator" /></p>
+<h3 id="summer">Summer</h3>
+<p><img src="/images/summerTerminator.png" alt="Summer Terminator" /></p>
+<p>You can now put in the date and time for any day you want, and the application will show you where the terminator sits. To find sunrise or sunset at your location, use the <code>Locate</code> or <code>Search</code> widget, then use the up/down arrow keys in the <code>Time</code> field to watch the shadow move, until the line is just on top of your point. Now you have a fun, interactive tool to track the sun, so don’t forget to go out and soak in some rays while you can! A more full-featured version of this tool is online at <a href="https://advent2022.geoblazor.com">advent2022.GeoBlazor.com</a> and the code can be found on GitHub. You can get in touch with me at <a href="mailto:tim.purdum@@dymaptic.com">tim.purdum@@dymaptic.com</a>, <a href="https://dotnet.social/@@TimPurdum">@@TimPurdum@@dotnet.social</a> (Mastodon) or Join our Discord server. Ask <a href="https://www.dymaptic.com">dymaptic</a> how we can help you with software or GIS. I hope you enjoyed the post and continue to enjoy the winter holiday season!</p>
+
+    </div>
+</article>

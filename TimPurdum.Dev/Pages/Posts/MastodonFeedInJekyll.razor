@@ -1,0 +1,47 @@
+@page "/post/2022/11/19/mastodon-feed-in-jekyll"
+<PageTitle>Adding a Mastodon Feed to your Blog</PageTitle>
+
+<article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+    <header class="post-header">
+        <h1 class="post-title p-name" itemprop="name headline">Adding a Mastodon Feed to your Blog</h1>
+        <h2 class="post-subtitle" itemprop="name subtitle"></h2>
+        <p class="post-meta">
+            <time class="dt-published" 
+                  datetime="2022-11-19T00:00:00Z" 
+                  itemprop="datePublished">Nov 19, 2022</time>
+        </p>
+    </header>
+    <div class="post-content e-content" itemprop="articleBody">
+        <p>While I was <a href="2022-11-07-static-site-width-jekyll">setting up my new Jekyll static blog site</a>, I have also been investigating the rapidly growing world of <a href="https://joinmastodon.org/">Mastodon</a> and the <a href="https://www.fediverse.to/">Fediverse</a>. I wanted to bring the two worlds together, and share a bit of my Mastodon feed on my website. So I threw together a JavaScript function to import and display my feed. This is made possible by the fact that every Mastodon feed is also an <a href="https://en.wikipedia.org/wiki/RSS">RSS</a> feed. For example, if you go to <a href="https://dotnet.social/@@TimPurdum.rss">https://dotnet.social/@@TimPurdum.rss</a>, you will see my feed as RSS XML.</p>
+<p>Grabbing this feed in modern JavaScript is a breeze with <code>fetch</code>.</p>
+<pre><code class="language-javascript">fetch(rss_url)
+    .then(response =&gt; response.text())
+    .then(str =&gt; new window.DOMParser().parseFromString(str, &quot;text/xml&quot;))
+    .then(data =&gt; {
+        console.log(data);
+    };
+</code></pre>
+<p>Digging into the XML feed, I realized that the <code>description</code> node is already encoded HTML.</p>
+<pre><code class="language-xml">&lt;description&gt;&amp;lt;p&amp;gt;They&amp;amp;#39;ll always be toots to me&amp;lt;/p&amp;gt;&lt;/description&gt;
+</code></pre>
+<p>Unfortunately, because of the encoding, we can't inject this directly into a DOM element as <code>innerHTML</code>. Instead, we need to decode it first. The simplest way to do this is to create a temporary <code>HTMLTextArea</code> element and use that to parse the encoded string.</p>
+<pre><code class="language-javascript">function decodeEntity(inputStr) {
+    var textarea = document.createElement(&quot;textarea&quot;);
+    textarea.innerHTML = inputStr;
+    return textarea.value;
+}
+</code></pre>
+<p>Now we can pass the decoded value to <code>innerHTML</code>.</p>
+<pre><code class="language-javascript">.then(data =&gt; {
+    const items = data.querySelectorAll(&quot;item&quot;);
+    items.forEach(el =&gt; {
+        let content = el.querySelector(&quot;description&quot;).innerHTML.trim();
+        let article = document.createElement('article');
+        article.innerHTML += decodeEntity(content);
+    };
+})
+</code></pre>
+<p>That's the basics! The full code is <a href="https://github.com/TimPurdum/timpurdum.github.io/blob/main/main.js">here</a>, and includes parsing the <code>Date</code> of each post and creating click-through links. Checkout the results on <a href="https://timpurdum.com">my home page</a>! And follow me on Mastodon to talk about software development, especially with #dotnet and #csharp!</p>
+
+    </div>
+</article>

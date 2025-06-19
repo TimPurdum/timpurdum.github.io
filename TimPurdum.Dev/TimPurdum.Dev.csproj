@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <CompressionEnabled Condition="$(Configuration) != 'RELEASE'">false</CompressionEnabled>
+    </PropertyGroup>
+
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.0-preview.5.25277.114" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.0-preview.5.25277.114" PrivateAssets="all" />
+        <PackageReference Include="dymaptic.GeoBlazor.Pro" Version="4.0.1" />
+    </ItemGroup>
+
+
+    <ItemGroup>
+      <Content Remove="Templates\PostTemplate.razor" />
+      <None Include="Templates\PostTemplate.razor" />
+    </ItemGroup>
+    
+    <Target Name="Compile Markdown Pages" BeforeTargets="PreBuildEvent">
+        <Message Text="Compiling Markdown" Importance="high" />
+        <Exec WorkingDirectory="../TimPurdum.Dev.BlogConverter" 
+              Command="dotnet run -- $(MSBuildProjectDirectory)"
+              ContinueOnError="false" />
+    </Target>
+</Project>
+

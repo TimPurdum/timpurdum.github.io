@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimPurdum.Dev", "TimPurdum.Dev\TimPurdum.Dev.csproj", "{D4CAB0F4-E206-4FCD-B679-658B1202ACBE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimPurdum.Dev.BlogConverter", "TimPurdum.Dev.BlogConverter\TimPurdum.Dev.BlogConverter.csproj", "{D75CDEC3-F952-470D-BB71-79CAAEC18674}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D4CAB0F4-E206-4FCD-B679-658B1202ACBE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4CAB0F4-E206-4FCD-B679-658B1202ACBE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4CAB0F4-E206-4FCD-B679-658B1202ACBE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4CAB0F4-E206-4FCD-B679-658B1202ACBE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D75CDEC3-F952-470D-BB71-79CAAEC18674}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D75CDEC3-F952-470D-BB71-79CAAEC18674}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D75CDEC3-F952-470D-BB71-79CAAEC18674}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D75CDEC3-F952-470D-BB71-79CAAEC18674}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

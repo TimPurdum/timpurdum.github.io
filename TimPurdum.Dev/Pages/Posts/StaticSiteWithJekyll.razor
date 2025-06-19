@@ -1,0 +1,41 @@
+@page "/post/2022/11/7/static-site-with-jekyll"
+<PageTitle>Creating a static website with Jekyll</PageTitle>
+
+<article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+    <header class="post-header">
+        <h1 class="post-title p-name" itemprop="name headline">Creating a static website with Jekyll</h1>
+        <h2 class="post-subtitle" itemprop="name subtitle"></h2>
+        <p class="post-meta">
+            <time class="dt-published" 
+                  datetime="2022-11-07T00:00:00Z" 
+                  itemprop="datePublished">Nov 07, 2022</time>
+        </p>
+    </header>
+    <div class="post-content e-content" itemprop="articleBody">
+        <p>While working on the docs site for <a href="https://docs.geoblazor.com">GeoBlazor</a>, I was introduced to <a href="https://jekyllrb.com/">Jekyll</a>. Now, I've heard of static site generators before, but this was just the perfect fit for a docs site. It also made me think of all the hoops I tend to jump through while creating static sites like this blog, that could be made simpler by using a generator and just writing good ol' markdown.</p>
+<p>There's a lot to recommend about Jekyll. The main downside? I had to install Ruby 😜. No big deal. <a href="https://jekyllrb.com/docs/installation/">Jekyll Installation Docs</a> are pretty easy to follow to get going. Here's a short list of steps for Windows (different OSes will vary):</p>
+<ol>
+<li>Download the latest Ruby+Devkit from <a href="https://rubyinstaller.org/downloads/">RubyInstaller for Windows</a>.</li>
+<li>Run the installer, and select to run <code>ridk install</code> on the last step. Choose the <code>MSYS2 and MINGW development tool chain</code> option.</li>
+<li>Reboot (it says you can just close your terminal, but this didn't work for me).</li>
+<li>Check to make sure <code>ruby</code> and <code>gem</code> are registered with the <code>PATH</code> environment variable for command line actions. I think I ran into an issue on at least one machine where I had to add the path manually (search in the windows start menu for <code>environment variables</code>).</li>
+<li>Run <code>gem install jekyll bundler</code>.</li>
+<li>Navigate to the folder where you want to set up your site.</li>
+<li>Run <code>jekyll new myNewSite</code>, this will create a new folder (<code>./myNewSite</code>).</li>
+<li>Navigate into that folder (<code>cd myNewSite</code>).</li>
+<li>Run <code>bundle exec jekyll serve --livereload</code>.</li>
+<li>Open your browser and navigate to <a target="_blank" href="http://localhost:4000">http://localhost:4000</a>. You should see your new site rendered!</li>
+</ol>
+<p>You don't actually need the <code>--livereload</code> flag to build your site, but I choose to always use this while developing, so that I can quickly see the changes I make to markdown and css sites rendered in the browser.</p>
+<p>These steps got me up and running locally. However, when I went to publish to GitHub Pages,
+I found a few more things I needed to add.</p>
+<ol>
+<li>In your <code>Gemfile</code>, comment out the line starting with <code>gem &quot;jekyll&quot;</code></li>
+<li>Also in the <code>Gemfile</code>, uncomment the line starting with <code>gem &quot;github-pages&quot;</code>, and replace with <code>gem &quot;github-pages&quot;, &quot;~&gt; 227&quot;, group: :jekyll_plugins</code> where 227 is the latest version of the <code>github-pages</code> gem available.</li>
+<li>Run <code>bundle install</code> to install the <code>github-pages</code> gem.</li>
+<li>Run <code>bundle add webrick</code> (no idea, but you'll get an error without it).</li>
+</ol>
+<p>Once these steps are added, try pushing your code up to GitHub, and navigate to <code>https://YOURNAME.github.io</code> to see the code in action!</p>
+
+    </div>
+</article>
