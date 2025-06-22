@@ -60,10 +60,10 @@
 <pre><code class="language-pwsh">&gt; winget install OpenJS.NodeJS
 </code></pre>
 <p><em>create the application</em></p>
-<pre><code>&gt; npx create-next-app@latest
+<pre><code>&gt; npx create-next-app&commat;latest
 # the following prompts appear in sequence:
   Need to install the following packages:
-  create-next-app@15.3.1
+  create-next-app&commat;15.3.1
   OK to proceed? (y)
   What is your project named? hello.world
   Would you like to use TypeScript? No / Yes
@@ -72,14 +72,14 @@
   Would you like your code inside a `src/` directory? No / Yes
   Would you like to use App Router? (recommended) No / Yes
   Would you like to use Turbopack for `next dev`?  No / Yes
-  Would you like to customize the import alias (`@/*` by default)? No / Yes
-  What import alias would you like configured? @/*
+  Would you like to customize the import alias (`&commat;/*` by default)? No / Yes
+  What import alias would you like configured? &commat;/*
 </code></pre>
 <p><em>open in VS Code</em></p>
 <pre><code>&gt; cd hello.world
 &gt; code .
 </code></pre>
-<p>I'm using <a href="https://nodejs.org/en">Node.js</a> and the bundled <a href="https://www.npmjs.com/">npm</a> to install and manage my JavaScript ecosystem. I started with the <a href="https://nextjs.org/docs">Next.js Getting Started</a> docs to find the command to create a new project, which is <code>create-next-app@@latest</code>. Unlike with the Blazor project, I am prompted here to answer a group of questions which help determine the contents of my template. This is my first React app, but <a href="https://blog.dymaptic.com/using-objectreferences-to-embed-a-javascript-text-editor-in-blazor">I'm no stranger</a> to the JavaScript ecosystem (<a href="https://geoblazor.com">GeoBlazor</a> is a wrapper around a JS library with thousands of TypeScript files). My template choices were:</p>
+<p>I'm using <a href="https://nodejs.org/en">Node.js</a> and the bundled <a href="https://www.npmjs.com/">npm</a> to install and manage my JavaScript ecosystem. I started with the <a href="https://nextjs.org/docs">Next.js Getting Started</a> docs to find the command to create a new project, which is <code>create-next-app&commat;latest</code>. Unlike with the Blazor project, I am prompted here to answer a group of questions which help determine the contents of my template. This is my first React app, but <a href="https://blog.dymaptic.com/using-objectreferences-to-embed-a-javascript-text-editor-in-blazor">I'm no stranger</a> to the JavaScript ecosystem (<a href="https://geoblazor.com">GeoBlazor</a> is a wrapper around a JS library with thousands of TypeScript files). My template choices were:</p>
 <ul>
 <li>Project Name - I first tried a name similar to how I would name a .NET project: <code>Hello.React.World</code>. This gives you an error, <code>Invalid project name: name can no longer contain capital letters</code>. Not sure why that limitation exists, but no big deal, I did the same name with lowercase letters. It seems fine with periods and dashes, which still gives a lot of flexibility for naming.</li>
 <li><a href="https://www.typescriptlang.org/">TypeScript</a> - Yes. Being mostly a C# developer, I <em>strongly</em> prefer strongly-typed languages.</li>
@@ -90,65 +90,35 @@
 <li>Import Alias - I just hit enter. I found <a href="https://dev.to/justindwyer6/what-import-alias-would-you-like-configured-51n4">this blog post</a> which does a good job explaining the option.</li>
 </ul>
 <p>Here's a quick summary of my takeaways from the installation and new project processes:</p>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>Blazor</th>
-<th>Next</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Pros</td>
-<td>simple, one line to create project</td>
-<td>create command prompts you for important choices before building the template</td>
-</tr>
-<tr>
-<td></td>
-<td>fast, no extra installs necessary</td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td>concise list of template options directly in the CLI with <code>dotnet new list</code></td>
-<td></td>
-</tr>
-<tr>
-<td>Cons</td>
-<td>templates and options are hidden behind help menu, easy to forget, harder to discover</td>
-<td>lots of questions to answer to create project, had to research what several of them meant (e.g. turbopack, import alias)</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td>project name can't contain capital letters?</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td>templates only viewable available on github, huge list</td>
-</tr>
-</tbody>
-</table>
+<p></p>
+<p>Blazor</p>
+<p>Next</p>
+<p>Pros</p>
+<p>simple, one line to create project</p>
+<p>create command prompts you for important choices before building the template</p>
+<p></p>
+<p>fast, no extra installs necessary</p>
+<p></p>
+<p></p>
+<p>concise list of template options directly in the CLI with <code>dotnet new list</code></p>
+<p></p>
+<p>Cons</p>
+<p>templates and options are hidden behind help menu, easy to forget, harder to discover</p>
+<p>lots of questions to answer to create project, had to research what several of them meant (e.g. turbopack, import alias)</p>
+<p></p>
+<p></p>
+<p>project name can't contain capital letters?</p>
+<p></p>
+<p></p>
+<p>templates only viewable available on github, huge list</p>
 <p>While I'm used to the .NET ecosystem and CLI, I have definitely been frustrated by the inability to easily remember and select all the options for a blazor template. Options like including authentication and interactive render modes would be much easier to decide up front than change later, and I loved how the Next.js <code>create-next-app</code> command prompted me for various options.</p>
 <p>On the other hand, once you <em>do</em> know what you want, the conciseness of the .NET CLI and template can be a nice feature, and I was definitely up and running with the Blazor app more quickly than with the Next.js app. I also like the fact that I can see a short list of .NET template options with <code>dotnet new list</code>.</p>
 <h2 id="repository-overview">Repository Overview</h2>
 <p>Once open in VS Code, I like to review the file tree and see how the project is organized.</p>
-<table>
-<thead>
-<tr>
-<th>Blazor File Structure</th>
-<th>Next File Structure</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><img src="/images/BlazorFileTree.png" alt="Expanded VS Code file tree showing the project structure of the Blazor template" /></td>
-<td><img src="/images/NextFileTree.png" alt="Expanded VS Code file tree showing the project structure of the Next.js template" /></td>
-</tr>
-</tbody>
-</table>
+<p>Blazor File Structure</p>
+<p>Next File Structure</p>
+<p><img src="/images/BlazorFileTree.png" alt="Expanded VS Code file tree showing the project structure of the Blazor template" /></p>
+<p><img src="/images/NextFileTree.png" alt="Expanded VS Code file tree showing the project structure of the Next.js template" /></p>
 <p>First thing I notice here is that the Blazor repository is a <em>much</em> larger template. Part of this is due to my selecting <code>-int Auto</code>, which added the secondary <code>HelloBlazorWorld.Client</code> project for WebAssembly. The difference is also representative of the static-typed, business-oriented .NET ecosystem vs. the &quot;freewheeling&quot; JS approach.</p>
 <h3 id="configuration-project-files">Configuration &amp; Project Files</h3>
 <table>
@@ -212,77 +182,29 @@
 <p>Having all these separate configs in the repository definitely makes Next configuration seem more complex than Blazor. Of course, you <em>can</em> extend Blazor with TypeScript, in which case you have to deal with all of the above!</p>
 <p>The closest parallel I can draw above is between .NET's <code>appsettings.json</code> and Next's <code>next.config.ts</code>. While JSON is a universal and easy to read configuration language, I really love how Next is laying out all the configuration in the same language as the program itself is written! Of course, you can certainly do this in C#, making your settings a static class, but it is not the normal or expected pattern.</p>
 <h2 id="ui-files">UI Files</h2>
-<table>
-<thead>
-<tr>
-<th>Blazor App.Razor</th>
-<th>Blazor Routes.Razor</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><img src="/images/BlazorAppRazor.png" alt="App.razor file showing the root HTML DOCTYPE, html, head, body, meta, links, and scripts tags, as well as the nested Routes razor component" /></td>
-<td><img src="/images/BlazorRoutesRazor.png" alt="Routes.razor file showing the Router component that loads assemblies to find pages, loading from both the server and client program, and a Found, RouteView, and FocusOnNavigate component" /></td>
-</tr>
-<tr>
-<td>App.razor shows the root DOCTYPE, html, head, body, meta, links, and scripts tags, as well as the nested Routes razor component.</td>
-<td>Routes.razor file shows the Router component that loads assemblies to find pages, loading from both the server and client program, and a Found, RouteView, and FocusOnNavigate component. RouteView loads the MainLayout component.</td>
-</tr>
-</tbody>
-</table>
-<table>
-<thead>
-<tr>
-<th>Blazor MainLayout.Razor</th>
-<th>Blazor NavMenu.Razor</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><img src="/images/BlazorMainLayoutRazor.png" alt="MainLayout.razor file showing the layout of the page, with sidebar and top row" /></td>
-<td><img src="/images/BlazorNavMenuRazor.png" alt="NavMenu.razor file showing the navigation bar" /></td>
-</tr>
-<tr>
-<td>MainLayout.razor shows the layout of the page, including the sidebar with the NavMenu component, a top row with a static About link, and an error handler.</td>
-<td>NavMenu.razor shows the sidebar navigation menu, with NavLink components to the various pages in the application.</td>
-</tr>
-</tbody>
-</table>
-<table>
-<thead>
-<tr>
-<th>Blazor Home.Razor</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><img src="/images/BlazorHomeRazor.png" alt="Home.razor file showing the contents of the main page" /></td>
-</tr>
-<tr>
-<td>Home.razor demonstrates a Razor component page, with the @@page declaration showing the route, the PageTitle component showing the title for the page in the browser, and markup for the page content.</td>
-</tr>
-</tbody>
-</table>
-<p>Here we can see more of the .NET attention to code and application structure. Not only are the UI files organized into <code>Layout</code>, <code>Pages</code>, and <code>Components</code> folders, but the main page itself is broken down into <code>App.razor</code>, which contains the HTML structure, head, and metadata, <code>Routes.razor</code>, which details the functionality of the Blazor router, <code>MainLayout.razor</code>, which gives the shared structural layout to be used across pages, <code>NavMenu.razor</code>, which details the navigational side bar, and <code>Home.razor</code>, which contains the page content. These are all examples of <a href="https://learn.microsoft.com/en-us/aspnet/core/blazor/components/?view=aspnetcore-9.0">Razor components</a>, the fundamental building block of Blazor. The <code>@@</code> symbol throughout the file identifies where C# code begins, and the <code>PascalCase</code> markup tags are other nested Razor components, while lowercase tags are plain HTML. Code, components, and HTML can all be intermixed within a Razor file to encapsulate and generate our UI.</p>
-<p>I didn't include the other pages and components in the screenshots, but the template also includes <code>Counter.razor</code>, which demonstrates user interaction on a button, and <code>Weather.razor</code>, which shows a data grid loading weather data. Notice the <code>@@page &quot;/&quot;</code> line at the top of <code>Home.razor</code>. <code>Counter.razor</code> starts with <code>@@page &quot;/counter&quot;</code>. These are the <a href="https://learn.microsoft.com/en-us/aspnet/core/blazor/components/?view=aspnetcore-9.0#route-parameters">route parameters</a>, and also the only difference between a page and any other component. There is also an <code>Error.razor</code> component for showing errors during development, and a <code>ReconnectModal.razor</code> component for showing while fixing interactive sessions that get disconnected.</p>
-<table children="">
-<thead>
-<tr>
-<th>Next layout.tsx</th>
-<th>Next page.tsx</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><img src="/images/NextLayoutTsx.png" alt="layout.tsx file showing the React function that generates the root html tag" /></td>
-<td><img src="/images/NextPageTsx.png" alt="page.tsx file showing the React function that generates the home page content" /><img src="/images/NextPageTsx2.png" alt="NextPageTsx2" /></td>
-</tr>
-<tr>
-<td>layout.tsx shows the React function that generates the root html tag, with a metadata variable for the head and a RootLayout component. It takes a  inner content, which is the page.</td>
-<td>page.tsx shows the React function that generates the home page content, with a header, image, and button.</td>
-</tr>
-</tbody>
-</table>
+<p>Blazor App.Razor</p>
+<p>Blazor Routes.Razor</p>
+<p><img src="/images/BlazorAppRazor.png" alt="App.razor file showing the root HTML DOCTYPE, html, head, body, meta, links, and scripts tags, as well as the nested Routes razor component" /></p>
+<p><img src="/images/BlazorRoutesRazor.png" alt="Routes.razor file showing the Router component that loads assemblies to find pages, loading from both the server and client program, and a Found, RouteView, and FocusOnNavigate component" /></p>
+<p>App.razor shows the root DOCTYPE, html, head, body, meta, links, and scripts tags, as well as the nested Routes razor component.</p>
+<p>Routes.razor file shows the Router component that loads assemblies to find pages, loading from both the server and client program, and a Found, RouteView, and FocusOnNavigate component. RouteView loads the MainLayout component.</p>
+<p>Blazor MainLayout.Razor</p>
+<p>Blazor NavMenu.Razor</p>
+<p><img src="/images/BlazorMainLayoutRazor.png" alt="MainLayout.razor file showing the layout of the page, with sidebar and top row" /></p>
+<p><img src="/images/BlazorNavMenuRazor.png" alt="NavMenu.razor file showing the navigation bar" /></p>
+<p>MainLayout.razor shows the layout of the page, including the sidebar with the NavMenu component, a top row with a static About link, and an error handler.</p>
+<p>NavMenu.razor shows the sidebar navigation menu, with NavLink components to the various pages in the application.</p>
+<p>Blazor Home.Razor</p>
+<p><img src="/images/BlazorHomeRazor.png" alt="Home.razor file showing the contents of the main page" /></p>
+<p>Home.razor demonstrates a Razor component page, with the &commat;page declaration showing the route, the PageTitle component showing the title for the page in the browser, and markup for the page content.</p>
+<p>Here we can see more of the .NET attention to code and application structure. Not only are the UI files organized into <code>Layout</code>, <code>Pages</code>, and <code>Components</code> folders, but the main page itself is broken down into <code>App.razor</code>, which contains the HTML structure, head, and metadata, <code>Routes.razor</code>, which details the functionality of the Blazor router, <code>MainLayout.razor</code>, which gives the shared structural layout to be used across pages, <code>NavMenu.razor</code>, which details the navigational side bar, and <code>Home.razor</code>, which contains the page content. These are all examples of <a href="https://learn.microsoft.com/en-us/aspnet/core/blazor/components/?view=aspnetcore-9.0">Razor components</a>, the fundamental building block of Blazor. The <code>&commat;</code> symbol throughout the file identifies where C# code begins, and the <code>PascalCase</code> markup tags are other nested Razor components, while lowercase tags are plain HTML. Code, components, and HTML can all be intermixed within a Razor file to encapsulate and generate our UI.</p>
+<p>I didn't include the other pages and components in the screenshots, but the template also includes <code>Counter.razor</code>, which demonstrates user interaction on a button, and <code>Weather.razor</code>, which shows a data grid loading weather data. Notice the <code>&commat;page &quot;/&quot;</code> line at the top of <code>Home.razor</code>. <code>Counter.razor</code> starts with <code>&commat;page &quot;/counter&quot;</code>. These are the <a href="https://learn.microsoft.com/en-us/aspnet/core/blazor/components/?view=aspnetcore-9.0#route-parameters">route parameters</a>, and also the only difference between a page and any other component. There is also an <code>Error.razor</code> component for showing errors during development, and a <code>ReconnectModal.razor</code> component for showing while fixing interactive sessions that get disconnected.</p>
+<p>Next layout.tsx</p>
+<p>Next page.tsx</p>
+<p><img src="/images/NextLayoutTsx.png" alt="layout.tsx file showing the React function that generates the root html tag" /></p>
+<p><img src="/images/NextPageTsx.png" alt="page.tsx file showing the React function that generates the home page content" /><img src="/images/NextPageTsx2.png" alt="NextPageTsx2" /></p>
+<p>layout.tsx shows the React function that generates the root html tag, with a metadata variable for the head and a RootLayout component. It takes a  inner content, which is the page.</p>
+<p>page.tsx shows the React function that generates the home page content, with a header, image, and button.</p>
 <p>Next/React has a very different approach. The <code>layout.tsx</code> exports a <a href="https://nextjs.org/docs/app/getting-started/metadata-and-og-images">Metadata</a> variable, which appears to feed the HTML <code>&lt;head&gt;</code>. However, there's definitely other content in the head, some of which appears to be the necessary loading scripts for React to function. The <code>RootLayout</code> at the bottom of the file is our first <a href="https://react.dev/reference/react/Component">React component</a>. As you can see, the Markup-first approach of Razor is flipped upside down here, with the TypeScript code <em>emitting</em> the HTML. But there are still similarities in how variables can be used to insert properties or child components.</p>
 <p>In <code>page.tsx</code>, we see a full page React component, with curly braces <code>{}</code> indicating TypeScript code injection. Like in Razor files, it appears that PascalCase represents child components; here we see <code>&lt;Image&gt;</code> components laid out on the page.</p>
 <p>Unlike in Blazor, the navigation route is not defined in the file, but by the folder structure. Since this <code>page.tsx</code> is in the <code>app</code> folder, it is the home route. If you put a page inside an <code>app/counter</code> folder, then you would navigate to that page with the <code>/counter</code> route. This <a href="https://nextjs.org/docs/app/getting-started/layouts-and-pages">pages routing</a> approach is wild to me because <em>every page is called <code>page</code></em>, so only thing differentiating them is the directory! I think this would drive me crazy in an IDE, where I typically use a keyboard shortcut and file name search to quickly navigate between files.</p>
@@ -302,7 +224,7 @@
 <p>Startup for both applications was quite fast. Next reported ~800 milliseconds, while Blazor took a whopping 7-8 seconds. I will warn any developers new to .NET, as your applications become larger, this build time does go up. However, .NET supports <a href="https://learn.microsoft.com/en-us/aspnet/core/test/hot-reload?view=aspnetcore-9.0">Hot Reload</a> of file changes, (from the command line use <a href="https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-watch">dotnet watch run</a>), which allows continuous incremental changes, for a development cycle more akin to what JS developers are used to. Even with hot reload, however, .NET, as a fully-compiled and managed environment, will likely never match the rapid development cycle of the JavaScript ecosystem. This is definitely a tradeoff worth considering alongside the significant runtime server performance gains of .NET over Next/Node as demonstrated in the <a href="https://www.techempower.com/benchmarks/#section=data-r23">TechEmpower Framework Benchmarks</a>.</p>
 <p><img src="/images/TechEmpower.png" alt="TechEmpower Benchmarks screenshot comparing Asp.NET Core and NodeJS" /></p>
 <p>The differences in default templates for each framework are very noticeable on startup. ASP.NET Core begins with a multi-page template including sidebar navigation, top banner, and interactive page samples. This is great if you want or need such a framework, but otherwise might be code you just need to delete. There is an option <code>-e</code> or <code>--empty</code> that will remove most of the UI and give an empty template.</p>
-<p>Next.js presents a very minimal single page template with a few links, images, and buttons. There <em>are</em> other Next templates available in the <a href="https://github.com/vercel/next.js/tree/canary/examples">Next.js Examples Repository</a>, which you can create with <code>npm create-next-app@@latest --example [example-name]</code>. This is a large list of samples, and would require a lot of study, picking and choosing from multiple templates to get the pieces that you really wanted. For example, there are examples <code>with-cms</code>, <code>with-stencil</code>, and <code>with-stripe-typescript</code>. If you want all 3 in one project, you would have to combine them yourself. .NET on the other hand doesn't even really have a repository like this. It <em>does</em> have more built-in options for things like authentication and database/ORM setup right in the template, but everything else is a NuGet package and you must find and follow the instructions for each library.</p>
+<p>Next.js presents a very minimal single page template with a few links, images, and buttons. There <em>are</em> other Next templates available in the <a href="https://github.com/vercel/next.js/tree/canary/examples">Next.js Examples Repository</a>, which you can create with <code>npm create-next-app&commat;latest --example [example-name]</code>. This is a large list of samples, and would require a lot of study, picking and choosing from multiple templates to get the pieces that you really wanted. For example, there are examples <code>with-cms</code>, <code>with-stencil</code>, and <code>with-stripe-typescript</code>. If you want all 3 in one project, you would have to combine them yourself. .NET on the other hand doesn't even really have a repository like this. It <em>does</em> have more built-in options for things like authentication and database/ORM setup right in the template, but everything else is a NuGet package and you must find and follow the instructions for each library.</p>
 <p>As mentioned above, if I run <code>dotnet watch run</code> to get the .NET hot reload, then I can work in both environments pretty much seeing my changes in real time, at least as long as I'm doing simple UI changes. I was able to change the page text, css, and markup in both without any issues.</p>
 <p>Up to this point, both Blazor and Next appear to be very straightforward and capable frameworks for simple web development. In the next post of this series, we turn up the complexity a lot, by building a practical GIS web application using each framework. We’ll explore:</p>
 <ul>

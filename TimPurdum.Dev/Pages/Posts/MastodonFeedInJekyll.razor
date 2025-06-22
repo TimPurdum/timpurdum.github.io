@@ -12,7 +12,7 @@
         </p>
     </header>
     <div class="post-content e-content" itemprop="articleBody">
-        <p>While I was <a href="2022-11-07-static-site-width-jekyll">setting up my new Jekyll static blog site</a>, I have also been investigating the rapidly growing world of <a href="https://joinmastodon.org/">Mastodon</a> and the <a href="https://www.fediverse.to/">Fediverse</a>. I wanted to bring the two worlds together, and share a bit of my Mastodon feed on my website. So I threw together a JavaScript function to import and display my feed. This is made possible by the fact that every Mastodon feed is also an <a href="https://en.wikipedia.org/wiki/RSS">RSS</a> feed. For example, if you go to <a href="https://dotnet.social/@@TimPurdum.rss">https://dotnet.social/@@TimPurdum.rss</a>, you will see my feed as RSS XML.</p>
+        <p>While I was <a href="2022-11-07-static-site-width-jekyll">setting up my new Jekyll static blog site</a>, I have also been investigating the rapidly growing world of <a href="https://joinmastodon.org/">Mastodon</a> and the <a href="https://www.fediverse.to/">Fediverse</a>. I wanted to bring the two worlds together, and share a bit of my Mastodon feed on my website. So I threw together a JavaScript function to import and display my feed. This is made possible by the fact that every Mastodon feed is also an <a href="https://en.wikipedia.org/wiki/RSS">RSS</a> feed. For example, if you go to <a href="https://dotnet.social/@TimPurdum.rss">https://dotnet.social/&commat;TimPurdum.rss</a>, you will see my feed as RSS XML.</p>
 <p>Grabbing this feed in modern JavaScript is a breeze with <code>fetch</code>.</p>
 <pre><code class="language-javascript">fetch(rss_url)
     .then(response =&gt; response.text())

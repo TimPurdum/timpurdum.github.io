@@ -148,19 +148,19 @@ dotnet add package dymaptic.GeoBlazor.Pro
 <blockquote>
 <p>NOTE: In the upcoming GeoBlazor 4 release, some of these namespaces will be changing. The list will be updated at <a href="https://docs.geoblazor.com/pages/gettingStarted.html">https://docs.geoblazor.com/pages/gettingStarted.html</a> when we release version 4.</p>
 </blockquote>
-<pre><code class="language-html">@using dymaptic.GeoBlazor.Core
-@using dymaptic.GeoBlazor.Core.Components
-@using dymaptic.GeoBlazor.Core.Components.Geometries
-@using dymaptic.GeoBlazor.Core.Components.Layers
-@using dymaptic.GeoBlazor.Core.Components.Popups
-@using dymaptic.GeoBlazor.Core.Components.Renderers
-@using dymaptic.GeoBlazor.Core.Components.Renderers.ColorRamps
-@using dymaptic.GeoBlazor.Core.Components.Symbols
-@using dymaptic.GeoBlazor.Core.Components.Views
-@using dymaptic.GeoBlazor.Core.Components.Widgets
-@using dymaptic.GeoBlazor.Core.Events
-@using dymaptic.GeoBlazor.Core.Model
-@using dymaptic.GeoBlazor.Core.Objects
+<pre><code class="language-html">&commat;using dymaptic.GeoBlazor.Core
+&commat;using dymaptic.GeoBlazor.Core.Components
+&commat;using dymaptic.GeoBlazor.Core.Components.Geometries
+&commat;using dymaptic.GeoBlazor.Core.Components.Layers
+&commat;using dymaptic.GeoBlazor.Core.Components.Popups
+&commat;using dymaptic.GeoBlazor.Core.Components.Renderers
+&commat;using dymaptic.GeoBlazor.Core.Components.Renderers.ColorRamps
+&commat;using dymaptic.GeoBlazor.Core.Components.Symbols
+&commat;using dymaptic.GeoBlazor.Core.Components.Views
+&commat;using dymaptic.GeoBlazor.Core.Components.Widgets
+&commat;using dymaptic.GeoBlazor.Core.Events
+&commat;using dymaptic.GeoBlazor.Core.Model
+&commat;using dymaptic.GeoBlazor.Core.Objects
 </code></pre>
 <p>You can also include these <code>using</code> directives directly in individual pages or components if preferred.</p>
 <h3 id="step-5-configure-startup-code">Step 5: Configure Startup Code</h3>
@@ -281,16 +281,16 @@ builder.Services.AddGeoBlazorPro(builder.Configuration);
 <p>This loads the data into <code>_records</code>, ready to be used for rendering graphics.
 Next, add a <code>GraphicsLayer</code> to your Map to show the new data:</p>
 <pre><code class="language-html">&lt;Map&gt;
-    &lt;GraphicsLayer @ref=&quot;_museumLayer&quot; /&gt;
+    &lt;GraphicsLayer &commat;ref=&quot;_museumLayer&quot; /&gt;
 &lt;/Map&gt;
 </code></pre>
-<pre><code class="language-csharp">@code {
+<pre><code class="language-csharp">&commat;code {
     private GraphicsLayer? _museumLayer;
 </code></pre>
 <p>Create a method to load the graphics after the map has rendered:</p>
 <pre><code class="language-html">&lt;MapView OnViewRendered=&quot;OnViewRendered&quot;&gt;
 </code></pre>
-<pre><code class="language-csharp">@code {
+<pre><code class="language-csharp">&commat;code {
     private async Task OnViewRendered()
     {
         if (!_isLoaded)

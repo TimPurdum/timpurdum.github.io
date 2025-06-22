@@ -162,280 +162,140 @@
 </ul>
 <h2 id="comparison-chart">Comparison Chart</h2>
 <p>In the following chart, I aimed for a 1-1 comparison whenever possible. If there was no JavaScript Array method, I tried to find the most succinct way of achieving the same result in code.</p>
-<table>
-<thead>
-<tr>
-<th>C# LINQ <code>IEnumerable</code> Method</th>
-<th>JavaScript <code>Array.prototype</code> Method</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>Aggregate((acc, x) =&gt; function, seed)</code></td>
-<td><code>reduce((acc, x) =&gt; function, seed)</code></td>
-</tr>
-<tr>
-<td><code>All(x =&gt; predicate)</code></td>
-<td><code>every(x =&gt; predicate)</code></td>
-</tr>
-<tr>
-<td><code>Any(x =&gt; predicate)</code></td>
-<td><code>some(x =&gt; predicate)</code></td>
-</tr>
-<tr>
-<td><code>Append(item)</code></td>
-<td><code>push(item)</code></td>
-</tr>
-<tr>
-<td><code>AsEnumerable()</code></td>
-<td>N/A</td>
-</tr>
-<tr>
-<td><code>Average()</code></td>
-<td><code>reduce((acc, x) =&gt; acc + x) / array.length</code></td>
-</tr>
-<tr>
-<td><code>Cast&lt;T&gt;()</code></td>
-<td>N/A</td>
-</tr>
-<tr>
-<td><code>Chunk(size)</code></td>
-<td>no simple equivalent</td>
-</tr>
-<tr>
-<td><code>Concat(otherIEnumerable)</code></td>
-<td><code>concat(otherArray)</code></td>
-</tr>
-<tr>
-<td><code>Contains(item)</code></td>
-<td><code>includes(item)</code></td>
-</tr>
-<tr>
-<td><code>Count()</code></td>
-<td><code>length</code></td>
-</tr>
-<tr>
-<td><code>DefaultIfEmpty()</code></td>
-<td><code>some() ? array : undefined</code></td>
-</tr>
-<tr>
-<td><code>Distinct()</code></td>
-<td><code>[...new Set(array)]</code> <sup>2</sup></td>
-</tr>
-<tr>
-<td><code>DistinctBy(x =&gt; x.Key)</code></td>
-<td>no simple equivalent</td>
-</tr>
-<tr>
-<td><code>ElementAt(index)</code></td>
-<td><code>at(index)</code></td>
-</tr>
-<tr>
-<td><code>ElementAtOrDefault(index)</code></td>
-<td><code>at(index)</code></td>
-</tr>
-<tr>
-<td><code>Empty&lt;T&gt;()</code> <sup>1</sup></td>
-<td><code>[]</code> <sup>2</sup></td>
-</tr>
-<tr>
-<td><code>Except(otherIEnumerable)</code></td>
-<td><code>filter(x =&gt; !otherArray.includes(x))</code></td>
-</tr>
-<tr>
-<td><code>ExceptBy(other, x =&gt; x.Key)</code></td>
-<td>no simple equivalent</td>
-</tr>
-<tr>
-<td><code>First(x =&gt; predicate)</code></td>
-<td><code>find(x =&gt; predicate)</code></td>
-</tr>
-<tr>
-<td><code>FirstOrDefault(x =&gt; predicate)</code></td>
-<td><code>find(x =&gt; predicate)</code></td>
-</tr>
-<tr>
-<td><code>GroupBy(x =&gt; predicate)</code></td>
-<td>no simple equivalent <sup>3</sup></td>
-</tr>
-<tr>
-<td><code>GroupJoin(inner, o =&gt; o.Key, i =&gt; i.Key, func, comparer)</code></td>
-<td>no simple equivalent</td>
-</tr>
-<tr>
-<td><code>Intersect(other)</code></td>
-<td><code>filter(x =&gt; otherArray.includes(x))</code></td>
-</tr>
-<tr>
-<td><code>IntersectBy(other, x =&gt; x.Key, comparer)</code></td>
-<td>no simple equivalent</td>
-</tr>
-<tr>
-<td><code>Join(inner, o =&gt; o.Key, i =&gt; i.Key, func)</code></td>
-<td>no simple equivalent</td>
-</tr>
-<tr>
-<td><code>Last(x =&gt; predicate)</code></td>
-<td><code>findLast(x =&gt; predicate)</code></td>
-</tr>
-<tr>
-<td><code>LastOrDefault(x =&gt; predicate)</code></td>
-<td><code>findLast(x =&gt; predicate)</code></td>
-</tr>
-<tr>
-<td><code>LongCount()</code></td>
-<td><code>length</code></td>
-</tr>
-<tr>
-<td><code>Max()</code></td>
-<td><code>Math.max(...array)</code> <sup>2</sup></td>
-</tr>
-<tr>
-<td><code>MaxBy(x =&gt; x.Key)</code></td>
-<td><code>sort((a, b) =&gt; b.Key - a.Key)[0]</code></td>
-</tr>
-<tr>
-<td><code>Min()</code></td>
-<td><code>Math.min(...array)</code> <sup>2</sup></td>
-</tr>
-<tr>
-<td><code>MinBy(x =&gt; x.Key)</code></td>
-<td><code>sort((a, b) =&gt; a.Key - b.Key)[0]</code></td>
-</tr>
-<tr>
-<td><code>OfType&lt;T&gt;()</code></td>
-<td><code>filter(x =&gt; x instanceof T)</code></td>
-</tr>
-<tr>
-<td><code>Order()</code></td>
-<td><code>sort()</code> <sup>4</sup></td>
-</tr>
-<tr>
-<td><code>OrderBy(x =&gt; x.Key)</code></td>
-<td><code>sort((a, b) =&gt; a.key - b.key)</code> <sup>4</sup></td>
-</tr>
-<tr>
-<td><code>OrderByDescending(x =&gt; x.Key)</code></td>
-<td><code>sort((a, b) =&gt; b.key - a.key)</code> <sup>4</sup></td>
-</tr>
-<tr>
-<td><code>OrderDescending()</code></td>
-<td><code>sort((a, b) =&gt; b - a)</code> <sup>4</sup></td>
-</tr>
-<tr>
-<td><code>Prepend(item)</code></td>
-<td><code>unshift(item)</code> <sup>4</sup></td>
-</tr>
-<tr>
-<td><code>Range(start, count)</code> <sup>1</sup></td>
-<td><code>[...Array(count + start).keys()].slice(start)</code> <sup>2</sup></td>
-</tr>
-<tr>
-<td><code>Repeat(item, count)</code> <sup>1</sup></td>
-<td><code>fill(item, startIndex, endIndex)</code> <sup>4</sup></td>
-</tr>
-<tr>
-<td><code>Reverse()</code></td>
-<td><code>reverse()</code> <sup>4</sup></td>
-</tr>
-<tr>
-<td><code>Select(x =&gt; function)</code></td>
-<td><code>map(x =&gt; function)</code></td>
-</tr>
-<tr>
-<td><code>SelectMany(x =&gt; function)</code></td>
-<td><code>flatMap(x =&gt; function)</code></td>
-</tr>
-<tr>
-<td><code>SequenceEqual(otherIEnumerable)</code></td>
-<td>no simple equivalent</td>
-</tr>
-<tr>
-<td><code>Single(x =&gt; predicate)</code></td>
-<td><code>filter(x =&gt; predicate); result.length &gt; 1 ? throw error;</code></td>
-</tr>
-<tr>
-<td><code>SingleOrDefault(x =&gt; predicate)</code></td>
-<td><code>filter(x =&gt; predicate); result.length &gt; 1 ? throw error;</code></td>
-</tr>
-<tr>
-<td><code>Skip(count)</code></td>
-<td><code>slice(count)</code></td>
-</tr>
-<tr>
-<td><code>SkipLast(count)</code></td>
-<td><code>slice(0, -count)</code></td>
-</tr>
-<tr>
-<td><code>SkipWhile(x =&gt; predicate)</code></td>
-<td>no simple equivalent</td>
-</tr>
-<tr>
-<td><code>Sum()</code></td>
-<td><code>reduce((acc, x) =&gt; acc + x)</code></td>
-</tr>
-<tr>
-<td><code>Take(count)</code></td>
-<td><code>slice(0, count)</code></td>
-</tr>
-<tr>
-<td><code>TakeLast(count)</code></td>
-<td><code>slice(-count)</code></td>
-</tr>
-<tr>
-<td><code>TakeWhile(x =&gt; predicate)</code></td>
-<td>no simple equivalent</td>
-</tr>
-<tr>
-<td><code>ThenBy(x =&gt; x.Key)</code></td>
-<td>no simple equivalent</td>
-</tr>
-<tr>
-<td><code>ThenByDescending(x =&gt; x.Key)</code></td>
-<td>no simple equivalent</td>
-</tr>
-<tr>
-<td><code>ToArray()</code></td>
-<td>N/A</td>
-</tr>
-<tr>
-<td><code>ToDictionary(x =&gt; function, x =&gt; function)</code></td>
-<td><code>reduce((acc, x, i) =&gt; acc[functionK] = functionV)</code></td>
-</tr>
-<tr>
-<td><code>ToHashSet()</code></td>
-<td><code>new Set(array)</code> <sup>2</sup></td>
-</tr>
-<tr>
-<td><code>ToList()</code></td>
-<td>N/A</td>
-</tr>
-<tr>
-<td><code>ToLookup(x =&gt; function, x =&gt; function)</code></td>
-<td>no simple equivalent</td>
-</tr>
-<tr>
-<td><code>TryGetNonEnumerated(out int count)</code></td>
-<td>no simple equivalent</td>
-</tr>
-<tr>
-<td><code>Where(x =&gt; predicate)</code></td>
-<td><code>filter(x =&gt; predicate)</code></td>
-</tr>
-<tr>
-<td><code>Union(otherIEnumerable)</code></td>
-<td><code>[...new Set(array.concat(otherArray))]</code></td>
-</tr>
-<tr>
-<td><code>UnionBy(other, x =&gt; x.Key)</code></td>
-<td>no simple equivalent</td>
-</tr>
-<tr>
-<td><code>Zip(other, (a, b) =&gt; function)</code></td>
-<td><code>map((a, i) =&gt; functionWithOther[i])</code></td>
-</tr>
-</tbody>
-</table>
+<p>C# LINQ <code>IEnumerable</code> Method</p>
+<p>JavaScript <code>Array.prototype</code> Method</p>
+<p><code>Aggregate((acc, x) =&gt; function, seed)</code></p>
+<p><code>reduce((acc, x) =&gt; function, seed)</code></p>
+<p><code>All(x =&gt; predicate)</code></p>
+<p><code>every(x =&gt; predicate)</code></p>
+<p><code>Any(x =&gt; predicate)</code></p>
+<p><code>some(x =&gt; predicate)</code></p>
+<p><code>Append(item)</code></p>
+<p><code>push(item)</code></p>
+<p><code>AsEnumerable()</code></p>
+<p>N/A</p>
+<p><code>Average()</code></p>
+<p><code>reduce((acc, x) =&gt; acc + x) / array.length</code></p>
+<p><code>Cast&lt;T&gt;()</code></p>
+<p>N/A</p>
+<p><code>Chunk(size)</code></p>
+<p>no simple equivalent</p>
+<p><code>Concat(otherIEnumerable)</code></p>
+<p><code>concat(otherArray)</code></p>
+<p><code>Contains(item)</code></p>
+<p><code>includes(item)</code></p>
+<p><code>Count()</code></p>
+<p><code>length</code></p>
+<p><code>DefaultIfEmpty()</code></p>
+<p><code>some() ? array : undefined</code></p>
+<p><code>Distinct()</code></p>
+<p><code>[...new Set(array)]</code> <sup>2</sup></p>
+<p><code>DistinctBy(x =&gt; x.Key)</code></p>
+<p>no simple equivalent</p>
+<p><code>ElementAt(index)</code></p>
+<p><code>at(index)</code></p>
+<p><code>ElementAtOrDefault(index)</code></p>
+<p><code>at(index)</code></p>
+<p><code>Empty&lt;T&gt;()</code> <sup>1</sup></p>
+<p><code>[]</code> <sup>2</sup></p>
+<p><code>Except(otherIEnumerable)</code></p>
+<p><code>filter(x =&gt; !otherArray.includes(x))</code></p>
+<p><code>ExceptBy(other, x =&gt; x.Key)</code></p>
+<p>no simple equivalent</p>
+<p><code>First(x =&gt; predicate)</code></p>
+<p><code>find(x =&gt; predicate)</code></p>
+<p><code>FirstOrDefault(x =&gt; predicate)</code></p>
+<p><code>find(x =&gt; predicate)</code></p>
+<p><code>GroupBy(x =&gt; predicate)</code></p>
+<p>no simple equivalent <sup>3</sup></p>
+<p><code>GroupJoin(inner, o =&gt; o.Key, i =&gt; i.Key, func, comparer)</code></p>
+<p>no simple equivalent</p>
+<p><code>Intersect(other)</code></p>
+<p><code>filter(x =&gt; otherArray.includes(x))</code></p>
+<p><code>IntersectBy(other, x =&gt; x.Key, comparer)</code></p>
+<p>no simple equivalent</p>
+<p><code>Join(inner, o =&gt; o.Key, i =&gt; i.Key, func)</code></p>
+<p>no simple equivalent</p>
+<p><code>Last(x =&gt; predicate)</code></p>
+<p><code>findLast(x =&gt; predicate)</code></p>
+<p><code>LastOrDefault(x =&gt; predicate)</code></p>
+<p><code>findLast(x =&gt; predicate)</code></p>
+<p><code>LongCount()</code></p>
+<p><code>length</code></p>
+<p><code>Max()</code></p>
+<p><code>Math.max(...array)</code> <sup>2</sup></p>
+<p><code>MaxBy(x =&gt; x.Key)</code></p>
+<p><code>sort((a, b) =&gt; b.Key - a.Key)[0]</code></p>
+<p><code>Min()</code></p>
+<p><code>Math.min(...array)</code> <sup>2</sup></p>
+<p><code>MinBy(x =&gt; x.Key)</code></p>
+<p><code>sort((a, b) =&gt; a.Key - b.Key)[0]</code></p>
+<p><code>OfType&lt;T&gt;()</code></p>
+<p><code>filter(x =&gt; x instanceof T)</code></p>
+<p><code>Order()</code></p>
+<p><code>sort()</code> <sup>4</sup></p>
+<p><code>OrderBy(x =&gt; x.Key)</code></p>
+<p><code>sort((a, b) =&gt; a.key - b.key)</code> <sup>4</sup></p>
+<p><code>OrderByDescending(x =&gt; x.Key)</code></p>
+<p><code>sort((a, b) =&gt; b.key - a.key)</code> <sup>4</sup></p>
+<p><code>OrderDescending()</code></p>
+<p><code>sort((a, b) =&gt; b - a)</code> <sup>4</sup></p>
+<p><code>Prepend(item)</code></p>
+<p><code>unshift(item)</code> <sup>4</sup></p>
+<p><code>Range(start, count)</code> <sup>1</sup></p>
+<p><code>[...Array(count + start).keys()].slice(start)</code> <sup>2</sup></p>
+<p><code>Repeat(item, count)</code> <sup>1</sup></p>
+<p><code>fill(item, startIndex, endIndex)</code> <sup>4</sup></p>
+<p><code>Reverse()</code></p>
+<p><code>reverse()</code> <sup>4</sup></p>
+<p><code>Select(x =&gt; function)</code></p>
+<p><code>map(x =&gt; function)</code></p>
+<p><code>SelectMany(x =&gt; function)</code></p>
+<p><code>flatMap(x =&gt; function)</code></p>
+<p><code>SequenceEqual(otherIEnumerable)</code></p>
+<p>no simple equivalent</p>
+<p><code>Single(x =&gt; predicate)</code></p>
+<p><code>filter(x =&gt; predicate); result.length &gt; 1 ? throw error;</code></p>
+<p><code>SingleOrDefault(x =&gt; predicate)</code></p>
+<p><code>filter(x =&gt; predicate); result.length &gt; 1 ? throw error;</code></p>
+<p><code>Skip(count)</code></p>
+<p><code>slice(count)</code></p>
+<p><code>SkipLast(count)</code></p>
+<p><code>slice(0, -count)</code></p>
+<p><code>SkipWhile(x =&gt; predicate)</code></p>
+<p>no simple equivalent</p>
+<p><code>Sum()</code></p>
+<p><code>reduce((acc, x) =&gt; acc + x)</code></p>
+<p><code>Take(count)</code></p>
+<p><code>slice(0, count)</code></p>
+<p><code>TakeLast(count)</code></p>
+<p><code>slice(-count)</code></p>
+<p><code>TakeWhile(x =&gt; predicate)</code></p>
+<p>no simple equivalent</p>
+<p><code>ThenBy(x =&gt; x.Key)</code></p>
+<p>no simple equivalent</p>
+<p><code>ThenByDescending(x =&gt; x.Key)</code></p>
+<p>no simple equivalent</p>
+<p><code>ToArray()</code></p>
+<p>N/A</p>
+<p><code>ToDictionary(x =&gt; function, x =&gt; function)</code></p>
+<p><code>reduce((acc, x, i) =&gt; acc[functionK] = functionV)</code></p>
+<p><code>ToHashSet()</code></p>
+<p><code>new Set(array)</code> <sup>2</sup></p>
+<p><code>ToList()</code></p>
+<p>N/A</p>
+<p><code>ToLookup(x =&gt; function, x =&gt; function)</code></p>
+<p>no simple equivalent</p>
+<p><code>TryGetNonEnumerated(out int count)</code></p>
+<p>no simple equivalent</p>
+<p><code>Where(x =&gt; predicate)</code></p>
+<p><code>filter(x =&gt; predicate)</code></p>
+<p><code>Union(otherIEnumerable)</code></p>
+<p><code>[...new Set(array.concat(otherArray))]</code></p>
+<p><code>UnionBy(other, x =&gt; x.Key)</code></p>
+<p>no simple equivalent</p>
+<p><code>Zip(other, (a, b) =&gt; function)</code></p>
+<p><code>map((a, i) =&gt; functionWithOther[i])</code></p>
 <p><sup>1</sup> - <em>static method on <code>Enumerable</code></em><br/>
 <sup>2</sup> - <em>not a method on <code>Array.prototype</code></em><br/>
 <sup>3</sup> - <em><code>group</code> method is in experimental stage</em><br/>

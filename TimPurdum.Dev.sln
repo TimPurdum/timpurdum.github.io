@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimPurdum.Dev", "TimPurdum.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimPurdum.Dev.BlogConverter", "TimPurdum.Dev.BlogConverter\TimPurdum.Dev.BlogConverter.csproj", "{D75CDEC3-F952-470D-BB71-79CAAEC18674}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdig", "markdig\src\Markdig\Markdig.csproj", "{48AB49BA-C1C0-4D0D-93E4-D388BFB391AD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{D75CDEC3-F952-470D-BB71-79CAAEC18674}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D75CDEC3-F952-470D-BB71-79CAAEC18674}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D75CDEC3-F952-470D-BB71-79CAAEC18674}.Release|Any CPU.Build.0 = Release|Any CPU
+		{48AB49BA-C1C0-4D0D-93E4-D388BFB391AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48AB49BA-C1C0-4D0D-93E4-D388BFB391AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48AB49BA-C1C0-4D0D-93E4-D388BFB391AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48AB49BA-C1C0-4D0D-93E4-D388BFB391AD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

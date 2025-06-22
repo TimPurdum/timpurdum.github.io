@@ -1,5 +1,7 @@
 using Markdig;
 using Markdig.Helpers;
+using Markdig.Parsers;
+using Markdig.Syntax;
 
 namespace TimPurdum.Dev.BlogConverter;
 
@@ -29,31 +31,14 @@ public static class FileConverter
                     inSampleCodeBlock = false; // End of code block
                 }
             }
-            else if (razorBlockNesting > 0
-                     && line.StartsWith("</") 
-                     && line.Length > 2 && line[2].IsAlphaUpper())
-            {
-                razorBlockNesting--; // End of custom Razor block
-            }
-            else if (razorBlockNesting == 0 && (line.StartsWith("```") || line.StartsWith("~~~")))
+            else if (line.StartsWith("```") || line.StartsWith("~~~"))
             {
                 inSampleCodeBlock = true; // Start of code block
-            }
-            else if (line.StartsWith("<") 
-                     && line.Length > 1
-                     && line[1].IsAlphaUpper())
-            {
-                razorBlockNesting++; // Start of custom Razor block
             }
             else if (!inSampleCodeBlock && line.StartsWith("@code"))
             {
                 razorCodeBlockStartingIndex = i;
                 break;
-            }
-
-            if (razorBlockNesting == 0 && !inSampleCodeBlock)
-            {
-                markdownLines[i] = line.Replace("@", "@@"); // Sanitize `@` character for Razor compatibility
             }
         }
 
@@ -63,7 +48,8 @@ public static class FileConverter
             markdownLines = markdownLines.Take(razorCodeBlockStartingIndex).ToList();
         }
 
-        string postContent = Markdown.ToHtml(string.Join(Environment.NewLine, markdownLines), Resources.Pipeline);
+        MarkdownDocument document = MarkdownParser.Parse(string.Join(Environment.NewLine, markdownLines), Resources.Pipeline);
+        string postContent = document.ToRazor();
         
         if (razorCodeBlockContent is not null)
         {

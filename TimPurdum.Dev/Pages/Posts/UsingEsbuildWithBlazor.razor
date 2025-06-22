@@ -71,16 +71,16 @@ export function createDateRangePicker(element: HTMLElement,
 </code></pre>
 <p>Now let's create a Razor Component class that wraps this logic into .NET.</p>
 <h3 id="daterangepicker.razor">DateRangePicker.razor</h3>
-<pre><code class="language-html">@inject IJSRuntime JsRuntime
+<pre><code class="language-html">&commat;inject IJSRuntime JsRuntime
 &lt;div&gt;
-    &lt;div class=&quot;date-range-picker&quot; @onclick=&quot;TogglePicker&quot; attributes=&quot;AdditionalAttributes&quot;&gt;
+    &lt;div class=&quot;date-range-picker&quot; &commat;onclick=&quot;TogglePicker&quot; attributes=&quot;AdditionalAttributes&quot;&gt;
         &lt;i class=&quot;material-icons&quot;&gt;today&lt;/i&gt; 
-        @StartDate?.ToString(DisplayFormat) - @EndDate?.ToString(DisplayFormat)
+        &commat;StartDate?.ToString(DisplayFormat) - &commat;EndDate?.ToString(DisplayFormat)
     &lt;/div&gt;
-    &lt;div @ref=&quot;_container&quot; /&gt;
+    &lt;div &commat;ref=&quot;_container&quot; /&gt;
 &lt;/div&gt;
 </code></pre>
-<pre><code class="language-csharp">@code {
+<pre><code class="language-csharp">&commat;code {
     [Parameter(CaptureUnmatchedValues = true)]
     public IDictionary&lt;string, object&gt;? AdditionalAttributes { get; set; }
 
