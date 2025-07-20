@@ -74,6 +74,10 @@
     content: var(--blazor-load-percentage-text, "Loading");
 }
 
+.map-wrapper {
+    padding: 1.5rem 0 0 0;
+}
+
 code {
     color: #c02d76;
 }

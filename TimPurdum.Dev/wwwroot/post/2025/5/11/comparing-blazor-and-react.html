@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blazor vs. Next.js: Getting Started with Interactive Web Applications</title>
+    <meta name="generator" content="TimPurdum.Dev Blazor Site Generator">
+    <meta property="og:title" content="Blazor vs. Next.js: Getting Started with Interactive Web Applications" />
+    <meta property="og:locale" content="en_US">
+    <meta name="description" content="" />
+    <meta property="og:description" content="" />
+    <link rel="canonical" href="/post/2025/5/11/comparing-blazor-and-react" />
+    <meta property="og:url" content="/post/2025/5/11/comparing-blazor-and-react" />
+    <meta property="og:site_name" content="TimPurdum.Dev" />
+    <meta property="og:type" content="website">
+    <base href="/">
+    <link rel="stylesheet" href="css/app.css">
+    <link href="TimPurdum.Dev.styles.css" rel="stylesheet" />
+    <link href="_content/dymaptic.GeoBlazor.Core" />
+<link href="_content/dymaptic.GeoBlazor.Pro" />
+<link href="_content/dymaptic.GeoBlazor.Core/assets/esri/themes/dark/main.css" rel="stylesheet" /></head>
+
+<body><header class="site-header" role="banner"><div class="wrapper"><a class="site-title" rel="author" href="/" aria-label="Home"><img src="/images/headshot.png" class="site-logo" alt="Tim Purdum's headshot">
+            Tim Purdum
+        </a>
+        <nav class="site-nav"><input type="checkbox" id="nav-trigger" class="nav-trigger">
+    <label for="nav-trigger"><span class="menu-icon"><svg viewBox="0 0 18 15" width="18px" height="15px"><path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"></path></svg></span></label>
+
+    <div class="trigger"><a class="page-link" href="/"><span class="home-icon"><svg viewBox="0 0 24 24" width="24px" height="24px"><path d="M12,3L2,12h3v7h5v-5h4v5h5v-7h3L12,3z" fill="#4FD1C5"></path></svg></span></a><a class="page-link" href="/post/2022/11/7/static-site-with-jekyll.html">Creating a static website with Jekyll</a><a class="page-link" href="/post/2022/11/19/mastodon-feed-in-jekyll.html">Adding a Mastodon Feed to your Blog</a><a class="page-link" href="/post/2022/12/10/let-the-sunshine-in-blazor.html">Let the Sunshine In</a><a class="page-link" href="/post/2023/4/22/creating-geoblazor.html">Creating GeoBlazor</a><a class="page-link" href="/post/2023/7/22/linq-and-javascript.html">LINQ Equivalents in JavaScript</a><a class="page-link" href="/post/2023/10/8/using-esbuild-with-blazor.html">Using ESBuild with Blazor</a><a class="page-link" href="/post/2023/10/14/comparing-blazor-net-7-8.html">Comparing Blazor Project Structure in .NET 7 and 8</a><a class="page-link" href="/post/2024/5/1/vslive-chicago.html">VS Live Chicago Presentation Links</a><a class="page-link" href="/post/2024/9/25/tech-bash.html">TechBash 2024 Presentation Links</a><a class="page-link" href="/post/2024/10/26/iowa-code-camp.html">Iowa Code Camp 2024 Presentation Links</a><a class="page-link" href="/post/2025/4/26/geographically-visualizing-customer-data.html">Geographically Visualizing Customer Data with Blazor and ArcGIS</a><a class="page-link" href="/post/2025/5/11/comparing-blazor-and-react.html">Blazor vs. Next.js: Getting Started with Interactive Web Applications</a><p class="rss-subscribe">subscribe <a href="/feed.xml">via RSS</a></p></div></nav></div></header>
+<main class="page-content" aria-label="content"><div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header"><h1 class="post-title p-name" itemprop="name headline">Blazor vs. Next.js: Getting Started with Interactive Web Applications</h1><h2 class="post-subtitle" itemprop="name subtitle"></h2><p class="post-meta"><time class="dt-published" datetime="2025-05-11T00:00:00Z" itemprop="datePublished">May 11, 2025</time></p></header>
+            <div class="post-content e-content" itemprop="articleBody"><style>
+  td {
+    vertical-align: top;
+  }
+
+  .post-content img {
+    margin: 0 auto;
+  }
+</style>
+<p>As a developer working with <a href="https://blog.dymaptic.com/geographically-visualizing-customer-data-with-blazor-and-arcgis">interactive maps embedded into complex web applications</a>, I find the most interesting part of web development to be the ability to create instantaneous user feedback and smooth transitions of data between server and client environments. My tool of choice in this arena for the past five years has been <a href="https://learn.microsoft.com/en-us/aspnet/core/blazor/">ASP.NET Core Blazor</a>, a powerful web framework that allows you to write both client and server code using <a href="https://en.wikipedia.org/wiki/C_Sharp_(programming_language)">C#</a>, HTML, and CSS.</p>
+<p>While Blazor is a robust and stable tool for building production applications, it does have a much smaller ecosystem of developers, open-source packages, and online documentation compared to something like <a href="https://react.dev/">React</a>. Until frameworks like Blazor came out, JavaScript was <em>the only</em> way to create interactive and responsive web applications. That de facto status has led to the huge success of frameworks such as React.</p>
+<p>Not wanting to live fully inside my .NET bubble, I decided to dive into React and learn about this JavaScript library and how it compares to Blazor. This blog post will document my findings, coming from a perspective of starting a new application in both Blazor and <a href="https://nextjs.org/">Next.js</a>, the most popular React framework. If you are a JavaScript develope, you may find this a good starting point for learning about Blazor, or if you are a .NET developer like myself, this may help you understand the broader web development ecosystem and how Blazor fits into it.</p>
+<p><em>TL;DR:</em></p>
+<ul>
+<li>Blazor and React/Next.js both offer modern component-based web development.</li>
+<li>They each have a single unified language for client and server code, an easy starting point with simple templates, and a large ecosystem of packages and libraries to help you build your application.</li>
+<li>Blazor provides you with a &quot;batteries included&quot; template experience, giving you a full website with navigation and interactive components out of the box.</li>
+<li>Next.js starts with a minimal, &quot;blank canvas&quot; template, and lets you add the pieces you want.</li>
+</ul>
+<p>Read on for the full hands-on comparison!</p>
+<h2 id="installing-the-frameworks-and-creating-a-new-project">Installing the Frameworks and Creating a New Project</h2>
+<p>Both Next.js and Blazor are fully cross-platform, and can be developed on any Mac, Linux, or Windows machine. I'm going to start with <a href="https://learn.microsoft.com/en-us/windows/package-manager/winget/">WinGet</a> to be able to install easily on my Windows PC, but you can also use any other installation system, or download packages from the web. Below is a comparison of the commands to install and create your first application.</p>
+<h3 id="net-blazor">.NET Blazor</h3>
+<p><em>install</em></p>
+<pre><code class="language-pwsh">&gt; winget install Microsoft.DotNet.SDK.9
+</code></pre>
+<p><em>list all the available templates</em></p>
+<pre><code>&gt; dotnet new list
+</code></pre>
+<p><em>list all the options for this template</em></p>
+<pre><code>&gt; dotnet new blazor -h
+</code></pre>
+<p><em>create the application</em></p>
+<pre><code>&gt; dotnet new blazor -o HelloWorld -int Auto
+</code></pre>
+<p><em>open in VS Code</em></p>
+<pre><code>&gt; cd HelloWorld
+&gt; code .
+</code></pre>
+<p>Installing the <a href="https://dotnet.microsoft.com/en-us/download">.NET SDK</a> will prompt an installation popup. Modern .NET (5+) is not tied to Windows like the classic .NET Framework, and you can install multiple versions side-by-side on the same machine. .NET is on a yearly release cycle, and .NET 9 came out in November 2024.</p>
+<p>Before creating a project, I'm calling <code>list</code> to see all of the available templates. This includes not just web applications, but console, desktop, and cross-platform mobile applications as well! Once I find the command for the <code>blazor</code> template (there are other options which you can read about <a href="https://learn.microsoft.com/en-us/aspnet/core/blazor/tooling?view=aspnetcore-9.0&amp;pivots=cli#blazor-project-templates-and-template-options">here</a>), I similarly use <code>-h</code> to see a list of template options. The <code>-o</code> option lets you name the new project, otherwise it gets a default name.</p>
+<p>I chose <code>-int Auto</code>, which sets the <a href="https://learn.microsoft.com/en-us/aspnet/core/blazor/components/render-modes?view=aspnetcore-9.0#enable-support-for-interactive-render-modes">Interactive Render Mode</a>. Blazor was originally created to move Asp.NET Core from a server-side, non-interactive model to a fully interactive, client-side model that could compete with SPA libraries like React. This is accomplished by running .NET on top of <a href="https://webassembly.org/">WebAssembly</a> in the browser. Blazor <em>also</em> provides a second option for running interactive components on the <em>server</em>, where <a href="https://learn.microsoft.com/en-us/aspnet/signalr/overview/getting-started/introduction-to-signalr">SignalR</a> is used to send events between client and server in real time. <code>Interactive Auto</code> means that the first time you visit a page, it will connect with the SignalR server-rendered components and load the WebAssembly data in the background. Then on repeated visits or refreshes, it will use the WebAssembly version. This is a great way to get the best of both worlds, fast first load times and snappy interactive performance.</p>
+<p>After creating the project, we change directory (<code>cd</code>) into the new folder, and use <code>code .</code> to open that folder in <a href="https://code.visualstudio.com/">Visual Studio Code</a>. Of course, any IDE or even text editor will work for Blazor and Next.js, but I like VS Code for small quick projects due to its fast startup and great extensions.</p>
+<h3 id="next.js-react">Next.js React</h3>
+<p><em>install</em></p>
+<pre><code class="language-pwsh">&gt; winget install OpenJS.NodeJS
+</code></pre>
+<p><em>create the application</em></p>
+<pre><code>&gt; npx create-next-app&commat;latest
+# the following prompts appear in sequence:
+  Need to install the following packages:
+  create-next-app&commat;15.3.1
+  OK to proceed? (y)
+  What is your project named? hello.world
+  Would you like to use TypeScript? No / Yes
+  Would you like to use ESLint? No / Yes
+  Would you like to use Tailwind CSS? No / Yes
+  Would you like your code inside a `src/` directory? No / Yes
+  Would you like to use App Router? (recommended) No / Yes
+  Would you like to use Turbopack for `next dev`?  No / Yes
+  Would you like to customize the import alias (`&commat;/*` by default)? No / Yes
+  What import alias would you like configured? &commat;/*
+</code></pre>
+<p><em>open in VS Code</em></p>
+<pre><code>&gt; cd hello.world
+&gt; code .
+</code></pre>
+<p>I'm using <a href="https://nodejs.org/en">Node.js</a> and the bundled <a href="https://www.npmjs.com/">npm</a> to install and manage my JavaScript ecosystem. I started with the <a href="https://nextjs.org/docs">Next.js Getting Started</a> docs to find the command to create a new project, which is <code>create-next-app&commat;latest</code>. Unlike with the Blazor project, I am prompted here to answer a group of questions which help determine the contents of my template. This is my first React app, but <a href="https://blog.dymaptic.com/using-objectreferences-to-embed-a-javascript-text-editor-in-blazor">I'm no stranger</a> to the JavaScript ecosystem (<a href="https://geoblazor.com">GeoBlazor</a> is a wrapper around a JS library with thousands of TypeScript files). My template choices were:</p>
+<ul>
+<li>Project Name - I first tried a name similar to how I would name a .NET project: <code>Hello.React.World</code>. This gives you an error, <code>Invalid project name: name can no longer contain capital letters</code>. Not sure why that limitation exists, but no big deal, I did the same name with lowercase letters. It seems fine with periods and dashes, which still gives a lot of flexibility for naming.</li>
+<li><a href="https://www.typescriptlang.org/">TypeScript</a> - Yes. Being mostly a C# developer, I <em>strongly</em> prefer strongly-typed languages.</li>
+<li><a href="https://eslint.org/">ESLint</a> - Yes. I like relying on linting/formatting tools to keep my code clean, and warn me if I'm doing something wrong.</li>
+<li><a href="https://tailwindcss.com/">Tailwind CSS</a> - No. In my opinion, modern vanilla CSS has all the features I need for styling, and in practice it seems to be better encapsulated than Tailwind. Even on their landing page, you can see examples such as a button with <em>eight different classes</em> defined. To my eye this usage really clutters up the HTML markup, and goes against the reusability of components, scoped CSS, and custom classes. Yes, I know you <em>can</em> create custom classes with Tailwind to group the styles, but if I'm doing that, again, I'd rather just use CSS.</li>
+<li>App Router - I chose yes. Routing is apparently one of the many things in the JavaScript world that you need to choose from many options. The Next router is only one choice, there is also at least <a href="https://reactrouter.com/home">React Router</a> and <a href="https://tanstack.com/router/latest">TanStack Router</a> suggested on the React docs site. However, it appears that the Next router is the only one available directly from this wizard.</li>
+<li><a href="https://nextjs.org/docs/app/api-reference/turbopack">Turbopack</a> - Yes. This is a bundler, but I'm not sure what would happen if I chose <code>No</code>. I'm more familiar with <a href="https://esbuild.github.io/">esbuild</a>, which I love for it's speed and simplicity. Seems like with TypeScript I need <em>something</em> to run the compiler, so this is fine for now.</li>
+<li>Import Alias - I just hit enter. I found <a href="https://dev.to/justindwyer6/what-import-alias-would-you-like-configured-51n4">this blog post</a> which does a good job explaining the option.</li>
+</ul>
+<p>Here's a quick summary of my takeaways from the installation and new project processes:</p>
+<p></p>
+<p>Blazor</p>
+<p>Next</p>
+<p>Pros</p>
+<p>simple, one line to create project</p>
+<p>create command prompts you for important choices before building the template</p>
+<p></p>
+<p>fast, no extra installs necessary</p>
+<p></p>
+<p></p>
+<p>concise list of template options directly in the CLI with <code>dotnet new list</code></p>
+<p></p>
+<p>Cons</p>
+<p>templates and options are hidden behind help menu, easy to forget, harder to discover</p>
+<p>lots of questions to answer to create project, had to research what several of them meant (e.g. turbopack, import alias)</p>
+<p></p>
+<p></p>
+<p>project name can't contain capital letters?</p>
+<p></p>
+<p></p>
+<p>templates only viewable available on github, huge list</p>
+<p>While I'm used to the .NET ecosystem and CLI, I have definitely been frustrated by the inability to easily remember and select all the options for a blazor template. Options like including authentication and interactive render modes would be much easier to decide up front than change later, and I loved how the Next.js <code>create-next-app</code> command prompted me for various options.</p>
+<p>On the other hand, once you <em>do</em> know what you want, the conciseness of the .NET CLI and template can be a nice feature, and I was definitely up and running with the Blazor app more quickly than with the Next.js app. I also like the fact that I can see a short list of .NET template options with <code>dotnet new list</code>.</p>
+<h2 id="repository-overview">Repository Overview</h2>
+<p>Once open in VS Code, I like to review the file tree and see how the project is organized.</p>
+<p>Blazor File Structure</p>
+<p>Next File Structure</p>
+<p><img src="/images/BlazorFileTree.png" alt="Expanded VS Code file tree showing the project structure of the Blazor template" /></p>
+<p><img src="/images/NextFileTree.png" alt="Expanded VS Code file tree showing the project structure of the Next.js template" /></p>
+<p>First thing I notice here is that the Blazor repository is a <em>much</em> larger template. Part of this is due to my selecting <code>-int Auto</code>, which added the secondary <code>HelloBlazorWorld.Client</code> project for WebAssembly. The difference is also representative of the static-typed, business-oriented .NET ecosystem vs. the &quot;freewheeling&quot; JS approach.</p>
+<h3 id="configuration-project-files">Configuration &amp; Project Files</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Blazor Project File</th>
+      <th>Blazor App Settings</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><img src="/images/BlazorProjectFile.png" alt=".csproj file showing target framework, settings, and references"></td>
+      <td><img src="/images/BlazorAppSettings.png" alt="appsettings.json file showing logging settings"></td>
+    </tr>
+    <tr>
+      <td><ul><li><strong>TargetFramework</strong>: This is the version of .NET we are using. 10.0 is in preview, 9.0 is the latest stable version.</li><li><strong>Nullable</strong>: C# language feature to require all variables to either be initialized, explicitly set to null, or checked for null.</li><li><strong>ImplicitUsings</strong>: C# language feature to automatically include common namespaces, such as System and System.Collections.Generic.</li><li><strong>ProjectReference</strong>: This is a reference to another project in the solution, in this case the client project.</li><li><strong>PackageReference</strong>: This is a reference to a NuGet package, in this case the <a href="https://www.nuget.org/packages/Microsoft.AspNetCore.Components.Web/">Microsoft.AspNetCore.Components.Web</a> package, which is required for Blazor to work.</li></ul><ul><li><strong>Logging</strong>: This is the default logging configuration for .NET applications. You can add your own custom settings here as well.</li></ul></td>
+      <td><ul><li><strong>Logging</strong>: This is the default logging configuration for .NET applications. You can add your own custom settings here as well.</li></ul></td>
+    </tr>
+  </tbody>
+</table>
+<table>
+  <thead>
+    <tr>
+      <th>Next package.json</th>
+      <th>Next tsconfig.json</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><img src="/images/NextPackageJson.png" alt="package.json file showing npm package dependencies and scripts"></td>
+      <td><img src="/images/NextTsConfig.png" alt="tsconfig.json file showing typescript settings"></td>
+    </tr>
+    <tr>
+      <td><ul><li><strong>scripts</strong>: These are the various ways to compile, run, or deploy the application.</li><li><strong>dependencies</strong>: This is a list of all the npm packages that are required for this project. You can add your own custom packages here as well.</li><li><strong>devDependencies</strong>: This is a list of all the npm packages that are required for development only.</li></ul></td>
+      <td><ul><li><strong>compilerOptions</strong>: This is a list of all the TypeScript compiler options that are available for this project.</li><li><strong>include</strong>: This tells TSC to include these file types in the transpilation process.</li><li><strong>exclude</strong>: This tells TSC to exclude these files in the transpilation process.</li></ul></td>
+    </tr>
+  </tbody>
+</table>
+<table>
+  <thead>
+    <tr>
+      <th>Next eslint.config.mjs</th>
+      <th>Next next.config.js</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><img src="/images/NextEsLint.png" alt="eslint.config.mjs file showing eslint configuration settings"></td>
+      <td><img src="/images/NextConfig.png" alt="next.config.ts file showing where to place custom next configuration settings"></td>
+    </tr>
+    <tr>
+      <td><ul><li><strong>compat.extends</strong>: This is a list of all the ESLint extensions that are used for this project.</li></ul></td>
+      <td><ul><li><strong>NextConfig</strong>: This is where you would add any custom configuration options to impact how Next functions.</li></ul></td>
+    </tr>
+  </tbody>
+</table>
+<p>For those new to .NET, the <code>.csproj</code> is the <a href="https://learn.microsoft.com/en-us/aspnet/web-forms/overview/deployment/web-deployment-in-the-enterprise/understanding-the-project-file">Project file</a>, which you can probably tell is a flavor of XML. It's pretty self-explanatory. <code>Nullable</code> (<a href="https://learn.microsoft.com/en-us/dotnet/csharp/nullable-references">Nullable reference types</a>) and <code>ExplicitUsings</code> are modern C# language features that are &quot;opt-in&quot; to avoid breaking older applications. Like JavaScript/ECMAScript, C# is constantly evolving and has added many new features over the past two decades, most of which are definitely worth adding to your workflow. You can also see in the project file a project reference from the client application to the server application, and a <em>package</em> reference to a <a href="https://learn.microsoft.com/en-us/nuget/what-is-nuget">NuGet</a> package, the .NET equivalent of npm.</p>
+<p>When <a href="https://timpurdum.dev/2023/10/14/comparing-blazor-net-7-8.html">I first saw this architecture</a>, introduced in .NET 8, I was confused and not a fan. Why would the server application depend on the client application? But this is just a convenient way of saying that if you put code in the client project, it can be run both client <em>and</em> server side, while the client itself can be deployed independently.</p>
+<p>The other important .NET configuration file is <code>appsettings.json</code>. You can have an <code>appsettings.Development.json</code> and <code>appsettings.Production.json</code> that override the main file. These can also be overridden by <a href="https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets?view=aspnetcore-9.0&amp;tabs=windows">User Secrets</a>, and of course by environment variables in whatever deployment environment you use. The JSON schema of appsettings is completely up to you, although there are a few things like logging that are pre-defined.</p>
+<p>On the Next side, <a href="https://docs.npmjs.com/cli/v10/configuring-npm/package-json?v=true">package.json</a> is the configuration for npm. It defines our package dependencies as well as some scripts for ease of startup. <a href="https://www.typescriptlang.org/docs/handbook/tsconfig-json.html">tsconfig.json</a> is the TypeScript configuration file, which sets rules as to how the TypeScript is parsed and transpiled to JavaScript. ESLint, which helps with keeping our code organized and clean, is controlled by the <a href="https://eslint.org/docs/latest/use/configure/configuration-files">eslint.config.mjs</a>. Finally, <a href="https://nextjs.org/docs/pages/api-reference/config/next-config-js">next.config.js</a> is where we can add custom Next server settings such as base path, cross site rules, and redirects. While this is a JavaScript module, it is <em>not</em> included in the client-side bundle, but is only used at compile time by the server.</p>
+<p>Having all these separate configs in the repository definitely makes Next configuration seem more complex than Blazor. Of course, you <em>can</em> extend Blazor with TypeScript, in which case you have to deal with all of the above!</p>
+<p>The closest parallel I can draw above is between .NET's <code>appsettings.json</code> and Next's <code>next.config.ts</code>. While JSON is a universal and easy to read configuration language, I really love how Next is laying out all the configuration in the same language as the program itself is written! Of course, you can certainly do this in C#, making your settings a static class, but it is not the normal or expected pattern.</p>
+<h2 id="ui-files">UI Files</h2>
+<p>Blazor App.Razor</p>
+<p>Blazor Routes.Razor</p>
+<p><img src="/images/BlazorAppRazor.png" alt="App.razor file showing the root HTML DOCTYPE, html, head, body, meta, links, and scripts tags, as well as the nested Routes razor component" /></p>
+<p><img src="/images/BlazorRoutesRazor.png" alt="Routes.razor file showing the Router component that loads assemblies to find pages, loading from both the server and client program, and a Found, RouteView, and FocusOnNavigate component" /></p>
+<p>App.razor shows the root DOCTYPE, html, head, body, meta, links, and scripts tags, as well as the nested Routes razor component.</p>
+<p>Routes.razor file shows the Router component that loads assemblies to find pages, loading from both the server and client program, and a Found, RouteView, and FocusOnNavigate component. RouteView loads the MainLayout component.</p>
+<p>Blazor MainLayout.Razor</p>
+<p>Blazor NavMenu.Razor</p>
+<p><img src="/images/BlazorMainLayoutRazor.png" alt="MainLayout.razor file showing the layout of the page, with sidebar and top row" /></p>
+<p><img src="/images/BlazorNavMenuRazor.png" alt="NavMenu.razor file showing the navigation bar" /></p>
+<p>MainLayout.razor shows the layout of the page, including the sidebar with the NavMenu component, a top row with a static About link, and an error handler.</p>
+<p>NavMenu.razor shows the sidebar navigation menu, with NavLink components to the various pages in the application.</p>
+<p>Blazor Home.Razor</p>
+<p><img src="/images/BlazorHomeRazor.png" alt="Home.razor file showing the contents of the main page" /></p>
+<p>Home.razor demonstrates a Razor component page, with the &commat;page declaration showing the route, the PageTitle component showing the title for the page in the browser, and markup for the page content.</p>
+<p>Here we can see more of the .NET attention to code and application structure. Not only are the UI files organized into <code>Layout</code>, <code>Pages</code>, and <code>Components</code> folders, but the main page itself is broken down into <code>App.razor</code>, which contains the HTML structure, head, and metadata, <code>Routes.razor</code>, which details the functionality of the Blazor router, <code>MainLayout.razor</code>, which gives the shared structural layout to be used across pages, <code>NavMenu.razor</code>, which details the navigational side bar, and <code>Home.razor</code>, which contains the page content. These are all examples of <a href="https://learn.microsoft.com/en-us/aspnet/core/blazor/components/?view=aspnetcore-9.0">Razor components</a>, the fundamental building block of Blazor. The <code>&commat;</code> symbol throughout the file identifies where C# code begins, and the <code>PascalCase</code> markup tags are other nested Razor components, while lowercase tags are plain HTML. Code, components, and HTML can all be intermixed within a Razor file to encapsulate and generate our UI.</p>
+<p>I didn't include the other pages and components in the screenshots, but the template also includes <code>Counter.razor</code>, which demonstrates user interaction on a button, and <code>Weather.razor</code>, which shows a data grid loading weather data. Notice the <code>&commat;page &quot;/&quot;</code> line at the top of <code>Home.razor</code>. <code>Counter.razor</code> starts with <code>&commat;page &quot;/counter&quot;</code>. These are the <a href="https://learn.microsoft.com/en-us/aspnet/core/blazor/components/?view=aspnetcore-9.0#route-parameters">route parameters</a>, and also the only difference between a page and any other component. There is also an <code>Error.razor</code> component for showing errors during development, and a <code>ReconnectModal.razor</code> component for showing while fixing interactive sessions that get disconnected.</p>
+<p>Next layout.tsx</p>
+<p>Next page.tsx</p>
+<p><img src="/images/NextLayoutTsx.png" alt="layout.tsx file showing the React function that generates the root html tag" /></p>
+<p><img src="/images/NextPageTsx.png" alt="page.tsx file showing the React function that generates the home page content" /><img src="/images/NextPageTsx2.png" alt="NextPageTsx2" /></p>
+<p>layout.tsx shows the React function that generates the root html tag, with a metadata variable for the head and a RootLayout component. It takes a  inner content, which is the page.</p>
+<p>page.tsx shows the React function that generates the home page content, with a header, image, and button.</p>
+<p>Next/React has a very different approach. The <code>layout.tsx</code> exports a <a href="https://nextjs.org/docs/app/getting-started/metadata-and-og-images">Metadata</a> variable, which appears to feed the HTML <code>&lt;head&gt;</code>. However, there's definitely other content in the head, some of which appears to be the necessary loading scripts for React to function. The <code>RootLayout</code> at the bottom of the file is our first <a href="https://react.dev/reference/react/Component">React component</a>. As you can see, the Markup-first approach of Razor is flipped upside down here, with the TypeScript code <em>emitting</em> the HTML. But there are still similarities in how variables can be used to insert properties or child components.</p>
+<p>In <code>page.tsx</code>, we see a full page React component, with curly braces <code>{}</code> indicating TypeScript code injection. Like in Razor files, it appears that PascalCase represents child components; here we see <code>&lt;Image&gt;</code> components laid out on the page.</p>
+<p>Unlike in Blazor, the navigation route is not defined in the file, but by the folder structure. Since this <code>page.tsx</code> is in the <code>app</code> folder, it is the home route. If you put a page inside an <code>app/counter</code> folder, then you would navigate to that page with the <code>/counter</code> route. This <a href="https://nextjs.org/docs/app/getting-started/layouts-and-pages">pages routing</a> approach is wild to me because <em>every page is called <code>page</code></em>, so only thing differentiating them is the directory! I think this would drive me crazy in an IDE, where I typically use a keyboard shortcut and file name search to quickly navigate between files.</p>
+<h2 id="static-assets">Static Assets</h2>
+<p>The approach to CSS and image files is quite similar between the two frameworks. The one difference as I mentioned above is the folder structure. In ASP.NET Core, <a href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/static-files?view=aspnetcore-9.0">wwwroot,</a> signifies the &quot;public&quot; folder, and this contains global CSS, JavaScript scripts, and static images. In Next, this most closely corresponds to the <a href="https://nextjs.org/docs/pages/api-reference/file-conventions/public-folder">public</a> folder. However, only truly static files can live in this folder, because the CSS and TS files are typically imported into React components. Notice the line <code>import styles from &quot;./page.module.css&quot;;</code> at the top of <code>page.tsx</code>. The <code>.module.css</code> file is a &quot;scoped&quot; CSS file, meaning it will only impact that one component. Scoping is a very handy way to keep global CSS from causing conflicts between components.</p>
+<p>Blazor does also support compiled and scoped CSS, which you can see in files like <code>MainLayout.razor.css</code> and <code>NavMenu.razor.css</code>. Unlike in Next, these are imported and applied automatically by the framework compiler, and don't need to be declared in the Razor component.</p>
+<h2 id="running-the-application">Running the Application</h2>
+<p>Lets get these applications started!</p>
+<pre><code class="language-pwsh">&gt; dotnet run
+</code></pre>
+<p><img src="/images/BlazorScreenShot.png" alt="Screen shot of the Hello World landing page of the running Blazor template, with Home, Counter, and Weather navigation links on the left, and an About link on the top right" /></p>
+<pre><code class="language-pwsh">&gt; npm run dev
+</code></pre>
+<p><img src="/images/NextScreenShot.png" alt="Screen shot of the Next.js template, all black with a centered white Next.js logo and links to documentation" /></p>
+<p>.NET can implicitly find a project file in the current directory to run, and defaults to debug/development mode, so the simple command <code>dotnet run</code> is shorthand for <code>dotnet run HelloBlazorWorld.csproj -c Debug</code>. To switch to production/release you would use <code>-c Release</code>. For Next, the scripts <code>dev</code> and <code>start</code> correspond to development and release environments.</p>
+<p>It was really simple as a new React developer to build and get started with Next.js. I was surprised by how simple the template was compared to Blazor templates, and had to learn to understand the pages and folder navigation, but once I had these basic concepts down, creating a basic application was very simple.</p>
+<p>Startup for both applications was quite fast. Next reported ~800 milliseconds, while Blazor took a whopping 7-8 seconds. I will warn any developers new to .NET, as your applications become larger, this build time does go up. However, .NET supports <a href="https://learn.microsoft.com/en-us/aspnet/core/test/hot-reload?view=aspnetcore-9.0">Hot Reload</a> of file changes, (from the command line use <a href="https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-watch">dotnet watch run</a>), which allows continuous incremental changes, for a development cycle more akin to what JS developers are used to. Even with hot reload, however, .NET, as a fully-compiled and managed environment, will likely never match the rapid development cycle of the JavaScript ecosystem. This is definitely a tradeoff worth considering alongside the significant runtime server performance gains of .NET over Next/Node as demonstrated in the <a href="https://www.techempower.com/benchmarks/#section=data-r23">TechEmpower Framework Benchmarks</a>.</p>
+<p><img src="/images/TechEmpower.png" alt="TechEmpower Benchmarks screenshot comparing Asp.NET Core and NodeJS" /></p>
+<p>The differences in default templates for each framework are very noticeable on startup. ASP.NET Core begins with a multi-page template including sidebar navigation, top banner, and interactive page samples. This is great if you want or need such a framework, but otherwise might be code you just need to delete. There is an option <code>-e</code> or <code>--empty</code> that will remove most of the UI and give an empty template.</p>
+<p>Next.js presents a very minimal single page template with a few links, images, and buttons. There <em>are</em> other Next templates available in the <a href="https://github.com/vercel/next.js/tree/canary/examples">Next.js Examples Repository</a>, which you can create with <code>npm create-next-app&commat;latest --example [example-name]</code>. This is a large list of samples, and would require a lot of study, picking and choosing from multiple templates to get the pieces that you really wanted. For example, there are examples <code>with-cms</code>, <code>with-stencil</code>, and <code>with-stripe-typescript</code>. If you want all 3 in one project, you would have to combine them yourself. .NET on the other hand doesn't even really have a repository like this. It <em>does</em> have more built-in options for things like authentication and database/ORM setup right in the template, but everything else is a NuGet package and you must find and follow the instructions for each library.</p>
+<p>As mentioned above, if I run <code>dotnet watch run</code> to get the .NET hot reload, then I can work in both environments pretty much seeing my changes in real time, at least as long as I'm doing simple UI changes. I was able to change the page text, css, and markup in both without any issues.</p>
+<p>Up to this point, both Blazor and Next appear to be very straightforward and capable frameworks for simple web development. In the next post of this series, we turn up the complexity a lot, by building a practical GIS web application using each framework. We’ll explore:</p>
+<ul>
+<li>Component architecture and data flow</li>
+<li>Interactive map integration</li>
+<li>State management approaches</li>
+<li>Server/client communication patterns</li>
+<li>Performance optimization techniques</li>
+<li>Development workflow and debugging tools</li>
+</ul>
+<p>Whether you're a .NET developer considering React, or a JavaScript developer curious about Blazor, you'll see how these modern frameworks handle real-world challenges in building complex interactive applications.</p>
+</div></article></div></main>
+<footer class="site-footer h-card"><div class="wrapper"><ul class="contact-list"><li class="p-name">Tim Purdum</li><li><a class="u-email" href="mailto:tim.purdum@dymaptic.com">tim.purdum@dymaptic.com</a></li></ul>
+    <ul class="social-media-list"><li><a href="https://github.com/TimPurdum"><svg width="16" height="16" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8C0 11.54 2.29 14.53 5.47 15.59C5.87 15.66 6.02 15.42 6.02 15.21C6.02 15.02 6.01 14.39 6.01 13.72C4 14.09 3.48 13.23 3.32 12.78C3.23 12.55 2.84 11.84 2.5 11.65C2.22 11.5 1.82 11.13 2.49 11.12C3.12 11.11 3.57 11.7 3.72 11.94C4.44 13.15 5.59 12.81 6.05 12.6C6.12 12.08 6.33 11.73 6.56 11.53C4.78 11.33 2.92 10.64 2.92 7.58C2.92 6.71 3.23 5.99 3.74 5.43C3.66 5.23 3.38 4.41 3.82 3.31C3.82 3.31 4.49 3.1 6.02 4.13C6.66 3.95 7.34 3.86 8.02 3.86C8.7 3.86 9.38 3.95 10.02 4.13C11.55 3.09 12.22 3.31 12.22 3.31C12.66 4.41 12.38 5.23 12.3 5.43C12.81 5.99 13.12 6.7 13.12 7.58C13.12 10.65 11.25 11.33 9.47 11.53C9.76 11.78 10.01 12.26 10.01 13.01C10.01 14.08 10 14.94 10 15.21C10 15.42 10.15 15.67 10.55 15.59C13.71 14.53 16 11.53 16 8C16 3.58 12.42 0 8 0Z" transform="scale(64)" fill="white"></path></svg>
+          <span class="username">github.com/TimPurdum</span></a></li>
+      <li><a href="https://www.linkedin.com/in/crttim"><svg version="1.1" id="svg2" sodipodi:version="0.32" inkscape:version="0.47 r22583" sodipodi:docname="linkedin.svg" inkscape:output_extension="org.inkscape.output.svg.inkscape" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="16" height="16px" viewBox="0 0 256 256" enable-background="new 0 0 256 256" xml:space="preserve"><g id="layer1" transform="translate(-373.642,-318.344)" inkscape:label="Layer 1" inkscape:groupmode="layer"><path id="rect1942" fill="#1D8CB5" d="M583.659,328.849H419.625c-19.599,0-35.487,15.888-35.487,35.487v164.015c0,19.599,15.888,35.486,35.487,35.486h164.033
+              c19.599,0,35.487-15.888,35.487-35.486V364.337C619.146,344.738,603.257,328.849,583.659,328.849z"></path>
+
+              <linearGradient id="path1950_1_" gradientUnits="userSpaceOnUse" x1="-808.8727" y1="199.8918" x2="-860.5692" y2="49.2029" gradientTransform="matrix(-0.5915 0 0 -0.5915 -34.5417 412.5453)"><stop offset="0" style="stop-color:#FFFFFF"></stop>
+                <stop offset="1" style="stop-color:#FFFFFF;stop-opacity:0"></stop></linearGradient>
+
+              <path id="path1950" opacity="0.7811" fill="url(#path1950_1_)" d="M557.056,338.895H446.227c-29.337,0-52.955,23.81-52.955,53.385v108.127c0.95,23.087,4.603,8.491,11.555-17.075
+              c8.081-29.713,34.396-55.682,66.445-75.145c24.461-14.855,51.84-24.341,101.679-25.244
+              C601.216,382.432,598.721,346.26,557.056,338.895z"></path></g>
+            <g id="layer1_1_" transform="translate(-200.55198,-393.96227)"><g id="g3019" transform="matrix(1.018827,0,0,-1.018827,170.5996,498.03288)"><path id="path28_1_" fill="#FFFFFF" d="M109.495-101.774V2.533H74.828v-104.307H109.495z
+                M92.168,16.775c12.081,0,19.612,8.01,19.612,18.021c-0.224,10.233-7.531,18.021-19.385,18.021
+                c-11.864,0-19.615-7.788-19.615-18.021c0-10.011,7.521-18.021,19.159-18.021H92.168L92.168,16.775z"></path>
+                <path id="path30_1_" fill="#FFFFFF" d="M128.681-101.774h34.673v58.249
+                c0,3.119,0.226,6.235,1.143,8.462c2.5,6.232,8.209,12.681,17.784,12.681c12.547,0,17.562-9.568,17.562-23.588v-55.804h34.666
+                v59.81c0,32.039-17.1,46.946-39.913,46.946c-18.701,0-26.915-10.45-31.476-17.571h0.234V2.533h-34.673
+                C129.141-7.253,128.681-101.774,128.681-101.774L128.681-101.774z"></path></g></g></svg>
+          <span class="username">linkedin.com/in/crttim</span></a></li>
+      <li><a href="https://bsky.app/profile/timpurdum.dev"><svg width="16" height="16" version="1.1" xmlns="http://www.w3.org/2000/svg"><path transform="scale(0.027 0.027)" d="m135.72 44.03c66.496 49.921 138.02 151.14 164.28 205.46 26.262-54.316 97.782-155.54 164.28-205.46 47.98-36.021 125.72-63.892 125.72 24.795 0 17.712-10.155 148.79-16.111 170.07-20.703 73.984-96.144 92.854-163.25 81.433 117.3 19.964 147.14 86.092 82.697 152.22-122.39 125.59-175.91-31.511-189.63-71.766-2.514-7.3797-3.6904-10.832-3.7077-7.8964-0.0174-2.9357-1.1937 0.51669-3.7077 7.8964-13.714 40.255-67.233 197.36-189.63 71.766-64.444-66.128-34.605-132.26 82.697-152.22-67.108 11.421-142.55-7.4491-163.25-81.433-5.9562-21.282-16.111-152.36-16.111-170.07 0-88.687 77.742-60.816 125.72-24.795z" fill="#1185fe"></path></svg>
+          <span class="username">timpurdum.dev</span></a></li>
+      <li><a rel="me" href="https://dotnet.social/@TimPurdum"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 216.4144 232.00976"><path fill="#2b90d9" d="M211.80734 139.0875c-3.18125 16.36625-28.4925 34.2775-57.5625 37.74875-15.15875 1.80875-30.08375 3.47125-45.99875 2.74125-26.0275-1.1925-46.565-6.2125-46.565-6.2125 0 2.53375.15625 4.94625.46875 7.2025 3.38375 25.68625 25.47 27.225 46.39125 27.9425 21.11625.7225 39.91875-5.20625 39.91875-5.20625l.8675 19.09s-14.77 7.93125-41.08125 9.39c-14.50875.7975-32.52375-.365-53.50625-5.91875C9.23234 213.82 1.40609 165.31125.20859 116.09125c-.365-14.61375-.14-28.39375-.14-39.91875 0-50.33 32.97625-65.0825 32.97625-65.0825C49.67234 3.45375 78.20359.2425 107.86484 0h.72875c29.66125.2425 58.21125 3.45375 74.8375 11.09 0 0 32.975 14.7525 32.975 65.0825 0 0 .41375 37.13375-4.59875 62.915"></path>
+            <path fill="#fff" d="M177.50984 80.077v60.94125h-24.14375v-59.15c0-12.46875-5.24625-18.7975-15.74-18.7975-11.6025 0-17.4175 7.5075-17.4175 22.3525v32.37625H96.20734V85.42325c0-14.845-5.81625-22.3525-17.41875-22.3525-10.49375 0-15.74 6.32875-15.74 18.7975v59.15H38.90484V80.077c0-12.455 3.17125-22.3525 9.54125-29.675 6.56875-7.3225 15.17125-11.07625 25.85-11.07625 12.355 0 21.71125 4.74875 27.8975 14.2475l6.01375 10.08125 6.015-10.08125c6.185-9.49875 15.54125-14.2475 27.8975-14.2475 10.6775 0 19.28 3.75375 25.85 11.07625 6.36875 7.3225 9.54 17.22 9.54 29.675"></path></svg>
+          <span class="username">@TimPurdum@dotnet.social</span></a></li></ul></div></footer>
+    <script src="_framework/blazor.webassembly.js"></script></body></html>

@@ -1,0 +1,13 @@
+<MapView Style="height: 600px; width: 100%" Latitude="40" Longitude="-100" Zoom="4">
+    <Map>
+        <Basemap>
+            <BasemapStyle Name="BasemapStyleName.ArcgisImagery" />
+        </Basemap>
+        <FeatureLayer>
+            <PortalItem PortalItemId="f9e9283b9c9741d09aad633f68758bf6" />
+        </FeatureLayer>
+    </Map>
+    <TimeSliderWidget Position="OverlayPosition.BottomLeft"
+                      TimeExtent="new(DateTime.Now, DateTime.Now.AddDays(3))"
+                      Stops="new StopsByInterval(new TimeInterval(TemporalTime.Hours, 8))" />
+</MapView>

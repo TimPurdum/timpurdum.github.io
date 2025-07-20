@@ -1,0 +1,32 @@
+# Ignore .NET build outputs
+bin/
+obj/
+
+# Ignore user-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Ignore node modules and npm logs
+node_modules/
+npm-debug.log
+
+# Ignore environment files
+.env
+.env.*
+
+# Ignore logs
+*.log
+
+# Ignore Rider and VSCode settings
+.idea/
+.vscode/
+
+# Ignore Docker files
+Dockerfile*
+docker-compose*
+
+# Ignore test results
+TestResults/
+coverage/

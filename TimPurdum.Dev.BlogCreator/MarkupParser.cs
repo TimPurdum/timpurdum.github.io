@@ -1,0 +1,668 @@
+using System.Reflection;
+using System.Runtime;
+using System.Text;
+using System.Text.RegularExpressions;
+using Markdig;
+using Markdig.Parsers;
+using Markdig.Syntax;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Razor.Language;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CSharp.RuntimeBinder;
+using Microsoft.JSInterop;
+
+namespace TimPurdum.Dev.BlogCreator;
+
+public static class MarkupParser
+{
+    public static List<PostMetaData> GeneratePostMetaDatas()
+    {
+        string[] posts = Directory.GetFiles(Directories.ContentPosts, "*.md", SearchOption.AllDirectories);
+        List<PostMetaData> postMetaDatas = [];
+        foreach (string post in posts)
+        {
+            string fileName = Path.GetFileNameWithoutExtension(post);
+            if (Resources.PostNameRegex.Match(fileName) is not { Success: true } match)
+            {
+                Console.WriteLine($"Skipping post {fileName} due to invalid name format.");
+                continue; // Skip posts with invalid names
+            }
+            fileName = match.Groups["fileName"].Value;
+            DateTime publishedDate = new DateTime(
+                int.Parse(match.Groups[1].Value),
+                int.Parse(match.Groups[2].Value),
+                int.Parse(match.Groups[3].Value));
+            string content = File.ReadAllText(post);
+
+            try
+            {
+                // Parse the content and generate PostMetaData
+                PostMetaData postMetaData = GeneratePostMetaData(fileName, content, publishedDate);
+                postMetaDatas.Add(postMetaData);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error generating Razor content for post {fileName}: {ex.Message}");
+            }
+        }
+
+        return postMetaDatas;
+    }
+    
+    public static PostMetaData GeneratePostMetaData(string fileName, string content, DateTime publishedDate)
+    {
+        // Extract YAML front-matter using regex
+        Match match = Resources.FileRegex.Match(content);
+        if (!match.Success) throw new ArgumentException("Content does not contain valid YAML front-matter.");
+
+        string yaml = match.Groups[1].Value;
+        string markdownContent = match.Groups[2].Value;
+        List<string> markdownLines = markdownContent.Split(Environment.NewLine).ToList();
+        List<string> resultLines = [];
+        bool inSampleCodeBlock = false;
+        bool inRazorComponentCodeBlock = false;
+        int razorCodeBlockIndex = 1;
+        string? razorCodeBlockCurrentKey = null;
+        StringBuilder? razorCodeBlockContent = null;
+        Dictionary<string, string> razorComponentSections = [];
+        List<string> scripts = [];
+        StringBuilder? currentScriptBuilder = null;
+        bool inScriptBlock = false;
+        
+        for (int i = 0; i < markdownLines.Count; i++)
+        {
+            string line = markdownLines[i];
+            if (inSampleCodeBlock)
+            {
+                if (line.StartsWith("```") || line.StartsWith("~~~"))
+                {
+                    inSampleCodeBlock = false; // End of code block
+                    if (inRazorComponentCodeBlock)
+                    {
+                        if (string.IsNullOrWhiteSpace(razorCodeBlockCurrentKey))
+                        {
+                            inRazorComponentCodeBlock = false;
+                            continue;
+                        }
+                        // Store the code block content for the Razor component
+                        razorComponentSections[razorCodeBlockCurrentKey] = razorCodeBlockContent!.ToString();
+                        razorCodeBlockContent.Clear();
+                        resultLines.Add($"""
+                                         
+                                         <div id="{razorCodeBlockCurrentKey}">
+                                             <svg class="loading-progress">
+                                                 <circle r="40%" cx="50%" cy="50%" />
+                                                 <circle r="40%" cx="50%" cy="50%" />
+                                             </svg>
+                                             <div class="loading-progress-text"></div>
+                                         </div>
+                                         
+                                         """);
+                        razorCodeBlockCurrentKey = string.Empty;
+                        continue;
+                    }
+                }
+
+                if (inRazorComponentCodeBlock)
+                {
+                    // Collect the content of the Razor component code block
+                    razorCodeBlockContent!.AppendLine(line);
+                    continue;
+                }
+            }
+            else if (line.StartsWith("```") || line.StartsWith("~~~"))
+            {
+                inSampleCodeBlock = true; // Start of code block
+                if (line.Length > 3 && line.Substring(3).StartsWith("blazor-component"))
+                {
+                    // This is a Blazor component code block
+                    inRazorComponentCodeBlock = true;
+                     razorCodeBlockCurrentKey = line.Length > 19 && line.Split(' ').Length > 1
+                         ? $"{line.Split(' ')[1]}{razorCodeBlockIndex++}"
+                         : $"code-block{razorCodeBlockIndex++}";
+                     razorCodeBlockContent = new StringBuilder();
+                     continue;
+                }
+            }
+            else if (inScriptBlock)
+            {
+                if (ScriptEndRegex.Match(line) is { Success: true })
+                {
+                    // This is the end of a script block
+                    inScriptBlock = false;
+                    currentScriptBuilder!.AppendLine(line);
+                    scripts.Add(currentScriptBuilder.ToString());
+                    currentScriptBuilder = null;
+                }
+                else
+                {
+                    // Continue collecting lines for the script block
+                    currentScriptBuilder!.AppendLine(line);
+                }
+
+                continue;
+            }
+            else if (ScriptStartRegex.Match(line) is { Success: true } scriptStartMatch)
+            {
+                if (!scriptStartMatch.Groups["scriptEnd"].Success)
+                {
+                    inScriptBlock = true;
+                    currentScriptBuilder = new StringBuilder(line);
+                    // This script block continues, so we will collect lines until we find the end
+                }
+                else
+                {
+                    // This script block ends immediately, so we can process it right away
+                    scripts.Add(line);
+                    inScriptBlock = false;
+                }
+                
+                continue;
+            }
+            
+            // Collect the content of the sample code block
+            resultLines.Add(line);
+        }
+
+        MarkdownDocument document = MarkdownParser.Parse(string.Join(Environment.NewLine, resultLines), Resources.Pipeline);
+        string postContent = document.ToRazor();
+
+        Dictionary<string, string> yamlData = GetYamlData(yaml);
+
+        string urlPath = $"/post/{publishedDate.Year}/{publishedDate.Month}/{publishedDate.Day}/{fileName}";
+
+        string title = yamlData.GetValueOrDefault("title", "Untitled").Trim('"');
+        string subTitle = yamlData.GetValueOrDefault("subtitle", string.Empty).Trim('"');
+        string authorName = yamlData.GetValueOrDefault("author", string.Empty).Trim('"');
+        string layout = yamlData.GetValueOrDefault("layout", "post").Trim('"');
+        layout = $"{layout.ToUpperFirstChar()}Layout";
+        string description = yamlData.GetValueOrDefault("description", string.Empty).Trim('"');
+
+        return new PostMetaData(title, subTitle, urlPath, publishedDate, authorName, postContent, 
+            razorComponentSections, scripts, layout, description);
+    }
+
+    public static async Task<List<PageMetaData>> GeneratePageMetaDatas(List<LinkData> navLinks)
+    {
+        string[] pages = Directory.GetFiles(Directories.ContentPages, "*.md", SearchOption.AllDirectories)
+            .Concat(Directory.GetFiles(Directories.ContentPages, "*.razor", SearchOption.AllDirectories))
+            .ToArray();
+        List<PageMetaData> pageMetaDatas = [];
+        foreach (string page in pages)
+        {
+            bool isRazorComponent = page.EndsWith(".razor", StringComparison.OrdinalIgnoreCase);
+            string fileName = Path.GetFileNameWithoutExtension(page);
+            string content = await File.ReadAllTextAsync(page);
+
+            try
+            {
+                PageMetaData pageMetaData;
+                if (isRazorComponent)
+                {
+                    pageMetaData = await GeneratePageMetaDataFromRazorComponent(fileName, content, navLinks);
+                }
+                else
+                {
+                    pageMetaData = GeneratePageMetaDataFromMarkdown(fileName, content);    
+                }
+                
+                pageMetaDatas.Add(pageMetaData);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error generating Razor content for page {fileName}: {ex.Message}");
+            }
+        }
+
+        return pageMetaDatas;
+    }
+
+    private static PageMetaData GeneratePageMetaDataFromMarkdown(string fileName, string content)
+    {
+        // Extract YAML front-matter using regex
+        Match match = Resources.FileRegex.Match(content);
+        if (!match.Success) throw new ArgumentException("Content does not contain valid YAML front-matter.");
+        string yaml = match.Groups[1].Value;
+        string markdownContent = match.Groups[2].Value;
+        List<string> markdownLines = markdownContent.Split(Environment.NewLine).ToList();
+        List<string> resultLines = [];
+        bool inSampleCodeBlock = false;
+        bool inRazorComponentCodeBlock = false;
+        int razorCodeBlockIndex = 1;
+        string? razorCodeBlockCurrentKey = null;
+        StringBuilder? razorCodeBlockContent = null;
+        Dictionary<string, string> razorComponentSections = [];
+        List<string> scripts = [];
+        StringBuilder? currentScriptBuilder = null;
+        bool inScriptBlock = false;
+        
+        for (int i = 0; i < markdownLines.Count; i++)
+        {
+            string line = markdownLines[i];
+            if (inSampleCodeBlock)
+            {
+                if (line.StartsWith("```") || line.StartsWith("~~~"))
+                {
+                    inSampleCodeBlock = false; // End of code block
+                    if (inRazorComponentCodeBlock)
+                    {
+                        // Store the code block content for the Razor component
+                        razorComponentSections[razorCodeBlockCurrentKey!] = razorCodeBlockContent!.ToString();
+                        razorCodeBlockContent.Clear();
+                        resultLines.Add($"""
+                                         
+                                         <div id="{razorCodeBlockCurrentKey!}">
+                                             <svg class="loading-progress">
+                                                 <circle r="40%" cx="50%" cy="50%" />
+                                                 <circle r="40%" cx="50%" cy="50%" />
+                                             </svg>
+                                             <div class="loading-progress-text"></div>
+                                         </div>
+                                         
+                                         """);
+                        razorCodeBlockCurrentKey = string.Empty;
+                        continue;
+                    }
+                }
+
+                if (inRazorComponentCodeBlock)
+                {
+                    // Collect the content of the Razor component code block
+                    razorCodeBlockContent!.AppendLine(line);
+                    continue;
+                }
+            }
+            else if (line.StartsWith("```") || line.StartsWith("~~~"))
+            {
+                inSampleCodeBlock = true; // Start of code block
+                if (line.Length > 3 && line.Substring(3).StartsWith("blazor-component"))
+                {
+                    // This is a Blazor component code block
+                    inRazorComponentCodeBlock = true;
+                    razorCodeBlockCurrentKey = line.Length > 19 && line.Split(' ').Length > 1
+                        ? $"{line.Split(' ')[1]}{razorCodeBlockIndex++}"
+                        : $"code-block{razorCodeBlockIndex++}";
+                     razorCodeBlockContent = new StringBuilder();
+                     continue;
+                }
+            }
+            else if (inScriptBlock)
+            {
+                if (ScriptEndRegex.Match(line) is { Success: true })
+                {
+                    // This is the end of a script block
+                    inScriptBlock = false;
+                    currentScriptBuilder!.AppendLine(line);
+                    scripts.Add(currentScriptBuilder.ToString());
+                    currentScriptBuilder = null;
+                }
+                else
+                {
+                    // Continue collecting lines for the script block
+                    currentScriptBuilder!.AppendLine(line);
+                }
+
+                continue;
+            }
+            else if (ScriptStartRegex.Match(line) is { Success: true } scriptStartMatch)
+            {
+                if (!scriptStartMatch.Groups["scriptEnd"].Success)
+                {
+                    inScriptBlock = true;
+                    currentScriptBuilder = new StringBuilder(line);
+                    // This script block continues, so we will collect lines until we find the end
+                }
+                else
+                {
+                    // This script block ends immediately, so we can process it right away
+                    scripts.Add(line);
+                    inScriptBlock = false;
+                }
+                
+                continue;
+            }
+            
+            // Collect the content of the sample code block
+            resultLines.Add(line);
+        }
+
+        MarkdownDocument document = MarkdownParser.Parse(string.Join(Environment.NewLine, resultLines), Resources.Pipeline);
+        string postContent = document.ToRazor();
+
+        Dictionary<string, string> yamlData = GetYamlData(yaml);
+        string urlPath = fileName == "index" ? "/" : fileName;
+
+        string title = yamlData.GetValueOrDefault("title", "Untitled").Trim('"');
+        string navOrderString = yamlData.GetValueOrDefault("navorder", "0").Trim('"');
+        int navOrder = int.TryParse(navOrderString, out var order) ? order : 0;
+        string subTitle = yamlData.GetValueOrDefault("subtitle", string.Empty).Trim('"');
+        string layout = yamlData.GetValueOrDefault("layout", "page").Trim('"');
+        layout = $"{layout.ToUpperFirstChar()}Layout";
+        string description = yamlData.GetValueOrDefault("description", string.Empty).Trim('"');
+        
+        return new PageMetaData(title, subTitle, urlPath, postContent, razorComponentSections, scripts, layout, 
+            description, navOrder);
+    }
+    
+    private static async Task<PageMetaData> GeneratePageMetaDataFromRazorComponent(string fileName, string content,
+        List<LinkData> navLinks)
+    {
+        // Extract the @page directive to get the URL path
+        Match match = PagePathRegex.Match(content);
+        if (!match.Success)
+        {
+            throw new ArgumentException("Razor component does not contain a valid @page directive.");
+        }
+        string urlPath = match.Groups["path"].Value.Trim('"');
+        
+        Match pageTitleMatch = PageTitleRegex.Match(content);
+        string title = pageTitleMatch.Success 
+            ? pageTitleMatch.Groups["title"].Value.Trim() 
+            : fileName.PascalToTitleCase();
+        
+        List<string> razorLines = content.Split(Environment.NewLine).ToList();
+        List<string> resultLines = [];
+        bool inRazorComponentCodeBlock = false;
+        int razorCodeBlockIndex = 1;
+        string? razorCodeBlockCurrentKey = null;
+        string? currentComponentName = null;
+        StringBuilder? razorCodeBlockContent = null;
+        Dictionary<string, string> razorComponentSections = [];
+        List<string> scripts = [];
+        StringBuilder? currentScriptBuilder = null;
+        bool inScriptBlock = false;
+        
+        for (int i = 0; i < razorLines.Count; i++)
+        {
+            string line = razorLines[i];
+            if (inRazorComponentCodeBlock)
+            {
+                razorCodeBlockContent!.AppendLine(line);
+                if (ComponentEndRegex.Match(line) is { Success: true } componentEndMatch)
+                {
+                    // This is the end of a Razor component
+                    inRazorComponentCodeBlock = false;
+                    string componentName = componentEndMatch.Groups["componentName"].Value;
+                    
+                    // skip if names don't match, could be nested component
+                    if (componentName == currentComponentName) 
+                    {
+                        razorComponentSections[razorCodeBlockCurrentKey!] = razorCodeBlockContent.ToString();
+                        razorCodeBlockContent.Clear();
+                        currentComponentName = null;
+                        resultLines.Add($"""
+
+                                         <div id="{razorCodeBlockCurrentKey!}">
+                                             <svg class="loading-progress">
+                                                 <circle r="40%" cx="50%" cy="50%" />
+                                                 <circle r="40%" cx="50%" cy="50%" />
+                                             </svg>
+                                             <div class="loading-progress-text"></div>
+                                         </div>
+
+                                         """);
+                        razorCodeBlockCurrentKey = string.Empty;
+                    }
+                }
+
+                continue;
+            }
+            
+            if (ComponentStartRegex.Match(line) is { Success: true } componentStartMatch)
+            {
+                string componentName = componentStartMatch.Groups["componentName"].Value;
+                if (componentName != "PageTitle" && componentName != "NavMenu")
+                {
+                    // This is a Blazor component code block
+                    inRazorComponentCodeBlock = true; // Start of code block
+                    razorCodeBlockCurrentKey = $"{componentName.PascalToKebabCase()}{razorCodeBlockIndex++}";
+                    razorCodeBlockContent = new StringBuilder();
+                    razorCodeBlockContent.AppendLine(line);
+                }
+                
+                continue;
+            }
+
+            if (inScriptBlock)
+            {
+                if (ScriptEndRegex.Match(line) is { Success: true })
+                {
+                    // This is the end of a script block
+                    inScriptBlock = false;
+                    currentScriptBuilder!.AppendLine(line);
+                    scripts.Add(currentScriptBuilder.ToString());
+                    currentScriptBuilder = null;
+                }
+                else
+                {
+                    // Continue collecting lines for the script block
+                    currentScriptBuilder!.AppendLine(line);
+                }
+
+                continue;
+            }
+            
+            if (ScriptStartRegex.Match(line) is { Success: true } scriptStartMatch)
+            {
+                if (!scriptStartMatch.Groups["scriptEnd"].Success)
+                {
+                    inScriptBlock = true;
+                    currentScriptBuilder = new StringBuilder(line);
+                    // This script block continues, so we will collect lines until we find the end
+                }
+                else
+                {
+                    // This script block ends immediately, so we can process it right away
+                    scripts.Add(line);
+                    inScriptBlock = false;
+                }
+                continue;
+            }
+            
+            // Collect the content of the Razor component
+            resultLines.Add(line);
+        }
+        
+        // run the Razor content through the Razor rendering engine
+        string razorContent = string.Join(Environment.NewLine, resultLines);
+        var projectItem = new InMemoryRazorProjectItem(fileName, razorContent);
+        var codeDocument = ProjectEngine.Process(projectItem);
+        if (codeDocument.GetCSharpDocument().Diagnostics.Any(d => d.Severity == RazorDiagnosticSeverity.Error))
+        {
+            var errors = codeDocument.GetCSharpDocument().Diagnostics
+                .Where(d => d.Severity == RazorDiagnosticSeverity.Error)
+                .Select(d => d.GetMessage())
+                .ToList();
+            
+            throw new InvalidOperationException($"Razor compilation errors in {fileName}: {string.Join(", ", errors)}");
+        }
+
+        // Generate C# code
+        var csharpCode = codeDocument.GetCSharpDocument().GeneratedCode;
+        Console.WriteLine($"Generated C# code: {csharpCode}");
+
+        // Compile with Roslyn
+        var syntaxTree = CSharpSyntaxTree.ParseText(csharpCode, CSharpParseOptions.Default);
+        var assemblyName = $"DynamicAssembly_{Guid.NewGuid():N}";
+
+        var compilation = CSharpCompilation.Create(
+            assemblyName,
+            [syntaxTree],
+            GetMetadataReferences(),
+            new CSharpCompilationOptions(
+                OutputKind.DynamicallyLinkedLibrary,
+                optimizationLevel: OptimizationLevel.Debug,
+                allowUnsafe: true
+            )
+        );
+        
+        // Emit assembly
+        using var ms = new MemoryStream();
+        var result = compilation.Emit(ms);
+
+        if (!result.Success)
+        {
+            var errors = result.Diagnostics
+                .Where(d => d.Severity == DiagnosticSeverity.Error)
+                .Select(d => d.GetMessage())
+                .ToList();
+
+            var warnings = result.Diagnostics
+                .Where(d => d.Severity == DiagnosticSeverity.Warning)
+                .Select(d => d.GetMessage())
+                .ToList();
+
+            throw new InvalidOperationException($"Razor compilation failed for {fileName}: {string.Join(", ", errors)}{Environment.NewLine}{string.Join(Environment.NewLine, warnings)}");
+        }
+
+        ms.Seek(0, SeekOrigin.Begin);
+        var assembly = Assembly.Load(ms.ToArray());
+        Type? componentType = FindComponentType(assembly);
+
+        if (componentType == null)
+        {
+            throw new InvalidOperationException($"No component type found in assembly for {fileName}.");
+        }
+        
+        Dictionary<string, object?> parameters = new()
+        {
+            { "ComponentType", componentType },
+            { "Title", (MarkupString)title },
+            { "NavLinks", navLinks },
+            { "Url", urlPath },
+            { nameof(Settings.SiteName), Settings.SiteName },
+            { nameof(Settings.HeaderLinks), (MarkupString)Settings.HeaderLinks },
+            { nameof(Settings.SiteTitle), Settings.SiteTitle },
+            { nameof(Settings.SiteDescription), (MarkupString)Settings.SiteDescription }
+        };
+
+        string htmlContent = await Generator.RenderComponent(parameters);
+        
+        return new PageMetaData(fileName, string.Empty, urlPath, htmlContent, 
+            razorComponentSections, scripts, "page", string.Empty, 0);
+    }
+    
+    private static Type? FindComponentType(Assembly assembly)
+    {
+        return assembly.GetTypes()
+            .FirstOrDefault(t => t.IsSubclassOf(typeof(ComponentBase)));
+    }
+
+    private static Dictionary<string, string> GetYamlData(string yaml)
+    {
+        Dictionary<string, string> yamlData = new Dictionary<string, string>();
+        // Parse YAML front-matter into a dictionary
+        foreach (string line in yaml.Split(['\n', '\r'], StringSplitOptions.RemoveEmptyEntries))
+        {
+            string[] keyValue = line.Split([':'], 2);
+            if (keyValue.Length == 2)
+            {
+                string key = keyValue[0].Trim();
+                string value = keyValue[1].Trim();
+                yamlData[key] = value;
+            }
+        }
+
+        return yamlData;
+    }
+    
+    private static List<MetadataReference> GetMetadataReferences()
+    {
+        List<MetadataReference> references =
+        [
+            MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+            MetadataReference.CreateFromFile(typeof(Console).Assembly.Location),
+            MetadataReference.CreateFromFile(typeof(AssemblyTargetedPatchBandAttribute).Assembly.Location),
+            MetadataReference.CreateFromFile(typeof(CSharpArgumentInfo).Assembly.Location),
+            // Add Blazor references
+            MetadataReference.CreateFromFile(typeof(ComponentBase).Assembly.Location),
+            MetadataReference.CreateFromFile(typeof(ErrorBoundary).Assembly.Location),
+            MetadataReference.CreateFromFile(typeof(IJSRuntime).Assembly.Location),
+            MetadataReference.CreateFromFile(typeof(MarkupParser).Assembly.Location)
+        ];
+
+        // Add system references
+        string[] systemAssemblies =
+        [
+            "System.Runtime",
+            "System.Collections",
+            "System.Linq",
+            "System.Linq.Expressions",
+            "System.ComponentModel",
+            "System.ComponentModel.Annotations",
+            "Microsoft.AspNetCore.Components",
+            "Microsoft.AspNetCore.Components.Web",
+            "TimPurdum.Dev.BlogCreator"
+        ];
+
+        foreach (var assemblyName in systemAssemblies)
+            try
+            {
+                var assembly = Assembly.Load(assemblyName);
+                references.Add(MetadataReference.CreateFromFile(assembly.Location));
+            }
+            catch
+            {
+                // Ignore missing assemblies
+            }
+
+        return references;
+    }
+    
+    private static RazorProjectEngine CreateRazorProjectEngine()
+    {
+        var fileSystem = RazorProjectFileSystem.Create(Directory.GetCurrentDirectory());
+        var projectEngine = RazorProjectEngine.Create(RazorConfiguration.Default, fileSystem, builder =>
+        {
+            builder.SetNamespace("DynamicComponents");
+            builder.SetRootNamespace("DynamicComponents");
+            builder.AddDefaultImports("@using TimPurdum.Dev");
+            builder.AddDefaultImports("@using TimPurdum.Dev.BlogCreator");
+            builder.AddDefaultImports("@using Microsoft.AspNetCore.Components");
+            builder.AddDefaultImports("@using Microsoft.AspNetCore.Components.Web");
+            builder.AddDefaultImports("@using Microsoft.JSInterop");
+            builder.AddDefaultImports("@using System.Linq");
+            builder.AddDefaultImports("@using System.Collections.Generic");
+            builder.AddDefaultImports("@using System.Threading.Tasks");
+            builder.AddDefaultImports("@using System.Text");
+            builder.AddDefaultImports("@using static Microsoft.AspNetCore.Components.Web.RenderMode");
+            builder.AddDefaultImports("@using Microsoft.AspNetCore.Components.Forms");
+            builder.AddDefaultImports("@using Microsoft.AspNetCore.Components.Routing");
+            builder.AddDefaultImports("@using Microsoft.AspNetCore.Components.Web.Virtualization");
+        });
+        return projectEngine;
+    }
+    
+    private static readonly Regex PagePathRegex = new(@"^@page ""(?<path>.+?)""",
+        RegexOptions.Compiled | RegexOptions.Singleline);
+    private static readonly Regex ComponentStartRegex = new("^<(?<componentName>[A-Z][A-Za-z]+)",
+        RegexOptions.Compiled | RegexOptions.Singleline);
+    private static readonly Regex ComponentEndRegex = new("^</(?<componentName>[A-Z][A-Za-z]+)>",
+        RegexOptions.Compiled | RegexOptions.Singleline);
+    private static readonly Regex PageTitleRegex = new("<PageTitle>(?<title>.*?)</PageTitle>",
+        RegexOptions.Compiled | RegexOptions.Singleline);
+    private static readonly Regex ScriptStartRegex = new("<script.*?>[^<]*?(?<scriptEnd></script>)?",
+        RegexOptions.Compiled | RegexOptions.Singleline);
+    private static readonly Regex ScriptEndRegex = new("</script>",
+        RegexOptions.Compiled | RegexOptions.Singleline);
+    private static readonly RazorProjectEngine ProjectEngine = CreateRazorProjectEngine();
+}
+
+public class InMemoryRazorProjectItem(string fileName, string content) : RazorProjectItem
+{
+    public override string BasePath => "/";
+    public override string FilePath => fileName;
+    public override string PhysicalPath => fileName;
+    public override string RelativePhysicalPath => fileName;
+    public override string FileKind => FileKinds.Component;
+    public override string? CssScope => null;
+
+    public override bool Exists => true;
+
+    public override Stream Read()
+    {
+        return new MemoryStream(Encoding.UTF8.GetBytes(content));
+    }
+}

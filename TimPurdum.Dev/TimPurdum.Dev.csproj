@@ -17,14 +17,13 @@
 
     <ItemGroup>
       <Content Remove="Templates\PostTemplate.razor" />
-      <None Include="Templates\PostTemplate.razor" />
     </ItemGroup>
-    
-    <Target Name="Compile Markdown Pages" BeforeTargets="PreBuildEvent">
-        <Message Text="Compiling Markdown" Importance="high" />
-        <Exec WorkingDirectory="../TimPurdum.Dev.BlogConverter" 
-              Command="dotnet run -- $(MSBuildProjectDirectory)"
-              ContinueOnError="false" />
-    </Target>
+<!--    -->
+<!--    <Target Name="Compile Markdown Pages" BeforeTargets="PreBuildEvent" Condition="'$(Configuration)' != 'RELEASE'">-->
+<!--        <Message Text="Compiling Markdown" Importance="high" />-->
+<!--        <Exec WorkingDirectory="$(MSBuildProjectDirectory)\..\TimPurdum.Dev.BlogConverter" -->
+<!--              Command="dotnet run &#45;&#45; $(MSBuildProjectDirectory)"-->
+<!--              ContinueOnError="false" />-->
+<!--    </Target>-->
 </Project>
 

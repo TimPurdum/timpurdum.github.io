@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace TimPurdum.Dev;
 
 public static class StringExtensions
@@ -10,7 +12,7 @@ public static class StringExtensions
         }
 
         ReadOnlySpan<char> input = str;
-        var result = new System.Text.StringBuilder(str.Length);
+        var result = new StringBuilder(str.Length);
 
         bool capitalize = true;
         for (int i = 0; i < input.Length; i++)
@@ -33,6 +35,29 @@ public static class StringExtensions
                     result.Append(char.ToLowerInvariant(c));
                 }
             }
+        }
+
+        return result.ToString();
+    }
+    
+    public static string PascalToKebabCase(this string str)
+    {
+        if (string.IsNullOrEmpty(str))
+        {
+            return str;
+        }
+
+        ReadOnlySpan<char> input = str;
+        var result = new StringBuilder(str.Length);
+
+        for (int i = 0; i < input.Length; i++)
+        {
+            char c = input[i];
+            if (char.IsUpper(c) && i > 0)
+            {
+                result.Append('-');
+            }
+            result.Append(char.ToLowerInvariant(c));
         }
 
         return result.ToString();

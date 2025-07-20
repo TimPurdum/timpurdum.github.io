@@ -1,0 +1,1648 @@
+<?xml version="1.0" encoding="utf-8"?><rss version="2.0"><channel><title>TimPurdum.Dev</title><link>https://timpurdum.dev/</link><description>Tim Purdum is the visionary behind the &lt;a class="dymaptic-branding" target="_blank" href="https://www.geoblazor.com"&gt;&lt;img src="/images/geoblazor.png"&gt;GeoBlazor&lt;/a&gt; mapping library and serves as the Director of Product Development at &lt;a class="dymaptic-branding" target="_blank" href="https://www.dymaptic.com"&gt;&lt;img src="https://www.dymaptic.com/wp-content/uploads/2021/02/dymaptic-smaller.png" alt="dymaptic logo" /&gt;dymaptic&lt;/a&gt;. With a robust background in .NET and web technologies, Tim has been focused on Geographic Information Systems (GIS) since 2021. His expertise and passion for technology have made him a sought-after speaker at numerous conferences, including &lt;a target="_blank" href="https://vslive.com/home.aspx"&gt;Visual Studio Live&lt;/a&gt;, &lt;a target="_blank" href="https://techbash.com/"&gt;TechBash&lt;/a&gt;, &lt;a target="_blank" href="https://iowacodecamp.com/"&gt;Iowa Code Camp&lt;/a&gt;, and &lt;a target="_blank" href="https://www.devupconf.org/"&gt;DevUp&lt;/a&gt;. Tim lives in Cedar Falls, Iowa.</description><item><link>https://timpurdum.dev/post/2022/11/7/static-site-with-jekyll</link><title>Creating a static website with Jekyll</title><description /><pubDate>Mon, 07 Nov 2022 00:00:00 -0600</pubDate><content type="html" xml:base="https://timpurdum.dev/post/2022/11/7/static-site-with-jekyll"><![CDATA[<p>While working on the docs site for <a href="https://docs.geoblazor.com">GeoBlazor</a>, I was introduced to <a href="https://jekyllrb.com/">Jekyll</a>. Now, I've heard of static site generators before, but this was just the perfect fit for a docs site. It also made me think of all the hoops I tend to jump through while creating static sites like this blog, that could be made simpler by using a generator and just writing good ol' markdown.</p>
+<p>There's a lot to recommend about Jekyll. The main downside? I had to install Ruby 😜. No big deal. <a href="https://jekyllrb.com/docs/installation/">Jekyll Installation Docs</a> are pretty easy to follow to get going. Here's a short list of steps for Windows (different OSes will vary):</p>
+<ol>
+<li>Download the latest Ruby+Devkit from <a href="https://rubyinstaller.org/downloads/">RubyInstaller for Windows</a>.</li>
+<li>Run the installer, and select to run <code>ridk install</code> on the last step. Choose the <code>MSYS2 and MINGW development tool chain</code> option.</li>
+<li>Reboot (it says you can just close your terminal, but this didn't work for me).</li>
+<li>Check to make sure <code>ruby</code> and <code>gem</code> are registered with the <code>PATH</code> environment variable for command line actions. I think I ran into an issue on at least one machine where I had to add the path manually (search in the windows start menu for <code>environment variables</code>).</li>
+<li>Run <code>gem install jekyll bundler</code>.</li>
+<li>Navigate to the folder where you want to set up your site.</li>
+<li>Run <code>jekyll new myNewSite</code>, this will create a new folder (<code>./myNewSite</code>).</li>
+<li>Navigate into that folder (<code>cd myNewSite</code>).</li>
+<li>Run <code>bundle exec jekyll serve --livereload</code>.</li>
+<li>Open your browser and navigate to <a target="_blank" href="http://localhost:4000">http://localhost:4000</a>. You should see your new site rendered!</li>
+</ol>
+<p>You don't actually need the <code>--livereload</code> flag to build your site, but I choose to always use this while developing, so that I can quickly see the changes I make to markdown and css sites rendered in the browser.</p>
+<p>These steps got me up and running locally. However, when I went to publish to GitHub Pages,
+I found a few more things I needed to add.</p>
+<ol>
+<li>In your <code>Gemfile</code>, comment out the line starting with <code>gem &quot;jekyll&quot;</code></li>
+<li>Also in the <code>Gemfile</code>, uncomment the line starting with <code>gem &quot;github-pages&quot;</code>, and replace with <code>gem &quot;github-pages&quot;, &quot;~&gt; 227&quot;, group: :jekyll_plugins</code> where 227 is the latest version of the <code>github-pages</code> gem available.</li>
+<li>Run <code>bundle install</code> to install the <code>github-pages</code> gem.</li>
+<li>Run <code>bundle add webrick</code> (no idea, but you'll get an error without it).</li>
+</ol>
+<p>Once these steps are added, try pushing your code up to GitHub, and navigate to <code>https://YOURNAME.github.io</code> to see the code in action!</p>
+]]></content></item><item><link>https://timpurdum.dev/post/2022/11/19/mastodon-feed-in-jekyll</link><title>Adding a Mastodon Feed to your Blog</title><description /><pubDate>Sat, 19 Nov 2022 00:00:00 -0600</pubDate><content type="html" xml:base="https://timpurdum.dev/post/2022/11/19/mastodon-feed-in-jekyll"><![CDATA[<p>While I was <a href="2022-11-07-static-site-width-jekyll">setting up my new Jekyll static blog site</a>, I have also been investigating the rapidly growing world of <a href="https://joinmastodon.org/">Mastodon</a> and the <a href="https://www.fediverse.to/">Fediverse</a>. I wanted to bring the two worlds together, and share a bit of my Mastodon feed on my website. So I threw together a JavaScript function to import and display my feed. This is made possible by the fact that every Mastodon feed is also an <a href="https://en.wikipedia.org/wiki/RSS">RSS</a> feed. For example, if you go to <a href="https://dotnet.social/&commat;TimPurdum.rss">https://dotnet.social/&commat;TimPurdum.rss</a>, you will see my feed as RSS XML.</p>
+<p>Grabbing this feed in modern JavaScript is a breeze with <code>fetch</code>.</p>
+<pre><code class="language-javascript">fetch(rss_url)
+    .then(response =&gt; response.text())
+    .then(str =&gt; new window.DOMParser().parseFromString(str, &quot;text/xml&quot;))
+    .then(data =&gt; {
+        console.log(data);
+    };
+</code></pre>
+<p>Digging into the XML feed, I realized that the <code>description</code> node is already encoded HTML.</p>
+<pre><code class="language-xml">&lt;description&gt;&amp;lt;p&amp;gt;They&amp;amp;#39;ll always be toots to me&amp;lt;/p&amp;gt;&lt;/description&gt;
+</code></pre>
+<p>Unfortunately, because of the encoding, we can't inject this directly into a DOM element as <code>innerHTML</code>. Instead, we need to decode it first. The simplest way to do this is to create a temporary <code>HTMLTextArea</code> element and use that to parse the encoded string.</p>
+<pre><code class="language-javascript">function decodeEntity(inputStr) {
+    var textarea = document.createElement(&quot;textarea&quot;);
+    textarea.innerHTML = inputStr;
+    return textarea.value;
+}
+</code></pre>
+<p>Now we can pass the decoded value to <code>innerHTML</code>.</p>
+<pre><code class="language-javascript">.then(data =&gt; {
+    const items = data.querySelectorAll(&quot;item&quot;);
+    items.forEach(el =&gt; {
+        let content = el.querySelector(&quot;description&quot;).innerHTML.trim();
+        let article = document.createElement('article');
+        article.innerHTML += decodeEntity(content);
+    };
+})
+</code></pre>
+<p>That's the basics! The full code is <a href="https://github.com/TimPurdum/timpurdum.github.io/blob/main/main.js">here</a>, and includes parsing the <code>Date</code> of each post and creating click-through links. Checkout the results on <a href="https://timpurdum.com">my home page</a>! And follow me on Mastodon to talk about software development, especially with #dotnet and #csharp!</p>
+]]></content></item><item><link>https://timpurdum.dev/post/2022/12/10/let-the-sunshine-in-blazor</link><title>Let the Sunshine In</title><description>Finding Your Daylight with GeoBlazor</description><pubDate>Sat, 10 Dec 2022 00:00:00 -0600</pubDate><content type="html" xml:base="https://timpurdum.dev/post/2022/12/10/let-the-sunshine-in-blazor"><![CDATA[<p><a href="https://www.dymaptic.com/let-the-sunshine-in-blazor/"><em>Originally posted on the dymaptic blog on 12/9/22</em></a></p>
+<p>Here in the Northern Hemisphere, we are rapidly approaching the Winter Solstice, also known as the shortest day of the year. Yet sunshine is crucial to human wellbeing. Want to know how to find out when the sun rises and set in your location? We can build a Blazor application that shows the Day/Night Terminator, which is a shadow graphic laid on top of a map that shows exactly where the line is between day and night for any given date and time.</p>
+<p><em>Let’s build a simple Day/Night Terminator web application with Asp.NET Core Blazor and GeoBlazor!</em></p>
+<p><img src="/images/Advent-2022-White-300x284.jpg" :style="display:block; margin-left:auto; margin-right:auto" alt="Graphic of a world map with day/night terminator line, overlaid with a sun and moon icon." /></p>
+<p><a href="https://github.com/dymaptic/GeoBlazor-Samples/SolarTracker">Get the Full Source Code on GitHub</a></p>
+<p><a href="https://advent2022.geoblazor.com/">See the Live Demo</a></p>
+<h2 id="getting-started">Getting Started</h2>
+<p>First, make sure you have the [.NET 7 SDK](<a href="https://dotnet.microsoft.com/en-us/download">Download .NET (Linux, macOS, and Windows) (microsoft.com)</a>) installed on your computer. Now, open up a command prompt (Cmd, Bash, PowerShell, Windows Terminal), navigate to where you like to store code, and type <code>dotnet new blazorwasm-empty -o SolarTracker</code>. This will create a new empty Blazor WebAssembly (wasm) project named <code>SolarTracker</code> inside a folder of the same name. Navigate into the folder with <code>cd SolarTracker</code>, and type <code>dotnet run</code> to see your <code>Hello World</code>.</p>
+<h2 id="add-geoblazor">Add GeoBlazor</h2>
+<p>Hit <code>Ctrl-C</code> to stop your application, then type <code>dotnet add package dymaptic.GeoBlazor.Core</code>. This will import the free and Open-Source <a href="https://www.geoblazor.com">GeoBlazor</a> package into your project.</p>
+<p>To complete this quest, you will also need to sign up for a free ArcGIS Developer account at <a href="https://developers.arcgis.com/sign-up/">https://developers.arcgis.com/sign-up/</a>. Once you create this account, head to <a href="https://developers.arcgis.com/api-keys/">https://developers.arcgis.com/api-keys/</a>, and click <code>New API Key</code>. Give it a title like <code>Solar Tracker</code>, and copy down the generated token.</p>
+<p>Now it's time to fire up your favorite IDE and open your SolarTracker project. Inside, create a new file called <code>appsettings.json</code> inside the <code>wwwroot</code> folder. If you're familiar with Asp.NET Core, you know this is a configuration file. However, by default Blazor WASM doesn't include this file. Paste your ArcGIS API key into the file with the key &quot;ArcGISApiKey&quot;.</p>
+<pre><code class="language-json">{
+    &quot;ArcGISApiKey&quot;: &quot;PASTE_YOUR_KEY_HERE&quot;
+}
+</code></pre>
+<p>Let's add some references to make GeoBlazor work. In <code>wwwroot/index.html</code>, add the following three lines to the <code>head</code> tag. (The third line should already be there, just un-comment it).</p>
+<pre><code class="language-html">&lt;link href=&quot;_content/dymaptic.GeoBlazor.Core&quot;/&gt;
+&lt;link href=&quot;_content/dymaptic.GeoBlazor.Core/assets/esri/themes/light/main.css&quot; rel=&quot;stylesheet&quot; /&gt;
+&lt;link href=&quot;SolarTracker.styles.css&quot; rel=&quot;stylesheet&quot; /&gt;
+</code></pre>
+<p>Next, open up <code>_Imports.razor</code>, and let's add some <code>&commat;using</code> statements to make sure we have access to the GeoBlazor types.</p>
+<pre><code class="language-csharp">&commat;using dymaptic.GeoBlazor.Core.Components
+&commat;using dymaptic.GeoBlazor.Core.Components.Geometries
+&commat;using dymaptic.GeoBlazor.Core.Components.Layers
+&commat;using dymaptic.GeoBlazor.Core.Components.Popups
+&commat;using dymaptic.GeoBlazor.Core.Components.Symbols
+&commat;using dymaptic.GeoBlazor.Core.Components.Views
+&commat;using dymaptic.GeoBlazor.Core.Components.Widgets
+&commat;using dymaptic.GeoBlazor.Core.Model
+&commat;using dymaptic.GeoBlazor.Core.Objects
+</code></pre>
+<p>Finally, open <code>Program.cs</code> and add the following line to import the GeoBlazor &quot;services&quot;.</p>
+<pre><code class="language-csharp">builder.Services.AddGeoBlazor()
+</code></pre>
+<h2 id="add-a-map-to-your-blazor-page">Add a Map to your Blazor Page</h2>
+<p>Now to see the reason for all these imports! Let's open <code>Pages/Imports.razor</code>. Delete the <code>Hello World</code> and add the following.</p>
+<pre><code class="language-html">&lt;MapView Style=&quot;height: 600px; width: 100%;&quot; Zoom=&quot;1.5&quot;&gt;
+    &lt;Map ArcGISDefaultBasemap=&quot;arcgis-streets&quot;&gt;
+        &lt;GraphicsLayer /&gt;
+    &lt;/Map&gt;
+    &lt;LocateWidget Position=&quot;OverlayPosition.TopLeft&quot; /&gt;
+    &lt;SearchWidget Position=&quot;OverlayPosition.TopRight&quot; /&gt;
+&lt;/MapView&gt;
+</code></pre>
+<p>Run your application again, and you should see a world map!</p>
+<p><img src="/images/simple_map_with_search.png" alt="Simple Map with Search" /></p>
+<p>Go ahead and play around with the<code>Locate</code> and <code>Search</code> widgets. Notice that when using either one, there will be a nice dot added to the map to show the location of your device or the search result.</p>
+<p><img src="/images/map_with_point.png" alt="Map with Search Point" /></p>
+<h2 id="calculate-and-draw-the-day-night-terminator">Calculate and Draw the Day / Night Terminator</h2>
+<p>We want to create an interactive graphic that shows where the line is between day and night, so we can figure out when the sun will rise and set. Add the following methods inside a <code>&commat;code { }</code> block at the bottom of <code>Index.razor</code>.</p>
+<pre><code class="language-csharp">private async Task OnMapRendered()
+{
+    // generate the night-time shadow graphic, and store it in _polygon
+    await CreateTerminator();
+    await _graphicsLayer!.Add(new Graphic(_polygon!)
+    {
+        // this constructor will throw a compile-time warning, 
+        // which is safe to ignore and will be fixed in a future 
+        // version of GeoBlazor
+        Symbol = new SimpleFillSymbol
+        {
+            FillStyle = FillStyle.Solid,
+            Color = new MapColor(0, 0, 0, 0.3),
+            Outline = new Outline
+            {
+                Color = new MapColor(0, 0, 0, 0)
+            }
+        }
+    });
+}
+
+private MapView? _mapView;
+private GraphicsLayer? _graphicsLayer;
+private Polygon? _polygon;
+private DateTime _selectedDateTime = DateTime.Now;
+private TimeSpan _timeZoneOffset = TimeSpan.FromHours(-6);
+private const double _k = Math.PI / 180;
+</code></pre>
+<p>We also need to hook up <code>MapView</code> and <code>GraphicsLayer</code> to the reference fields and the <code>OnMapRendered</code> Event Callback, and add an <code>&commat;inject</code> reference at the top of the file.</p>
+<pre><code class="language-html">&commat;page &quot;/&quot;
+&commat;inject Projection Projection
+
+&lt;MapView &commat;ref=&quot;_mapView&quot; OnMapRendered=&quot;OnMapRendered&quot; ...&gt;
+    &lt;Map ArcGISDefaultBasemap=&quot;arcgis-streets&quot;&gt;
+        &lt;GraphicsLayer &commat;ref=&quot;_graphicsLayer&quot; /&gt;
+    &lt;/Map&gt;
+    ...
+</code></pre>
+<p>The next bit I borrowed logic heavily from <a href="https://github.com/jgravois/midnight-commander/blob/master/js/SolarTerminator.js">midnight-commander by Jim Blaney</a>, who in turn used <a href="https://en.wikipedia.org/wiki/Declination">Declination on Wikipedia</a> to build the calculations. Add the following two methods to your <code>&commat;code</code> block.</p>
+<pre><code class="language-csharp">private async Task CreateTerminator()
+{
+    // clear out the graphics from previous runs
+    foreach (var graphic in _graphicsLayer!.Graphics)
+    {
+        await _graphicsLayer.Remove(graphic);
+    }
+
+    int ordinalDay = _selectedDateTime.DayOfYear;
+    
+    double solarDeclination = -57.295779 * 
+                              Math.Asin(0.397788 * 
+                                        Math.Cos(0.017203 * 
+                                                 (ordinalDay + 10) + 0.052465 * 
+                                                 Math.Sin(0.017203 * (ordinalDay - 2))));
+    
+    SpatialReference spatialReference = (await _mapView!.GetSpatialReference())!;
+
+    bool isWebMercator = spatialReference.Wkid is null ||
+        (int)spatialReference.Wkid == 102100 ||
+        (int)spatialReference.Wkid == 3857 ||
+        (int)spatialReference.Wkid == 102113;
+    
+    double yMax = isWebMercator ? 85 : 90;
+    double latitude = yMax * (solarDeclination &gt; 0 ? -1 : 1);
+    
+    List&lt;MapPath&gt; rings = new();
+    
+    DateTime utcDateTime = _selectedDateTime.Subtract(_timeZoneOffset);
+
+    for (double lon = -180; lon &lt; 180; lon++)
+    {
+        MapPath path = new(new(lon + 1, latitude), 
+                           new(lon, latitude), 
+                           new(lon, 
+                               GetLatitude(lon, solarDeclination, -yMax, yMax, utcDateTime)), 
+                           new(lon + 1, 
+                               GetLatitude(lon, solarDeclination, -yMax, yMax, utcDateTime)),
+                           new(lon + 1, latitude));
+
+        rings.Add(path);
+    }
+
+    _polygon = new Polygon(rings.ToArray(), SpatialReference.Wgs84);
+    if (isWebMercator)
+    {
+        _polygon = (Polygon)(await Projection.Project(_polygon, SpatialReference.WebMercator))!;
+    }
+}
+
+private double GetLatitude(double longitude, double solarDeclination, 
+                           double yMin, double yMax, DateTime utcDateTime)
+{
+    double lt = utcDateTime.Hour + utcDateTime.Minute / 60.0 + utcDateTime.Second / 3600.0;
+    double tau = 15 * (lt - 12);
+    longitude += tau;
+    double tanLat = -Math.Cos(longitude * _k) / Math.Tan(solarDeclination * _k);
+    double arctanLat = Math.Atan(tanLat) / _k;
+    return Math.Max(Math.Min(arctanLat, yMax), yMin);
+}
+</code></pre>
+<p>Running your application now should show the Day/Night Terminator laid on top of the map!</p>
+<p><img src="/images/DayNightTerminator.png" alt="Day / Night Terminator" /></p>
+<h2 id="control-the-date-and-time">Control The Date and Time</h2>
+<p>Let's give our application some controls and a header. Right after the <code>&commat;inject</code> line at the top, add the following.</p>
+<pre><code class="language-html">&lt;h1&gt;Day/Night Terminator&lt;/h1&gt;
+
+&lt;div&gt;
+    &lt;label&gt;
+    	Date:
+        &lt;input type=&quot;date&quot; 
+               value=&quot;&commat;_selectedDateTime.ToString(&quot;yyyy-MM-dd&quot;)&quot; 
+               &commat;onchange=&quot;UpdateDate&quot; /&gt;
+    &lt;/label&gt; 
+    &lt;label&gt;
+        Time:
+        &lt;input style=&quot;width: 96px;&quot; 
+               type=&quot;time&quot; 
+               value=&quot;&commat;_selectedDateTime.ToString(&quot;HH:mm&quot;)&quot; 
+               &commat;onchange=&quot;UpdateTime&quot; /&gt;
+    &lt;/label&gt;
+&lt;/div&gt;
+</code></pre>
+<p>In the <code>&commat;code</code> block, add the new methods.</p>
+<pre><code class="language-csharp">private async Task UpdateDate(ChangeEventArgs arg)
+{
+    string[]? dateSegments = arg.Value?.ToString()?.Split('-');
+    if (dateSegments is null || dateSegments.Length != 3) return;
+    int year = int.Parse(dateSegments[0]);
+    int month = int.Parse(dateSegments[1]);
+    int day = int.Parse(dateSegments[2]);
+    _selectedDateTime = new DateTime(year, month, day, 
+                                     _selectedDateTime.Hour, 
+                                     _selectedDateTime.Minute, 0);
+    await OnMapRendered();
+}
+
+private async Task UpdateTime(ChangeEventArgs arg)
+{
+    string[]? timeSegments = arg.Value?.ToString()?.Split(':');
+    if (timeSegments is null || timeSegments.Length &lt; 2) return;
+    int hour = int.Parse(timeSegments[0]);
+    int minutes = int.Parse(timeSegments[1]);
+    _selectedDateTime = new DateTime(_selectedDateTime.Year, 
+                                     _selectedDateTime.Month, 
+                                     _selectedDateTime.Day, hour, minutes, 0);
+    await OnMapRendered();
+}
+</code></pre>
+<p>Run the application, and you will be able to control the terminator graphic by changing the date/time. Try switching to a summer month, and notice the drastically different shadow!</p>
+<h3 id="winter">Winter</h3>
+<p><img src="/images/winterTerminator.png" alt="Winter Terminator" /></p>
+<h3 id="summer">Summer</h3>
+<p><img src="/images/summerTerminator.png" alt="Summer Terminator" /></p>
+<p>You can now put in the date and time for any day you want, and the application will show you where the terminator sits. To find sunrise or sunset at your location, use the <code>Locate</code> or <code>Search</code> widget, then use the up/down arrow keys in the <code>Time</code> field to watch the shadow move, until the line is just on top of your point. Now you have a fun, interactive tool to track the sun, so don’t forget to go out and soak in some rays while you can! A more full-featured version of this tool is online at <a href="https://advent2022.geoblazor.com">advent2022.GeoBlazor.com</a> and the code can be found on GitHub. You can get in touch with me at <a href="mailto:tim.purdum&commat;dymaptic.com">tim.purdum&commat;dymaptic.com</a>, <a href="https://dotnet.social/&commat;TimPurdum">&commat;TimPurdum&commat;dotnet.social</a> (Mastodon) or Join our Discord server. Ask <a href="https://www.dymaptic.com">dymaptic</a> how we can help you with software or GIS. I hope you enjoyed the post and continue to enjoy the winter holiday season!</p>
+]]></content></item><item><link>https://timpurdum.dev/post/2023/4/22/creating-geoblazor</link><title>Creating GeoBlazor</title><description>How I started an open source library</description><pubDate>Sat, 22 Apr 2023 00:00:00 -0500</pubDate><content type="html" xml:base="https://timpurdum.dev/post/2023/4/22/creating-geoblazor"><![CDATA[<p><a href="https://blog.dymaptic.com/creating-geoblazor-the-asp-net-core-web-mapping-library"><em>Originally posted on the dymaptic blog on 3/2/23</em></a></p>
+<p>This is a story about how I came to build the <a href="https://geoblazor.com">GeoBlazor</a> SDK and component library. In 2022 dymaptic invited me to attend my first <a href="https://www.esri.com/en-us/about/events/devsummit/overview">Esri Developer Summit</a>, where I learned all about the ArcGIS platform, SDKs, and services. ArcGIS is the leading enterprise Geospatial Information software service, used by private and public sector agencies around the world. The scope of both the conference and the software was impressive, and I learned a great deal in that week.</p>
+<p><img src="/images/Creating-GeoBlazor.jpg" :style="display:block; margin-left:auto; margin-right:auto" alt="A computer tablet and pen showing the making of GeoBlazor" /></p>
+<p>While I was new to ArcGIS, I was already an experienced .NET software developer, with an especially keen interest in web development. I started off the conference by walking the exhibition hall, looking to learn all the different technologies available. I quickly found the <a href="https://developers.arcgis.com/net/">ArcGIS Runtime SDK for .NET</a> (now called &quot;ArcGIS Maps SDK for .NET&quot;), which allows using ArcGIS on desktop and mobile applications, previously via Xamarin but now updated to <a href="https://dotnet.microsoft.com/en-us/apps/maui">.NET MAUI</a>. There were also SDKs for building add-ins to the ArcGIS Pro desktop application and the Unity game engine, both of which are built on .NET/C#.</p>
+<p>I then went looking for web development options, and I found the <a href="https://developers.arcgis.com/javascript/latest/">ArcGIS API for JavaScript</a> (now rebranded to &quot;ArcGIS MAPS SDK for JavaScript&quot;). This tool allows embedding ArcGIS maps in any web application and is also the backbone of the other Esri web applications, such as <a href="https://www.esri.com/en-us/arcgis/products/arcgis-online/overview">ArcGIS Online</a> and <a href="https://www.esri.com/en-us/arcgis/products/arcgis-experience-builder/overview">ArcGIS Experience Builder</a>.</p>
+<p>I quickly noticed a &quot;gap&quot; in the Esri product offerings for developers. While .NET was obviously a core part of the Esri developer community, there was no way to run ArcGIS with Asp.NET Core web applications. All of the .NET solutions were geared toward on-device applications. Yet, I knew from my previous experience with <a href="https://learn.microsoft.com/en-us/aspnet/core/blazor/?view=aspnetcore-7.0">Blazor</a> that it was quite possible to call any JavaScript code from Blazor, and run such an application on an Asp.NET Core server, in WebAssembly on the client, or even embed it within a MAUI application. I started attending the JavaScript API sessions at the conference, and while listening, was also building a proof-of-concept Blazor application that simply called into the same JS samples that were being presented. This was the foundation of what would become GeoBlazor.</p>
+<p>One early decision I made for GeoBlazor was to offer more than simply a 1-1 wrapper around ArcGIS. I decided that GeoBlazor should be component-first, like Blazor and many JS frameworks. Thus, I came up with a pattern of <a href="https://learn.microsoft.com/en-us/aspnet/core/blazor/components/?view=aspnetcore-7.0">Razor Components</a> that could be stacked together in HTML-based markup to build a map view.</p>
+<pre><code class="language-html">&lt;MapView Longitude=&quot;-97.75188&quot; Latitude=&quot;37.23308&quot; Zoom=&quot;11&quot; Style=&quot;height: 400px; width: 100%;&quot;&gt; 
+    &lt;WebMap&gt;
+        &lt;PortalItem Id=&quot;4a6cb60ebbe3483a805999d481c2daa5&quot; /&gt;
+    &lt;/WebMap&gt;
+    &lt;ScaleBarWidget Position=&quot;OverlayPosition.BottomLeft&quot; /&gt;
+&lt;/MapView&gt;
+</code></pre>
+<p>Internally, Blazor is designed to render each Razor Component independently and iterates through components from the child up to the parent. It also is built to re-render any changes immediately. Translating these patterns into a JavaScript wrapper for ArcGIS was a development challenge. Even more challenging was returning state changes from JavaScript and user interaction back to the C# code. My article on <a href="https://www.dymaptic.com/blazor-and-javascript-passing-object-references/">Using ObjectReferences to Embed a JavaScript Text Editor in Blazor</a> outlines some simple examples of how Blazor and JavaScript are kept in sync in GeoBlazor.</p>
+<p>We recently released version 2.0.0 of GeoBlazor where we continue to build upon the early component-model concept with additional layer types, widgets, and other components. GeoBlazor now also offers more support for user interactions, such as click event handlers, hit tests (determine what graphics were clicked on), and feature querying. You can see our full set of sample pages at <a href="https://samples.geoblazor.com">https://samples.geoblazor.com</a>.</p>
+]]></content></item><item><link>https://timpurdum.dev/post/2023/7/22/linq-and-javascript</link><title>LINQ Equivalents in JavaScript</title><description>Move Seamlessly Between Languages</description><pubDate>Sat, 22 Jul 2023 00:00:00 -0500</pubDate><content type="html" xml:base="https://timpurdum.dev/post/2023/7/22/linq-and-javascript"><![CDATA[<p><a href="https://blog.dymaptic.com/c-linq-equivalents-in-javascript">Originally posted on the dymaptic blog on June 16, 2023</a></p>
+<p>When I'm working on <a href="www.geoblazor.com">GeoBlazor</a> or other Blazor applications, I often have to switch between C# and JavaScript/TypeScript. While the two languages have a <em>lot</em> in common (C family syntax, async/await, lambda functions), one place I often get confused is when dealing with arrays or collections of items. In C#, the most straightforward way to do this is with <a href="https://learn.microsoft.com/en-us/dotnet/api/system.linq.enumerable"><code>LINQ</code> queries</a>. Most of these query methods work on any collection type, including <code>Array</code>, <code>List</code>, <code>ReadOnlyList</code>, <code>HashSet</code>, and the related interfaces. The root interface necessary is <code>IEnumerable</code>.</p>
+<p>With ES6 and later versions, JavaScript has adopted many of these same approaches as <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">methods on the <code>Array</code> class</a>, using <code>Array.prototype</code> (<a href="https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Objects/Object_prototypes">prototype is the JavaScript concept of inheritance</a>).</p>
+<p><img src="/images/C-Sharp-LINQ.jpg" alt="C# LINQ to JavaScript Equivalents" /></p>
+<p>In this post, I am going to discuss all of the methods of <code>IEnumerable</code> in <code>LINQ</code> and their JavaScript equivalents. Some of these methods are very common, while others, such as the <a href="https://exceptionnotfound.net/bite-size-dotnet-6-unionby-intersectby-exceptby-and-distinctby/">new .NET 6 <code>...By</code> methods</a>, are less well known. I'm also not going to deal with every possible parameter overload, as many LINQ methods allow for custom <code>IComparer</code> implementations or other optional parameters. In most cases, you will see that JavaScript has fewer methods than C#, but that they can be used in many of the same ways. It is also important to note that all <code>IEnumerable</code> methods return a <em>new</em> collection, and do not modify the original input collection. C# does have mutable collection methods, for example on the <code>List</code> class, such as <code>Add</code>, <code>Remove</code>, <code>Sort</code>, but these are kept distinct from the LINQ methods to make it clearer when you are mutating the original value. In JavaScript, both mutating and functional methods exist on <code>Array.prototype</code>. In fact, there is a recent collection of new methods that <em>only</em> return a new array, such as <code>toSorted</code>, <code>toReversed</code>, and <code>toSpliced</code>, but these are <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toSpliced#browser_compatibility">not yet implemented in all major browsers</a> at the time of writing. In the comparison chart, I do use several mutating array methods, but only because there is no functional equivalent in JavaScript to compare to LINQ.</p>
+<p>If you want to skip to the comparison table to look up a method, <a href="#comparison-chart">jump to the end of this post</a>.</p>
+<h2 id="creating-a-new-collection">Creating a new Collection</h2>
+<p>In both languages, you can easily create a new collection. <code>new List&lt;T&gt;()</code> in C#, or <code>[]</code> in JavaScript, for example. C# also has the following convenience static methods on <code>IEnumerable</code> to generate a new collection.</p>
+<h3 id="c">C#</h3>
+<ul>
+<li><code>Empty</code> - Creates a new, empty <code>IEnumerable</code> instance.</li>
+<li><code>Range</code> - Creates a new collection of sequential intervals, with a given start index and count.</li>
+<li><code>Repeat</code> - Generates a new collection with the same item repeated a given <code>Count</code> times.</li>
+</ul>
+<h2 id="finding-a-single-record">Finding a Single Record</h2>
+<h3 id="c-1">C#</h3>
+<ul>
+<li><code>ElementAt</code> - Finds the element at a particular index. Similar to using an indexer (e.g., <code>array[index]</code>). Throws if the index is out of range.</li>
+<li><code>ElementAtOrDefault</code> - Like <code>ElementAt</code> but returns <code>default</code> (<code>null</code> for nullable types) if the index is out of range.</li>
+<li><code>First</code> - Finds the first item that matches the predicate. Throws on no match.</li>
+<li><code>FirstOrDefault</code> - Like <code>First</code> but returns <code>default</code> if no match is found.</li>
+<li><code>Last</code> - Finds the <em>last</em> item that matches the predicate. Throws on no match.</li>
+<li><code>LastOrDefault</code> - Like <code>Last</code> but returns <code>default</code> if no match is found.</li>
+<li><code>Max</code> - Returns the item with the highest numeric value.</li>
+<li><code>MaxBy</code> - Returns the item with the highest <code>Key</code> value according to the given <code>IComparer</code>.</li>
+<li><code>Min</code> - Returns the item with the lowest numeric value.</li>
+<li><code>MinBy</code> - Returns the item with the lowest <code>Key</code> value according to the given <code>IComparer</code>.</li>
+<li><code>Single</code> - Like <code>First</code> but also throws if multiple matches are found.</li>
+<li><code>SingleOrDefault</code> Like <code>FirstOrDefault</code> but also throws if multiple matches are found.</li>
+</ul>
+<p>As you can see, each method comes in two flavors, <code>null</code>-forgiving, and <code>null</code>-throwing. Like <a href="https://learn.microsoft.com/en-us/dotnet/csharp/nullable-references">Nullable Reference Types</a>, this is useful for explicitly declaring your intentions, and not accidentally returning a <code>null</code> where you really expected there to be a value. The <code>Single</code> methods also verify that you have exactly one match in your collection.</p>
+<h3 id="javascript">JavaScript</h3>
+<ul>
+<li><code>at</code> - Finds the element at a particular index.</li>
+<li><code>find</code> - Finds the first element that matches the predicate.</li>
+<li><code>findLast</code> - Finds the <em>last</em> element that matches the predicate.</li>
+</ul>
+<p>In JavaScript, we have fewer methods that return a single value. Unlike in C#, JavaScript never throws errors if it fails to find an item. Instead, all of these methods return an <code>undefined</code> value if a match is not found. There is also no equivalent of <code>Single</code> in JavaScript. Instead, you would have to <code>filter</code> and then <code>throw</code> if you found more than one match.</p>
+<h2 id="finding-or-filtering-multiple-records">Finding or Filtering Multiple Records</h2>
+<h3 id="c-2">C#</h3>
+<ul>
+<li><code>Distinct</code> - Removes any duplicate entries and returns a collection in which each entry is unique.</li>
+<li><code>DistinctBy</code> - Removes entries with duplicate <code>Key</code> values.</li>
+<li><code>Except</code> - Returns all items from the first collection that are <em>not</em> in the second collection.</li>
+<li><code>ExceptBy</code> - Returns all items from the first collection that do <em>not</em> have a matching <code>Key</code> value in the second collection.</li>
+<li><code>Intersect</code> - Compares two collections and returns all items that are present in both.</li>
+<li><code>IntersectBy</code> - Compares two collections and returns all items that have matching <code>Key</code> values in both.</li>
+<li><code>OfType&lt;T&gt;</code> - Filters the collection to only records of a particular <code>Type</code>.</li>
+<li><code>Skip</code> - Skips a specified number of records, and then returns the rest of the collection.</li>
+<li><code>SkipLast</code> - Returns the collection minus the specified number of records at the end.</li>
+<li><code>SkipWhile</code> - Skips forward over the collection until the predicate is <code>false</code>, and then returns the rest of the collection.</li>
+<li><code>Take</code> - Returns the first specified number of elements in the collection.</li>
+<li><code>TakeLast</code> - Returns the specified number of elements from the end of the collection.</li>
+<li><code>TakeWhile</code> - Returns all elements from the start of the collection until the predicate is <code>false</code>.</li>
+<li><code>Where</code> - Finds all matches to the predicate. If none found, returns an empty IEnumerable.</li>
+</ul>
+<h3 id="javascript-1">JavaScript</h3>
+<ul>
+<li><code>filter</code> - Finds all matches to the predicate. If none found, returns an empty array.</li>
+<li><code>slice</code> - Returns a sub-section of the collection by start index and optional end index.</li>
+</ul>
+<p>Once again, C# has multipe methods that can filter a collection, whereas JavaScript has just the one. Yet you can easily <code>filter</code> on class type or the contents of a second array.</p>
+<h2 id="sorting-records">Sorting Records</h2>
+<h3 id="c-3">C#</h3>
+<ul>
+<li><code>Order</code> - Sorts the items by their default comparison in ascending order.</li>
+<li><code>OrderBy</code> - Sorts the items by a <code>Key</code> value in ascending order.</li>
+<li><code>OrderByDescending</code> - Sorts the items by a <code>Key</code> value in descending order.</li>
+<li><code>OrderDescending</code> - Sorts the items by their default comparison in descending order.</li>
+<li><code>Reverse</code> - Returns a collection in the opposite order from the original.</li>
+<li><code>ThenBy</code> - Used to chain sorting calls with any <code>Order</code>, <code>OrderBy</code> or other <code>ThenBy</code> call. Sorts by a new <code>Key</code> ascending.</li>
+<li><code>ThenByDescending</code> - Used to chain sorting calls with any <code>Order</code>, <code>OrderBy</code> or other <code>ThenBy</code> call. Sorts by a new <code>Key</code> descending.</li>
+</ul>
+<h3 id="javascript-2">JavaScript</h3>
+<ul>
+<li><code>sort</code> - Sorts the items by their default order or a comparison function. Mutates the original array.</li>
+<li><code>reverse</code> - Returns the array in the opposite order from the original. Mutates the original array.</li>
+</ul>
+<h2 id="combining-or-adding-to-collections">Combining or Adding to Collections</h2>
+<h3 id="c-4">C#</h3>
+<ul>
+<li><code>Append</code> - Adds a new item to the end of the collection.</li>
+<li><code>Concat</code> - Adds a new collection to the end of the first collection.</li>
+<li><code>Join</code> - Combines two collections, based on a defined <code>Key</code> in each, and a custom function to join the two together.</li>
+<li><code>Prepend</code> - Adds a new item to the beginning of the collection.</li>
+<li><code>Union</code> - Combines two collections, excluding duplicates.</li>
+<li><code>UnionBy</code> - Combines two collections, limiting each <code>Key</code> to a single instance.</li>
+</ul>
+<h3 id="javascript-3">JavaScript</h3>
+<ul>
+<li><code>concat</code> - Adds a new array to the end of the first array. Does not alter the existing arrays.</li>
+<li><code>push</code> - Adds a new item to the end of the array, and returns the new <code>length</code>.</li>
+<li><code>unshift</code> - Adds a new item to the beginning of the array, and returns the new <code>length</code>.</li>
+</ul>
+<h2 id="boolean-methods">Boolean Methods</h2>
+<p>These methods return a <code>true</code> or <code>false</code> depending on what is in the collection.</p>
+<h3 id="c-5">C#</h3>
+<ul>
+<li><code>All</code> - Returns <code>true</code> if all items match the predicate.</li>
+<li><code>Any</code> - Returns <code>true</code> if any item matches the predicate.</li>
+<li><code>Contains</code> - Returns <code>true</code> if the item is in the collection.</li>
+<li><code>SequenceEqual</code> - Compares each item in two collections, and returns <code>true</code> if they all match.</li>
+</ul>
+<h3 id="javascript-4">JavaScript</h3>
+<ul>
+<li><code>every</code> - Returns <code>true</code> if all items match the predicate.</li>
+<li><code>includes</code> - Returns <code>true</code> if the item is in the array.</li>
+<li><code>some</code> - Returns <code>true</code> if any item matches the predicate.</li>
+</ul>
+<h2 id="counting-and-transforming-items">Counting and Transforming Items</h2>
+<p>There are many transformations possible on a collection of items, especially on numeric types. These methods can be very powerful, and are in my opinion the hardest to keep straight in terms of different names. For example, <code>Aggregate</code>, and <code>reduce</code> seem like opposite terms, yet they are actually the same concept! <code>Select</code> and <code>map</code> are probably the most common transformation in each language, so it is important to know how to use them well.</p>
+<h3 id="c-6">C#</h3>
+<ul>
+<li><code>Aggregate</code> - Applies an <code>Accumulator</code> function to the collection, where each item and the accumulation are passed as parameters. Also supports giving a starting <code>seed</code> value.</li>
+<li><code>Average</code> - Finds the numeric average of the collection values.</li>
+<li><code>Count</code> - Returns the number of collection items as an <code>int</code>.</li>
+<li><code>LongCount</code> - Returns the number of collection items as a <code>long</code>.</li>
+<li><code>Select</code> - Transforms each item in the collection via a custom function into a new value.</li>
+<li><code>SelectMany</code> - Transforms each item in the collection into a new <em>collection</em> of values, which are then flattened into a single new collection.</li>
+<li><code>Sum</code> - Adds all the values together for the collection.</li>
+<li><code>TryGetNonEnumeratedCount</code> - Attempts to count the items in the collection without actually enumerating the items. Returns a boolean to indicate success, and has an <code>out</code> parameter with the count value.</li>
+<li><code>Zip</code> - Uses a custom function to combine each item in two collections together by index.</li>
+</ul>
+<h3 id="javascript-5">JavaScript</h3>
+<ul>
+<li><code>flatMap</code> - Transforms each item in the collection into a new <em>array</em> of values, which are then flattened into a single array.</li>
+<li><code>length</code> - Returns the number of items in the array.</li>
+<li><code>map</code> - Transforms each item in the array via a custom function into a new value.</li>
+<li><code>reduce</code> - Applies an <code>accumulator</code> function to the array, where each item and the accumulation are passed as parameters. Also supports an <code>initialValue</code>.</li>
+</ul>
+<h2 id="c-only-type-transformations">C#-Only Type Transformations</h2>
+<p>These methods do not have a JavaScript equivalent because JS is a loosely-typed language. Instead, you can simply <em>treat</em> one type like another, and if it has the correct properties and methods, it will work. In C#, not only do you need to cast to the appropriate collection type for some usages, but since many LINQ methods use <a href="https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/linq/classification-of-standard-query-operators-by-manner-of-execution#deferred">deferred execution</a>, this also forces the query to actually run and produce an in-memory collection.</p>
+<ul>
+<li><code>AsEnumerable</code> - Returns the collection as an <code>IEnumerable&lt;T&gt;</code>.</li>
+<li><code>Cast&lt;T&gt;</code> - Returns the collection with each item cast to the <code>T</code> value in an <code>IEnumerable&lt;T&gt;</code>.</li>
+<li><code>DefaultIfEmpty</code> - Returns the original collection, or if the collection was empty, returns a new collection with a single, default value (e.g., <code>null</code>).</li>
+<li><code>ToArray</code> - Returns a fixed-length array.</li>
+<li><code>ToDictionary</code> - Transforms a simple collection into a Key/Value pair Dictionary.</li>
+<li><code>ToHashSet</code> - Returns a collection with no duplicates, similar to <code>Distinct</code>, but the <code>HashSet</code> type prevents adding duplicates in the future as well.</li>
+<li><code>ToList</code> - Returns a mutable list that can be added to or removed from.</li>
+<li><code>ToLookup</code> - Groups the collection under <code>key</code> lookup values.</li>
+</ul>
+<h2 id="c-only-grouping-records">C#-Only Grouping Records</h2>
+<ul>
+<li><code>Chunk</code> - Creates a collection of arrays, of a fixed maximum size, from the original collection.</li>
+<li><code>GroupBy</code> - Creates a collection of <code>IGrouping</code> elements, each of which is a collection of items from the original collection grouped by a predicate.</li>
+<li><code>GroupJoin</code> - Creates a new collection, normally with a different <code>Type</code>, that contains the joined results of two collections.</li>
+</ul>
+<h2 id="comparison-chart">Comparison Chart</h2>
+<p>In the following chart, I aimed for a 1-1 comparison whenever possible. If there was no JavaScript Array method, I tried to find the most succinct way of achieving the same result in code.</p>
+<p>C# LINQ <code>IEnumerable</code> Method</p>
+<p>JavaScript <code>Array.prototype</code> Method</p>
+<p><code>Aggregate((acc, x) =&gt; function, seed)</code></p>
+<p><code>reduce((acc, x) =&gt; function, seed)</code></p>
+<p><code>All(x =&gt; predicate)</code></p>
+<p><code>every(x =&gt; predicate)</code></p>
+<p><code>Any(x =&gt; predicate)</code></p>
+<p><code>some(x =&gt; predicate)</code></p>
+<p><code>Append(item)</code></p>
+<p><code>push(item)</code></p>
+<p><code>AsEnumerable()</code></p>
+<p>N/A</p>
+<p><code>Average()</code></p>
+<p><code>reduce((acc, x) =&gt; acc + x) / array.length</code></p>
+<p><code>Cast&lt;T&gt;()</code></p>
+<p>N/A</p>
+<p><code>Chunk(size)</code></p>
+<p>no simple equivalent</p>
+<p><code>Concat(otherIEnumerable)</code></p>
+<p><code>concat(otherArray)</code></p>
+<p><code>Contains(item)</code></p>
+<p><code>includes(item)</code></p>
+<p><code>Count()</code></p>
+<p><code>length</code></p>
+<p><code>DefaultIfEmpty()</code></p>
+<p><code>some() ? array : undefined</code></p>
+<p><code>Distinct()</code></p>
+<p><code>[...new Set(array)]</code> <sup>2</sup></p>
+<p><code>DistinctBy(x =&gt; x.Key)</code></p>
+<p>no simple equivalent</p>
+<p><code>ElementAt(index)</code></p>
+<p><code>at(index)</code></p>
+<p><code>ElementAtOrDefault(index)</code></p>
+<p><code>at(index)</code></p>
+<p><code>Empty&lt;T&gt;()</code> <sup>1</sup></p>
+<p><code>[]</code> <sup>2</sup></p>
+<p><code>Except(otherIEnumerable)</code></p>
+<p><code>filter(x =&gt; !otherArray.includes(x))</code></p>
+<p><code>ExceptBy(other, x =&gt; x.Key)</code></p>
+<p>no simple equivalent</p>
+<p><code>First(x =&gt; predicate)</code></p>
+<p><code>find(x =&gt; predicate)</code></p>
+<p><code>FirstOrDefault(x =&gt; predicate)</code></p>
+<p><code>find(x =&gt; predicate)</code></p>
+<p><code>GroupBy(x =&gt; predicate)</code></p>
+<p>no simple equivalent <sup>3</sup></p>
+<p><code>GroupJoin(inner, o =&gt; o.Key, i =&gt; i.Key, func, comparer)</code></p>
+<p>no simple equivalent</p>
+<p><code>Intersect(other)</code></p>
+<p><code>filter(x =&gt; otherArray.includes(x))</code></p>
+<p><code>IntersectBy(other, x =&gt; x.Key, comparer)</code></p>
+<p>no simple equivalent</p>
+<p><code>Join(inner, o =&gt; o.Key, i =&gt; i.Key, func)</code></p>
+<p>no simple equivalent</p>
+<p><code>Last(x =&gt; predicate)</code></p>
+<p><code>findLast(x =&gt; predicate)</code></p>
+<p><code>LastOrDefault(x =&gt; predicate)</code></p>
+<p><code>findLast(x =&gt; predicate)</code></p>
+<p><code>LongCount()</code></p>
+<p><code>length</code></p>
+<p><code>Max()</code></p>
+<p><code>Math.max(...array)</code> <sup>2</sup></p>
+<p><code>MaxBy(x =&gt; x.Key)</code></p>
+<p><code>sort((a, b) =&gt; b.Key - a.Key)[0]</code></p>
+<p><code>Min()</code></p>
+<p><code>Math.min(...array)</code> <sup>2</sup></p>
+<p><code>MinBy(x =&gt; x.Key)</code></p>
+<p><code>sort((a, b) =&gt; a.Key - b.Key)[0]</code></p>
+<p><code>OfType&lt;T&gt;()</code></p>
+<p><code>filter(x =&gt; x instanceof T)</code></p>
+<p><code>Order()</code></p>
+<p><code>sort()</code> <sup>4</sup></p>
+<p><code>OrderBy(x =&gt; x.Key)</code></p>
+<p><code>sort((a, b) =&gt; a.key - b.key)</code> <sup>4</sup></p>
+<p><code>OrderByDescending(x =&gt; x.Key)</code></p>
+<p><code>sort((a, b) =&gt; b.key - a.key)</code> <sup>4</sup></p>
+<p><code>OrderDescending()</code></p>
+<p><code>sort((a, b) =&gt; b - a)</code> <sup>4</sup></p>
+<p><code>Prepend(item)</code></p>
+<p><code>unshift(item)</code> <sup>4</sup></p>
+<p><code>Range(start, count)</code> <sup>1</sup></p>
+<p><code>[...Array(count + start).keys()].slice(start)</code> <sup>2</sup></p>
+<p><code>Repeat(item, count)</code> <sup>1</sup></p>
+<p><code>fill(item, startIndex, endIndex)</code> <sup>4</sup></p>
+<p><code>Reverse()</code></p>
+<p><code>reverse()</code> <sup>4</sup></p>
+<p><code>Select(x =&gt; function)</code></p>
+<p><code>map(x =&gt; function)</code></p>
+<p><code>SelectMany(x =&gt; function)</code></p>
+<p><code>flatMap(x =&gt; function)</code></p>
+<p><code>SequenceEqual(otherIEnumerable)</code></p>
+<p>no simple equivalent</p>
+<p><code>Single(x =&gt; predicate)</code></p>
+<p><code>filter(x =&gt; predicate); result.length &gt; 1 ? throw error;</code></p>
+<p><code>SingleOrDefault(x =&gt; predicate)</code></p>
+<p><code>filter(x =&gt; predicate); result.length &gt; 1 ? throw error;</code></p>
+<p><code>Skip(count)</code></p>
+<p><code>slice(count)</code></p>
+<p><code>SkipLast(count)</code></p>
+<p><code>slice(0, -count)</code></p>
+<p><code>SkipWhile(x =&gt; predicate)</code></p>
+<p>no simple equivalent</p>
+<p><code>Sum()</code></p>
+<p><code>reduce((acc, x) =&gt; acc + x)</code></p>
+<p><code>Take(count)</code></p>
+<p><code>slice(0, count)</code></p>
+<p><code>TakeLast(count)</code></p>
+<p><code>slice(-count)</code></p>
+<p><code>TakeWhile(x =&gt; predicate)</code></p>
+<p>no simple equivalent</p>
+<p><code>ThenBy(x =&gt; x.Key)</code></p>
+<p>no simple equivalent</p>
+<p><code>ThenByDescending(x =&gt; x.Key)</code></p>
+<p>no simple equivalent</p>
+<p><code>ToArray()</code></p>
+<p>N/A</p>
+<p><code>ToDictionary(x =&gt; function, x =&gt; function)</code></p>
+<p><code>reduce((acc, x, i) =&gt; acc[functionK] = functionV)</code></p>
+<p><code>ToHashSet()</code></p>
+<p><code>new Set(array)</code> <sup>2</sup></p>
+<p><code>ToList()</code></p>
+<p>N/A</p>
+<p><code>ToLookup(x =&gt; function, x =&gt; function)</code></p>
+<p>no simple equivalent</p>
+<p><code>TryGetNonEnumerated(out int count)</code></p>
+<p>no simple equivalent</p>
+<p><code>Where(x =&gt; predicate)</code></p>
+<p><code>filter(x =&gt; predicate)</code></p>
+<p><code>Union(otherIEnumerable)</code></p>
+<p><code>[...new Set(array.concat(otherArray))]</code></p>
+<p><code>UnionBy(other, x =&gt; x.Key)</code></p>
+<p>no simple equivalent</p>
+<p><code>Zip(other, (a, b) =&gt; function)</code></p>
+<p><code>map((a, i) =&gt; functionWithOther[i])</code></p>
+<p><sup>1</sup> - <em>static method on <code>Enumerable</code></em><br/>
+<sup>2</sup> - <em>not a method on <code>Array.prototype</code></em><br/>
+<sup>3</sup> - <em><code>group</code> method is in experimental stage</em><br/>
+<sup>4</sup> - <em>mutates the original array</em><br/></p>
+<h2 id="conclusion">Conclusion</h2>
+<p>I hope this deep dive into LINQ functional methods and their JavaScript Array counterparts was useful. If you are a .NET Blazor developer or interested in GeoSpatial Information Systems (GIS), checkout <a href="https://geoblazor.com">GeoBlazor</a> and the <a href="https://blog.dymaptic.com">dymaptic blog</a> for more content!</p>
+]]></content></item><item><link>https://timpurdum.dev/post/2023/10/8/using-esbuild-with-blazor</link><title>Using ESBuild with Blazor</title><description>How to Bundle JavaScript packages and Compile TypeScript for your Blazor project</description><pubDate>Sun, 08 Oct 2023 00:00:00 -0500</pubDate><content type="html" xml:base="https://timpurdum.dev/post/2023/10/8/using-esbuild-with-blazor"><![CDATA[<p><a href="https://blog.dymaptic.com/using-esbuild-with-blazor">Originally posted on the dymaptic blog on April 21, 2023</a></p>
+<p>With Blazor, .NET developers can create fully-featured client or server web applications using only C#, HTML, and CSS. But Blazor developers can also access any JavaScript libraries, as I discussed in <a href="https://blog.dymaptic.com/using-objectreferences-to-embed-a-javascript-text-editor-in-blazor">Using ObjectReferences to Embed a JavaScript Text Editor in Blazor</a>. In that example, we referenced the JS library via a <code>script</code> tag from a CDN, but it is also possible to use NPM and import packages into your Blazor application using a build tool like <a href="https://esbuild.github.io/">ESBuild</a>.</p>
+<p>ESBuild also provides a simple path to compile TypeScript into JavaScript, which means .NET developers used to statically-typed languages like C# can enjoy the same static typing benefits in their JavaScript code. While Microsoft does offer a <a href="https://learn.microsoft.com/en-us/visualstudio/javascript/compile-typescript-code-nuget?view=vs-2022">Nuget package to compile TypeScript</a>, this does not support the bundling mentioned above, so if you want to do both, you should use a tool like ESBuild.</p>
+<p><a href="https://github.com/dymaptic/dy-esbuild-sample">Get the Full Source Code Sample</a></p>
+<p><img src="/images/Using-ESBuild-with-Blazor-1.webp" alt="ESBuild allows you to construct a new project with TypeScript and Blazor" /></p>
+<h2 id="getting-started">Getting Started</h2>
+<p>First, you need to <a href="https://docs.npmjs.com/downloading-and-installing-node-js-and-npm">download and install npm</a>, which is the JavaScript package manager used to install ESBuild and other resources. Next, from your Blazor project folder, open a terminal window and run the following commands. We will use the npm package <a href="https://litepicker.com/">litepicker</a>, a drop-down date range selector component, as an example to bundle into our application for this demonstration.</p>
+<pre><code class="language-bash">npm install esbuild
+npm install litepicker
+</code></pre>
+<h2 id="setting-up-the-sample-component">Setting Up the Sample Component</h2>
+<p>In that same folder, create a new subfolder called <code>Scripts</code>, and a new file called <code>components.ts</code>. This is where we will add our own logic to set up the litepicker and call from C#.</p>
+<pre><code class="language-typescript">import Litepicker from &quot;litepicker&quot;;
+import 'litepicker/dist/plugins/ranges';
+
+export function createDateRangePicker(element: HTMLElement,
+    dotNetRef: any,
+    startDate: string | null,
+    endDate: string | null,
+    minDate: string,
+    maxDate: string,
+    minYear: number,
+    maxYear: number): Litepicker | null {
+    try {        
+        const picker = new Litepicker({
+            element: element,
+            startDate: startDate ?? undefined,
+            endDate: endDate ?? undefined,
+            firstDay: 0,
+            numberOfColumns: 2,
+            numberOfMonths: 2,
+            switchingMonths: 1,
+            resetButton: true,
+            singleMode: false,
+            minDate: minDate,
+            maxDate: maxDate,
+            dropdowns: { 
+                &quot;minYear&quot;: minYear, 
+                &quot;maxYear&quot;: maxYear, 
+                &quot;months&quot;: true, 
+                &quot;years&quot;: true },
+            plugins: ['ranges']
+        });
+
+        picker.on(&quot;selected&quot;,
+            async (startDate: Date, endDate: Date) =&gt; {
+                await dotNetRef.invokeMethodAsync(&quot;JsDateRangeSelected&quot;,
+                    startDate.toDateString(),
+                    endDate.toDateString());
+            });
+        return picker;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+}
+</code></pre>
+<p>Now let's create a Razor Component class that wraps this logic into .NET.</p>
+<h3 id="daterangepicker.razor">DateRangePicker.razor</h3>
+<pre><code class="language-html">&commat;inject IJSRuntime JsRuntime
+&lt;div&gt;
+    &lt;div class=&quot;date-range-picker&quot; &commat;onclick=&quot;TogglePicker&quot; attributes=&quot;AdditionalAttributes&quot;&gt;
+        &lt;i class=&quot;material-icons&quot;&gt;today&lt;/i&gt; 
+        &commat;StartDate?.ToString(DisplayFormat) - &commat;EndDate?.ToString(DisplayFormat)
+    &lt;/div&gt;
+    &lt;div &commat;ref=&quot;_container&quot; /&gt;
+&lt;/div&gt;
+</code></pre>
+<pre><code class="language-csharp">&commat;code {
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IDictionary&lt;string, object&gt;? AdditionalAttributes { get; set; }
+
+    [Parameter]
+    public DateOnly? StartDate { get; set; } = 
+        DateOnly.FromDateTime(DateTime.Now).AddMonths(-1);
+
+    [Parameter]
+    public DateOnly? EndDate { get; set; } = 
+        DateOnly.FromDateTime(DateTime.Now);
+
+    [Parameter]
+    public EventCallback DateRangeSelected { get; set; }
+
+    [Parameter]
+    public string DisplayFormat { get; set; } = &quot;MMM d, yyyy&quot;;
+
+    [Parameter]
+    public DateOnly MaxDate { get; set; } = new(2050, 1, 1);
+
+    [Parameter]
+    public DateOnly MinDate { get; set; } = new(2000, 1, 1);
+
+    public async Task&lt;DateRange?&gt; GetDateRange()
+    {
+        DateOnly? startDate = await _litePicker!.InvokeAsync&lt;DateOnly?&gt;(&quot;getStartDate&quot;);
+        DateOnly? endDate = await _litePicker!.InvokeAsync&lt;DateOnly?&gt;(&quot;getEndDate&quot;);
+        if (startDate is null || endDate is null) return null;
+
+        return new DateRange(startDate.Value, endDate.Value);
+    }
+
+    public async Task Clear()
+    {
+        await _litePicker!.InvokeVoidAsync(&quot;clearSelection&quot;);
+    }
+
+    [JSInvokable]
+    public async Task JsDateRangeSelected(string startDateString, string endDateString)
+    {
+        Console.WriteLine($&quot;Start Date: {startDateString}, End Date: {endDateString}&quot;);
+        StartDate = DateOnly.Parse(startDateString);
+        EndDate = DateOnly.Parse(endDateString);
+        await DateRangeSelected.InvokeAsync(new DateRange(StartDate!.Value, EndDate!.Value));
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (_litePicker is not null)
+        {
+            await _litePicker.InvokeVoidAsync(&quot;setStartDate&quot;, StartDate);
+            await _litePicker.InvokeVoidAsync(&quot;setEndDate&quot;, EndDate);
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_litePicker is null)
+        {
+            try
+            {
+                IJSObjectReference module =
+                    await JsRuntime.InvokeAsync&lt;IJSObjectReference&gt;(&quot;import&quot;, &quot;./js/components.js&quot;);
+                _litePicker = 
+                    await module.InvokeAsync&lt;IJSObjectReference&gt;(&quot;createDateRangePicker&quot;, _container,
+                    DotNetObjectRef, StartDate, EndDate, MinDate, MaxDate, MinDate.Year, MaxDate.Year);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+    }
+
+    private async Task TogglePicker()
+    {
+        if (_open)
+        {
+            await _litePicker!.InvokeVoidAsync(&quot;hide&quot;);
+        }
+        else
+        {
+            await _litePicker!.InvokeVoidAsync(&quot;show&quot;);
+        }
+
+        _open = !_open;
+    }
+
+    private ElementReference _container;
+    private IJSObjectReference? _litePicker;
+    private DotNetObjectReference&lt;DateRangePicker&gt; DotNetObjectRef =&gt; 
+        DotNetObjectReference.Create(this);
+    private bool _open;
+    
+    public record DateRange(DateOnly StartDate, DateOnly EndDate);
+}
+</code></pre>
+<h3 id="daterangepicker.razor.css">DateRangePicker.razor.css</h3>
+<pre><code class="language-css">.date-range-picker {
+    border: 1px solid black;
+    cursor: pointer;
+    font-size: 1rem;
+    height: 2.25rem;
+    line-height: 2rem;
+    min-width: 12rem;
+    padding: 0 0.25rem;
+}
+</code></pre>
+<h3 id="index.razor">Index.razor</h3>
+<pre><code class="language-html">&lt;DateRangePicker /&gt;
+</code></pre>
+<p>Note that although we created a TypeScript file <code>components.ts</code>, the module import reference in this component is to <code>./js/components.js</code>. This is where ESBuild will come in, to transpile (convert from TypeScript to JavaScript) and bundle the litepicker npm package and our own code into a new minimized and bundled JavaScript file.</p>
+<h2 id="bundling-and-transpiling">Bundling and Transpiling</h2>
+<p>When you ran <code>npm install</code> previously, it created a JSON file in your directory called <code>package.json</code>. Open this file in an editor, and create or add to the scripts element the following lines.</p>
+<pre><code class="language-json">    &quot;scripts&quot;: {
+        &quot;debugBuild&quot;: &quot;esbuild ./Scripts/components.ts --format=esm --bundle --sourcemap --outdir=wwwroot/js&quot;,
+        &quot;releaseBuild&quot;: &quot;esbuild ./Scripts/components.ts --format=esm --bundle --sourcemap --minify --outdir=wwwroot/js&quot;
+    },
+</code></pre>
+<p>These two scripts are nearly identical, with the exception of calling <code>--minify</code> on a release build, which makes the file smaller and more portable, but harder to inspect. You may also remove the <code>--sourcemap</code> option from the release build, if you don't want to support debugging the original TypeScript files in the browser in release mode.</p>
+<p>To test ESBuild, you can run these scripts from the command line with <code>npm run debugBuild</code> or <code>npm run releaseBuild</code>. Try that now and take a look at the generated JavaScript file inside the <code>wwwroot/js</code> folder.  In my testing, with this single component, the ESBuild step takes less than 100ms to complete!</p>
+<h2 id="automating-the-build">Automating the Build</h2>
+<p>Since we are building a .NET Blazor web application, we already have a build and run process, either from the command line like <code>dotnet run</code> or using our IDE. It would be a challenge to remember to separately trigger the ESBuild script every time we want to run our application. So we will tap into the extensibility of MSBuild and the project file. Open your project's <code>.csproj</code> file, and add the following elements.</p>
+<pre><code class="language-xml">    &lt;Target Name=&quot;NPM Install&quot; AfterTargets=&quot;PreBuildEvent&quot;&gt;
+        &lt;Exec Command=&quot;npm install&quot; /&gt;
+    &lt;/Target&gt;
+    
+    &lt;Target Name=&quot;NPM Debug Build&quot; AfterTargets=&quot;NPM Install&quot; Condition=&quot;$(Configuration) == 'DEBUG'&quot;&gt;
+        &lt;Exec Command=&quot;npm run debugBuild&quot; /&gt;
+    &lt;/Target&gt;
+    
+    &lt;Target Name=&quot;NPM Release Build&quot; AfterTargets=&quot;NPM Install&quot; Condition=&quot;$(Configuration) == 'RELEASE'&quot;&gt;
+        &lt;Exec Command=&quot;npm run releaseBuild&quot; /&gt;
+    &lt;/Target&gt;
+</code></pre>
+<p>Run your .NET application now, and you should see the NPM commands and ESBuild script outputs directly in the build output window. When the application opens, test out the date range picker element. If you find any issues, check out the <a href="https://github.com/dymaptic/dy-esbuild-sample">full code sample on GitHub</a>, or leave a comment below. I will leave it to you to explore the parameter and callback bindings available in the <code>DateRangePicker</code>.</p>
+<h2 id="esbuild-a-simple-solution-that-scales">ESBuild - A Simple Solution that Scales</h2>
+<p>Even though this sample only had a single, simple component, we have used <a href="https://esbuild.github.io/">ESBuild</a> as the transpiler and bundler for <a href="https://geoblazor.com/">GeoBlazor</a>, a large-scale open-source library that provides a wrapper around the <a href="https://developers.arcgis.com/javascript/latest/">ArcGIS Maps for JavaScript</a> library, allowing .NET developers to easily add interactive, custom mapping solutions to any website. ESBuild has easily scaled to be able to compile the large GeoBlazor and ArcGIS libraries into a single bundle, and is still fast and reliable at a much larger scale. If you have any questions about GeoBlazor or Blazor development, please reach out!</p>
+]]></content></item><item><link>https://timpurdum.dev/post/2023/10/14/comparing-blazor-net-7-8</link><title>Comparing Blazor Project Structure in .NET 7 and 8</title><description>Understanding How to Set Up or Update a Complex Project</description><pubDate>Sat, 14 Oct 2023 00:00:00 -0500</pubDate><content type="html" xml:base="https://timpurdum.dev/post/2023/10/14/comparing-blazor-net-7-8"><![CDATA[<p>.NET 8, which is currently a preview Release Candidate (RC2) and will be released fully next month, brings about vast changes in the structure of Asp.NET Core Blazor projects. <>The goal behind these structural changes is to support, from a single project, the ability to render pages and components as static html, server-connected interactive, or WebAssembly-based client interactive.</> <strong><em>UPDATE: Apparently, .NET 8 does NOT provide a single-project solution for Server and WebAssembly. Instead, in Visual Studio, if you select <code>Auto</code> or <code>WebAssembly</code> rendering, you get a second <code>.Client</code> project. If you create a template from the command line, there is no notification that this is the case, and so you can easily be misled into thinking you can do all the work in one project <a href="https://learn.microsoft.com/en-us/aspnet/core/blazor/project-structure?view=aspnetcore-8.0#blazor-web-app">(Source)</a>.</em></strong> Previously, when developing a project, one would have to choose between Blazor Server and Blazor WebAssembly, and static rendering was not an option.</p>
+<p>The new goals are lofty and intriguing, but they come with a lot of challenges for current Blazor developers. The entire setup of a Blazor project has shifted, in both helpful and painful ways. First, I should say, they have not announced any plans to <em>deprecate</em> any of the .NET 6/7 patterns. So if you leave your existing applications alone, they will continue to work on .NET 8. However, if you, like me, are constantly building complex applications that use shared Razor Class Libraries, combine Web APIs with Blazor, or any other pattern where you do not just click <code>File -&gt; New Project</code>, it's important to understand these differences so that you can make informed decisions about your project structure.</p>
+<h2 id="project-settings.csproj">Project Settings / .csproj</h2>
+<p>We will start with looking at the project settings, which are in the <code>.csproj</code> file.</p>
+<h3 id="net-67-blazor-server.csproj">.NET 6/7 Blazor Server .csproj</h3>
+<pre><code class="language-xml">&lt;Project Sdk=&quot;Microsoft.NET.Sdk.Web&quot;&gt;
+    &lt;PropertyGroup&gt;
+        &lt;TargetFramework&gt;net7.0&lt;/TargetFramework&gt;
+    &lt;/PropertyGroup&gt;
+&lt;/Project&gt;
+</code></pre>
+<p>Blazor Server is very straight-forward, requiring no NuGet packages. The <code>.Web</code> SDK brings in all the Asp.NET Core libraries by default.</p>
+<h3 id="net-67-blazor-webassembly.csproj">.NET 6/7 Blazor WebAssembly .csproj</h3>
+<pre><code class="language-xml">&lt;Project Sdk=&quot;Microsoft.NET.Sdk.BlazorWebAssembly&quot;&gt;
+    &lt;PropertyGroup&gt;
+        &lt;TargetFramework&gt;net7.0&lt;/TargetFramework&gt;
+    &lt;/PropertyGroup&gt;
+
+    &lt;ItemGroup&gt;
+        &lt;PackageReference Include=&quot;Microsoft.AspNetCore.Components.WebAssembly&quot; Version=&quot;7.0.12&quot; /&gt;
+        &lt;PackageReference Include=&quot;Microsoft.AspNetCore.Components.WebAssembly.DevServer&quot; Version=&quot;7.0.12&quot; PrivateAssets=&quot;all&quot; /&gt;
+    &lt;/ItemGroup&gt;
+&lt;/Project&gt;
+</code></pre>
+<p>WebAssembly projects have a different SDK target than all other Asp.NET Core projects, <code>Microsoft.NET.Sdk.BlazorWebAssembly</code>. They also require specific NuGet references.</p>
+<h3 id="net-8-web-app.csproj">.NET 8 Web App .csproj</h3>
+<pre><code class="language-xml">&lt;Project Sdk=&quot;Microsoft.NET.Sdk.Web&quot;&gt;
+    &lt;PropertyGroup&gt;
+        &lt;TargetFramework&gt;net8.0&lt;/TargetFramework&gt;
+    &lt;/PropertyGroup&gt;
+
+    &lt;ItemGroup&gt;
+        &lt;PackageReference Include=&quot;Microsoft.AspNetCore.Components.WebAssembly.Server&quot; Version=&quot;8.0.0-rc.2.23480.2&quot; /&gt;
+    &lt;/ItemGroup&gt;
+
+&lt;/Project&gt;
+</code></pre>
+<p>This is <em>almost</em> the same as Blazor Server. However, if you want to include the ability to manually or automatically move components to WebAssembly, you need the new NuGet reference to <code>WebAssembly.Server</code>.</p>
+<p><strong>UPDATE: The Blazor Web App <code>.Client</code> extension project is similar to the .NET 6/7 WebAssembly project. However, you don't need the <code>WebAssembly.DevServer</code> package.</strong></p>
+<h2 id="program.cs">Program.cs</h2>
+<p>Some of the biggest changes are in the startup code for your project.</p>
+<h3 id="net-67-blazor-server-program.cs">.NET 6/7 Blazor Server Program.cs</h3>
+<pre><code class="language-csharp">...
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddRazorPages();
+builder.Services.AddServerSideBlazor();
+...
+
+WebApplication app = builder.Build();
+...
+
+app.MapBlazorHub();
+...
+
+app.Run();
+</code></pre>
+<p>These are the basic lines that make Blazor Server work. We call <code>AddRazorPages</code> because Blazor server bootstraps itself on top of a Razor Page (<code>_Host.cshtml</code>). Then we explicitly call <code>AddServerSideBlazor</code>, and in the router, we <code>MapBlazorHub</code> to find all routable Razor Components (i.e., Blazor pages).</p>
+<h3 id="net-67-blazor-webassembly-program.cs">.NET 6/7 Blazor WebAssembly Program.cs</h3>
+<pre><code class="language-csharp">...
+WebAssemblyHostBuilder builder = WebAssemblyHostBuilder.CreateDefault(args);
+
+builder.RootComponents.Add&lt;App&gt;(&quot;#app&quot;);
+builder.RootComponents.Add&lt;HeadOutlet&gt;(&quot;head::after&quot;);
+...
+
+await builder.Build().RunAsync();
+</code></pre>
+<p>Since the WebAssembly project is built around Blazor, it has a more straightforward hookup, where the <code>builder</code> object accepts <code>RootComponents</code> that are Razor Components.</p>
+<h3 id="net-8-blazor-web-app-program.cs">.NET 8 Blazor Web App Program.cs</h3>
+<pre><code class="language-csharp">...
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents()
+    .AddInteractiveWebAssemblyComponents();
+...
+
+WebApplication app = builder.Build();
+...
+
+app.MapRazorComponents&lt;App&gt;()
+    .AddInteractiveServerRenderMode()
+    .AddInteractiveWebAssemblyRenderMode();
+...
+
+app.Run();
+</code></pre>
+<p>The Blazor Web App startup includes all new extension methods on both <code>builder</code> and <code>app</code>. <code>AddRazorComponents</code> and <code>MapRazorComponents</code> are both required, but the <code>Interactive</code> methods are optional, and you select these based on which render modes you want to support. One positive improvement over Blazor Server is that we have removed the need to bootstrap from Razor Pages, and instead can directly map routes via the <code>App.razor</code> component.</p>
+<p><strong>UPDATE: The .NET 8 Blazor Web App requires a <code>.Client</code> WebAssembly project, which has a very minimal <code>Program.cs</code>, seen below. You cannot use WebAssembly rendering from your main Blazor Web App project.</strong></p>
+<pre><code class="language-csharp">using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+
+var builder = WebAssemblyHostBuilder.CreateDefault(args);
+
+await builder.Build().RunAsync();
+</code></pre>
+<h2 id="pages-and-components">Pages and Components</h2>
+<p>Pages and component differences are more involved to explain the differences. I will focus on what is actually different between versions. At the end, all versions of Blazor support routable Razor Components (Blazor Pages) and nested Razor Components.</p>
+<h3 id="net-67-blazor-server-pagescomponents">.NET 6/7 Blazor Server Pages/Components</h3>
+<h4 id="host.cshtml">_Host.cshtml</h4>
+<pre><code class="language-csharp">&commat;page &quot;/&quot;
+&commat;namespace Sample.Server
+&commat;addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+&commat;{
+    Layout = &quot;_Layout&quot;;
+}
+
+&lt;component type=&quot;typeof(App)&quot; render-mode=&quot;ServerPrerendered&quot;/&gt;
+</code></pre>
+<p><code>_Host.cshtml</code> is the root Razor Page that receives routing from the Asp.NET Core router. You can see how it calls <code>App</code> as a <code>component</code>.</p>
+<h4 id="layout.cshtml">_Layout.cshtml</h4>
+<pre><code class="language-html">&commat;using Microsoft.AspNetCore.Components.Web
+&commat;namespace Sample.Server
+&commat;addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+    &lt;head&gt;
+        ...
+
+        &lt;component type=&quot;typeof(HeadOutlet)&quot; render-mode=&quot;ServerPrerendered&quot; /&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &commat;RenderBody()
+
+        &lt;div id=&quot;blazor-error-ui&quot;&gt;
+            &lt;environment include=&quot;Staging,Production&quot;&gt;
+                An error has occurred. This application may no longer respond until reloaded.
+            &lt;/environment&gt;
+            &lt;environment include=&quot;Development&quot;&gt;
+                An unhandled exception has occurred. See browser dev tools for details.
+            &lt;/environment&gt;
+            &lt;a href=&quot;&quot; class=&quot;reload&quot;&gt;Reload&lt;/a&gt;
+            &lt;a class=&quot;dismiss&quot;&gt;🗙&lt;/a&gt;
+        &lt;/div&gt;
+
+        &lt;script src=&quot;_framework/blazor.server.js&quot;&gt;&lt;/script&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p><code>_Layout.cshtml</code> is the root html content that will be used by <code>_Host</code>, including the <code>&lt;head&gt;</code> tag and scripts. Note that <code>&commat;RenderBody()</code> marks where the <code>_Host</code> content, and therefore its child components, will be rendered.</p>
+<h4 id="app.razor-blazor-server">App.razor (Blazor Server)</h4>
+<pre><code class="language-html">&lt;Router AppAssembly=&quot;&commat;typeof(App).Assembly&quot;&gt;
+    &lt;Found Context=&quot;routeData&quot;&gt;
+        &lt;RouteView RouteData=&quot;&commat;routeData&quot; DefaultLayout=&quot;&commat;typeof(MainLayout)&quot; /&gt;
+        &lt;FocusOnNavigate RouteData=&quot;&commat;routeData&quot; Selector=&quot;h1&quot; /&gt;
+    &lt;/Found&gt;
+    &lt;NotFound&gt;
+        &lt;PageTitle&gt;Not found&lt;/PageTitle&gt;
+        &lt;LayoutView Layout=&quot;&commat;typeof(MainLayout)&quot;&gt;
+            &lt;p role=&quot;alert&quot;&gt;Sorry, there's nothing at this address.&lt;/p&gt;
+        &lt;/LayoutView&gt;
+    &lt;/NotFound&gt;
+&lt;/Router&gt;
+</code></pre>
+<p>This is the first &quot;Blazor&quot;/Razor Component. It manages routing within the Blazor pages. While the name and concept remains across all versions of Blazor, the implementation varies.</p>
+<h3 id="net-67-blazor-webassembly-pagescomponents">.NET 6/7 Blazor WebAssembly Pages/Components</h3>
+<h4 id="wwwrootindex.html">wwwroot/index.html</h4>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+
+&lt;head&gt;
+    ...
+
+&lt;/head&gt;
+
+&lt;body&gt;
+&lt;div id=&quot;app&quot;&gt;Loading...&lt;/div&gt;
+
+&lt;div id=&quot;blazor-error-ui&quot;&gt;
+    An unhandled error has occurred.
+    &lt;a class=&quot;reload&quot; href=&quot;&quot;&gt;Reload&lt;/a&gt;
+    &lt;a class=&quot;dismiss&quot;&gt;🗙&lt;/a&gt;
+&lt;/div&gt;
+&lt;script src=&quot;_framework/blazor.webassembly.js&quot;&gt;&lt;/script&gt;
+&lt;/body&gt;
+
+&lt;/html&gt;
+</code></pre>
+<p>Since Blazor WebAssembly renders in the browser, it must start with pre-rendered html. The call to load the <code>blazor.webassembly.js</code> script is what kicks off all interactivity. The <code>&lt;div id=&quot;app&quot;&gt;</code> is the placeholder where <code>App.razor</code> will be rendered once the WebAssembly code is loaded.</p>
+<h4 id="app.razor-blazor-webassembly">App.razor (Blazor WebAssembly)</h4>
+<pre><code class="language-html">&lt;Router AppAssembly=&quot;&commat;typeof(App).Assembly&quot;&gt;
+    &lt;Found Context=&quot;routeData&quot;&gt;
+        &lt;RouteView RouteData=&quot;&commat;routeData&quot; DefaultLayout=&quot;&commat;typeof(MainLayout)&quot; /&gt;
+        &lt;FocusOnNavigate RouteData=&quot;&commat;routeData&quot; Selector=&quot;h1&quot; /&gt;
+    &lt;/Found&gt;
+    &lt;NotFound&gt;
+        &lt;PageTitle&gt;Not found&lt;/PageTitle&gt;
+        &lt;LayoutView Layout=&quot;&commat;typeof(MainLayout)&quot;&gt;
+            &lt;p role=&quot;alert&quot;&gt;Sorry, there's nothing at this address.&lt;/p&gt;
+        &lt;/LayoutView&gt;
+    &lt;/NotFound&gt;
+&lt;/Router&gt;
+</code></pre>
+<p>The <code>App.razor</code> in WebAssembly is identical in structure and function to the one in Blazor Server.</p>
+<h3 id="net-8-blazor-web-app-pagescomponents">.NET 8 Blazor Web App Pages/Components</h3>
+<p>As mentioned above, one of the nice features of Blazor Web Apps is the direct routing to Razor Components. <code>App.razor</code> now takes on the brunt of the html setup.</p>
+<h4 id="app.razor-blazor-web-app">App.razor (Blazor Web App)</h4>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+
+    &lt;head&gt;
+        ...
+
+        &lt;HeadOutlet &commat;rendermode=&quot;&commat;InteractiveAuto&quot; /&gt;
+    &lt;/head&gt;
+
+    &lt;body&gt;
+        &lt;Routes &commat;rendermode=&quot;&commat;InteractiveAuto&quot; /&gt;
+        &lt;script src=&quot;_framework/blazor.web.js&quot;&gt;&lt;/script&gt;
+    &lt;/body&gt;
+
+&lt;/html&gt;
+</code></pre>
+<p>Two things to note here. First, <code>&commat;rendermode</code>, which is optional, will set the render mode for all child pages and components. See <a href="https://learn.microsoft.com/en-us/aspnet/core/blazor/components/render-modes?view=aspnetcore-8.0">ASP.NET Core Blazor render modes</a> to learn more about these options. If you want the &quot;old&quot; behavior of Blazor Server in a Blazor Web App, you should be able to set  <code>&commat;rendermode=&quot;InteractiveServer&quot;</code>. (I am still testing this to see if it is really a 1-1 comparison). Also note that, <em>by default, if you don't set a render mode, Blazor Web Apps have no interactivity!</em> This means that <code>EventCallbacks</code> and click handlers simply don't work, <em>by default</em> in a Blazor Web App. The new default is completely statically-rendered server pages. In my opinion, this is the biggest failing of Blazor moving into .NET 8, as it undermines the <em>entire point</em> of using Blazor for rich web development.</p>
+<p>The second point of interest is that the bulk of the old <code>App.razor</code> functionality, namely routing, has been moved into a child component named <code>Routes</code>.</p>
+<h4 id="routes.razor">Routes.razor</h4>
+<pre><code class="language-html">&lt;Router AppAssembly=&quot;&commat;typeof(Program).Assembly&quot;&gt;
+    &lt;Found Context=&quot;routeData&quot;&gt;
+        &lt;RouteView RouteData=&quot;&commat;routeData&quot; DefaultLayout=&quot;&commat;typeof(MainLayout)&quot; /&gt;
+        &lt;FocusOnNavigate RouteData=&quot;&commat;routeData&quot; Selector=&quot;h1&quot; /&gt;
+    &lt;/Found&gt;
+&lt;/Router&gt;
+</code></pre>
+<p><strong>UPDATE: The Blazor Web App <code>.Client</code> project has only the <code>Routes.razor</code> part of the structure described above, when targeting WebAssembly. The rest remains in the main project.</strong></p>
+<h2 id="sharing-components-in-razor-class-libraries">Sharing Components in Razor Class Libraries</h2>
+<p>One of my biggest frustrations with the new Blazor Web App is that it makes it much more difficult to reason about, and even share, Razor Components in a Razor Class Library. Especially with the pattern of defining the <code>&commat;rendermode</code> <em>inside</em> the component. Will Blazor Hybrid in MAUI ignore these declarations? What about a shared Blazor WebAssembly executable? Until I found the explanation above about how to set the render mode at the <code>App.razor</code> level, I wasn't even sure if you <em>could</em> use previously-generated, routable components from a library.</p>
+<p>One other catch. In .NET 6/7, this is how we told Blazor to find components from an RCL, in <code>App.razor</code>:</p>
+<pre><code class="language-html">&lt;Router AppAssembly=&quot;&commat;typeof(App).Assembly&quot;
+        AdditionalAssemblies=&quot;new[] { typeof(MyRclComponent).Assembly }&quot;&gt;
+...
+</code></pre>
+<p>This works for Blazor Server, Blazor WebAssembly, and Blazor Hybrid (MAUI). However, in Blazor Web Apps, you need to add the following line to <code>Program.cs</code>:</p>
+<pre><code class="language-csharp">app.MapRazorComponents&lt;App&gt;()
+    .AddInteractiveServerRenderMode()
+    .AddInteractiveWebAssemblyRenderMode()
+    .AddAdditionalAssemblies(typeof(MyRclComponent).Assembly);
+</code></pre>
+<h2 id="looking-forward">Looking Forward</h2>
+<p>I am still a huge fan of Asp.NET Core Blazor, and I think there were a lot of great improvements in .NET 8. While I am <em>very</em> frustrated by the default behavior changing from interactive to static components, I hope that this will be better exposed and highlighted through IDE and compile-time warnings. For example, if I compile a Razor Component with <code>&commat;onclick</code> handlers, and the compiler and/or IDE can tell it is referenced to be rendered statically, this should generate a warning, so I know that my handlers are not going to work.</p>
+<p>I'm also concerned about managing user state in Blazor Web Apps. Rockford Lhotka published an <a href="https://blog.lhotka.net/2023/10/12/Blazor-8-State-Management">excellent blog post</a> about this issue. Given the combination of user state and shared RCL code in most of my business projects, I am likely to stick with top-level <code>rendermode</code> set to <code>InteractiveServer</code> or <code>InteractiveWebAssembly</code> (assuming this works like current Wasm (<strong>UPDATE: It doesn't, see other updates</strong>)) for the foreseeable future, and rarely if ever use the complex mix of rendering modes now available. It will be interesting to see what .NET 9 brings. Hopefully, nothing near this year's complexity of changes!</p>
+<p><strong>UPDATE: The discovery, by switching from command line to Visual Studio, of the required additional WebAssembly project makes .NET 8 Blazor Web Apps even <em>less</em> appealing as the &quot;new way&quot;. What, exactly, did we gain over the old patterns? Apparently just static rendering and first-class routing. And in return, we give up the clear paths of sharing code across projects. I'm not at all clear yet how I would set up a Blazor Web App that supports Server and WebAssembly rendering and also shares components with MAUI. Maybe it's not as hard as it seems, but as someone who reads <em>obsessively</em> about Blazor, and attended MS Build last spring, I must say, the lack of clarity in the CLI tools and documentation are incredibly frustrating.</strong></p>
+<p>Feel free to ping me on Mastodon <a href="https://dotnet.social/&commat;TimPurdum">&commat;TimPurdum&commat;dotnet.social</a> if you want to geek out about Blazor!</p>
+]]></content></item><item><link>https://timpurdum.dev/post/2024/5/1/vslive-chicago</link><title>VS Live Chicago Presentation Links</title><description /><pubDate>Wed, 01 May 2024 00:00:00 -0500</pubDate><content type="html" xml:base="https://timpurdum.dev/post/2024/5/1/vslive-chicago"><![CDATA[<h1 id="vs-live-chicago">VS Live Chicago</h1>
+<p>If you came to my presentations at VS Live Chicago this year, here are the promised links!</p>
+<p>Please also check out my employer, <a href="https://dymaptic.com">dymaptic</a> for Geospatial/Mapping solutions and consulting!</p>
+<h2 id="wrapping-javascript-apis-for-use-in-asp.net-core-blazor">Wrapping JavaScript APIs for use in Asp.NET Core Blazor</h2>
+<p><a href="https://github.com/timpurdum/easepickerdemo">EasyPicker Demo Code</a></p>
+<p><a href="https://easepick.com/">EasePick JS Calendar Component</a></p>
+<p><a href="https://quilljs.com/">Quill JS Rich Text Editing Component</a></p>
+<p><a href="https://github.com/szimek/signature_pad">Signature Pad Component</a></p>
+<h2 id="geographically-visualizing-customer-data-with-blazor-and-arcgis">Geographically Visualizing Customer Data with Blazor and ArcGIS</h2>
+<p><a href="https://github.com/dymaptic/GeoBlazor-Samples/tree/main/NationFinder">Nation Finder Game Code</a></p>
+<p><a href="https://github.com/dymaptic/GeoBlazor-Samples/tree/main/MuseumsOfChicago">Museums of Chicago Demo Code</a></p>
+<p><a href="https://developers.arcgis.com/">ArcGIS Developer Portal</a></p>
+<p><a href="https://livingatlas.arcgis.com/">ArcGIS Living Atlas</a></p>
+<h2 id="geoblazor">GeoBlazor</h2>
+<p><a href="https://geoblazor.com">GeoBlazor Landing Page</a></p>
+<p><a href="https://samples.geoblazor.com">GeoBlazor Samples</a></p>
+<p><a href="https://docs.geoblazor.com">GeoBlazor Docs</a></p>
+<p><a href="https://github.com/dymaptic.GeoBlazor">GeoBlazor Open Source Repository</a></p>
+<p><a href="https://github.com/dymaptic/GeoBlazor-Samples">GeoBlazor Samples Repository</a></p>
+<p><a href="https://blog.dymaptic.com/tag/geoblazor">GeoBlazor Blog Posts</a></p>
+]]></content></item><item><link>https://timpurdum.dev/post/2024/9/25/tech-bash</link><title>TechBash 2024 Presentation Links</title><description /><pubDate>Wed, 25 Sep 2024 00:00:00 -0500</pubDate><content type="html" xml:base="https://timpurdum.dev/post/2024/9/25/tech-bash"><![CDATA[<h1 id="techbash">TechBash</h1>
+<p>If you came to my presentations at TechBash this year, here are the promised links!</p>
+<p>Please also check out my employer, <a href="https://dymaptic.com">dymaptic</a> for Geospatial/Mapping solutions and consulting!</p>
+<h2 id="wrapping-javascript-apis-for-use-in-asp.net-core-blazor">Wrapping JavaScript APIs for use in Asp.NET Core Blazor</h2>
+<p><a href="https://github.com/timpurdum/easepickerdemo">EasyPicker Demo Code</a></p>
+<p><a href="https://easepick.com/">EasePick JS Calendar Component</a></p>
+<p><a href="https://quilljs.com/">Quill JS Rich Text Editing Component</a></p>
+<p><a href="https://github.com/szimek/signature_pad">Signature Pad Component</a></p>
+<h2 id="geographically-visualizing-customer-data-with-blazor-and-arcgis">Geographically Visualizing Customer Data with Blazor and ArcGIS</h2>
+<p><a href="https://github.com/dymaptic/GeoBlazor-Samples/tree/main/NationFinder">Nation Finder Game Code</a></p>
+<p><a href="https://github.com/dymaptic/GeoBlazor-Samples/tree/main/MuseumsOfChicago">Museums of Chicago Demo Code</a></p>
+<p><a href="https://developers.arcgis.com/">ArcGIS Developer Portal</a></p>
+<p><a href="https://livingatlas.arcgis.com/">ArcGIS Living Atlas</a></p>
+<h2 id="geoblazor">GeoBlazor</h2>
+<p><a href="https://geoblazor.com">GeoBlazor Landing Page</a></p>
+<p><a href="https://samples.geoblazor.com">GeoBlazor Samples</a></p>
+<p><a href="https://docs.geoblazor.com">GeoBlazor Docs</a></p>
+<p><a href="https://github.com/dymaptic.GeoBlazor">GeoBlazor Open Source Repository</a></p>
+<p><a href="https://github.com/dymaptic/GeoBlazor-Samples">GeoBlazor Samples Repository</a></p>
+<p><a href="https://blog.dymaptic.com/tag/geoblazor">GeoBlazor Blog Posts</a></p>
+]]></content></item><item><link>https://timpurdum.dev/post/2024/10/26/iowa-code-camp</link><title>Iowa Code Camp 2024 Presentation Links</title><description /><pubDate>Sat, 26 Oct 2024 00:00:00 -0500</pubDate><content type="html" xml:base="https://timpurdum.dev/post/2024/10/26/iowa-code-camp"><![CDATA[<h1 id="iowa-code-camp">Iowa Code Camp</h1>
+<p>If you came to my presentation at ICC this year, here are the promised links!</p>
+<p>Please also check out my employer, <a href="https://dymaptic.com">dymaptic</a> for Geospatial/Mapping solutions and consulting!</p>
+<p><a href="https://1drv.ms/p/s!AiQrCeaKzoIlpKgXA0O2BqsbVYRnJQ?e=0DpGuE">Presentation Slides</a></p>
+<p><a href="https://github.com/TimPurdum/Blazor.Demo.ToDo">ToDo App Demo Code</a></p>
+<p><a href="https://github.com/dymaptic/GeoBlazor-Samples/tree/main/NationFinder">Nation Finder Game Code</a></p>
+<p><a href="https://dotnet.microsoft.com">Download .NET</a></p>
+<p><a href="https://www.techempower.com/benchmarks">TechEmpower Benchmarks</a></p>
+<h2 id="sites-that-use-blazor">Sites that Use Blazor</h2>
+<p><a href="https://dotnet.microsoft.com/en-us/live">Dotnet Live</a></p>
+<p><a href="https://dotnet.microsoft.com/en-us/platform/try-dotnet">Try DotNet</a></p>
+<p><a href="https://dotnet.microsoft.com/en-us/platform/customers/blazor">Microsoft Blazor Customers Showcase</a></p>
+<p><a href="https://trends.builtwith.com/websitelist/Blazor">Built with Blazor</a></p>
+<p><a href="https://github.com/efonsecab/Companies-Using-Blazor">Companies Using Blazor</a></p>
+<h2 id="blazor-component-libraries">Blazor Component Libraries</h2>
+<h3 id="open-source">Open Source</h3>
+<p><a href="https://blazorise.com/">Blazorise</a></p>
+<p><a href="https://github.com/Blazored">Blazored</a></p>
+<p><a href="https://www.mudblazor.com/">MudBlazor</a></p>
+<p><a href="https://github.com/masastack/MASA.Blazor">MASA Blazor</a></p>
+<p><a href="https://blazor.radzen.com/">Radzen</a></p>
+<p><a href="https://antblazor.com/">Ant Design</a></p>
+<p><a href="https://www.fluentui-blazor.net/Templates">FluentUI (Microsoft)</a></p>
+<h3 id="commercial">Commercial</h3>
+<p><a href="https://www.telerik.com/blazor-ui">Telerik</a></p>
+<p><a href="https://www.syncfusion.com/blazor-components">SyncFusion</a></p>
+<p><a href="https://www.devexpress.com/blazor/">DevExpress</a></p>
+<h2 id="javascript-components-ive-wrapped-for-use-in-blazor">JavaScript Components I've Wrapped for Use in Blazor</h2>
+<p><a href="https://quilljs.com/">Quill JS Rich Text Editing Component</a></p>
+<p><a href="https://github.com/szimek/signature_pad">Signature Pad Component</a></p>
+<h2 id="geoblazor-mapping-resources">GeoBlazor Mapping Resources</h2>
+<p><a href="https://geoblazor.com">GeoBlazor Landing Page</a></p>
+<p><a href="https://samples.geoblazor.com">GeoBlazor Samples</a></p>
+<p><a href="https://docs.geoblazor.com">GeoBlazor Docs</a></p>
+<p><a href="https://github.com/dymaptic.GeoBlazor">GeoBlazor Open Source Repository</a></p>
+<p><a href="https://github.com/dymaptic/GeoBlazor-Samples">GeoBlazor Samples Repository</a></p>
+<p><a href="https://blog.dymaptic.com/tag/geoblazor">GeoBlazor Blog Posts</a></p>
+]]></content></item><item><link>https://timpurdum.dev/post/2025/4/26/geographically-visualizing-customer-data</link><title>Geographically Visualizing Customer Data with Blazor and ArcGIS</title><description /><pubDate>Sat, 26 Apr 2025 00:00:00 -0500</pubDate><content type="html" xml:base="https://timpurdum.dev/post/2025/4/26/geographically-visualizing-customer-data"><![CDATA[<p><a href="https://blog.dymaptic.com/geographically-visualizing-customer-data-with-blazor-and-arcgis"><em>Originally posted on the dymaptic blog on 4/23/25</em></a></p>
+<p>In today’s data-driven world, mapping business trends and insights can turn complex problems into actionable strategies. Using geographic information system (GIS) tools make this possible by transforming location-tagged datasets into dynamic, interactive maps and charts. Whether you're pinpointing the perfect spot for a new store, analyzing customer demographics, or optimizing delivery routes, GIS lets you uncover insights you can’t see in spreadsheets alone. For businesses using Asp.NET Core, tools like GeoBlazor and ArcGIS make it easier than ever to create shared web and mobile GIS solutions that bring your data to life.</p>
+<blockquote>
+<p><em>NOTE: The maps on this page are hosted as independent iframes running Blazor in WebAssembly. This is great for being able to quickly embed a variety of different GeoBlazor maps into a non-Blazor blog. However, the loading performance is definitely slower than what you should experience in a typical Blazor application, which would only have to load the WebAssembly and JavaScript one time. They also occasionally run out of memory, which can usually be fixed by either clicking the refresh link inside the iframe, or doing a hard refresh on the whole page.</em></p>
+</blockquote>
+<h2 id="what-is-geospatial-information">What is Geospatial Information?</h2>
+<p>Geospatial data refers to information linked directly to specific geographical locations—a definition that comes to life through everyday examples. Addresses, for instance, are vital for shipping, billing, home construction, and public works. (click on any of the orange polygons in the map below to see address details.)</p>
+<div id="national-address-database1">
+    <svg class="loading-progress">
+        <circle r="40%" cx="50%" cy="50%" />
+        <circle r="40%" cx="50%" cy="50%" />
+    </svg>
+    <div class="loading-progress-text"></div>
+</div>
+<p><a href="https://www.arcgis.com/home/item.html?id=ddcaa5e1a9e24c27bff3c3ce16ea2944">National Address Database - Overview (arcgis.com)</a></p>
+<p>Route navigation data fuels the logistics behind shipping and tracking, while precise GPS coordinates enable advanced applications like monitoring crops with IoT sensors or tracking moving vehicles.</p>
+<div id="evacuation-routes2">
+    <svg class="loading-progress">
+        <circle r="40%" cx="50%" cy="50%" />
+        <circle r="40%" cx="50%" cy="50%" />
+    </svg>
+    <div class="loading-progress-text"></div>
+</div>
+<p><a href="https://www.arcgis.com/home/item.html?id=29f5a1e6bf1e4394a692ba633d5c8af6">Hurricane Evacuation Routes - Overview (arcgis.com)</a></p>
+<div id="world-traffic-service3">
+    <svg class="loading-progress">
+        <circle r="40%" cx="50%" cy="50%" />
+        <circle r="40%" cx="50%" cy="50%" />
+    </svg>
+    <div class="loading-progress-text"></div>
+</div>
+<p><a href="https://www.arcgis.com/home/item.html?id=ff11eb5b930b4fabba15c47feb130de4">World Traffic Service - Overview (arcgis.com)</a></p>
+<p>The use of political boundaries as geospatial data helps ensure compliance with local laws or analyze trends within neighborhoods. For example, tools like the <a href="https://www.arcgis.com/home/item.html?id=447a461f048845979f30a2478b9e65bb">Location Affordability Index</a> leverage these boundaries to offer valuable insights.</p>
+<div id="location-affordability-index4">
+    <svg class="loading-progress">
+        <circle r="40%" cx="50%" cy="50%" />
+        <circle r="40%" cx="50%" cy="50%" />
+    </svg>
+    <div class="loading-progress-text"></div>
+</div>
+<p><a href="https://www.arcgis.com/home/item.html?id=de341c1338c5447da400c4e8c51ae1f6">Location Affordability Index - Overview (arcgis.com)</a></p>
+<p>Businesses can even overlay public datasets, such as weather forecasts or ecological information, to understand how external events might impact operations—or how their operations might affect the environment.</p>
+<div id="precipitation-forecast5">
+    <svg class="loading-progress">
+        <circle r="40%" cx="50%" cy="50%" />
+        <circle r="40%" cx="50%" cy="50%" />
+    </svg>
+    <div class="loading-progress-text"></div>
+</div>
+<p><a href="https://www.arcgis.com/home/item.html?id=f9e9283b9c9741d09aad633f68758bf6">National Weather Service Precipitation Forecast - Overview (arcgis.com)</a></p>
+<h2 id="building-gis-powered-applications-with-geoblazor-and-arcgis">Building GIS-Powered Applications with GeoBlazor and ArcGIS</h2>
+<p>The samples above showcase the capabilities of <a href="https://geoblazor.com">GeoBlazor</a>, an open-source Asp.NET Blazor library powered by the <a href="https://developers.arcgis.com/javascript/latest/">ArcGIS Maps SDK for JavaScript</a>. GeoBlazor allows you to seamlessly integrate interactive maps to your .NET web and mobile applications. Each sample includes a <a href="https://developers.arcgis.com/javascript/latest/api-reference/esri-views-MapView.html">MapView</a>, which combines a <a href="https://developers.arcgis.com/javascript/latest/api-reference/esri-Map.html">Map</a> and multiple <a href="https://developers.arcgis.com/javascript/latest/api-reference/esri-layers-Layer.html">Layers</a> of hosted data and imagery sourced from the <a href="https://livingatlas.arcgis.com/en/home/">ArcGIS Living Atlas</a>, a vast repository of global geospatial content.</p>
+<p>Getting started is straightforward: ArcGIS offers free developer accounts with an extensive free tier, <a href="https://developers.arcgis.com/pricing/">pay-as-you-go</a> options, and the ability to create free API keys for accessing data in your own applications.</p>
+<p>Beyond defining <code>Maps</code> and <code>Layers</code> in C#, you can also leverage <a href="https://developers.arcgis.com/javascript/latest/api-reference/esri-WebMap.html">WebMaps</a> - pre-defined maps with curated content and styles.</p>
+<div id="webmap6">
+    <svg class="loading-progress">
+        <circle r="40%" cx="50%" cy="50%" />
+        <circle r="40%" cx="50%" cy="50%" />
+    </svg>
+    <div class="loading-progress-text"></div>
+</div>
+<p><a href="https://www.arcgis.com/home/item.html?id=c03a526d94704bfb839445e80de95495">Imagery with MetaData (arcgis.com)</a></p>
+<p>ArcGIS also supports 3D geospatial visualizations through the <a href="https://developers.arcgis.com/javascript/latest/api-reference/esri-views-SceneView.html">SceneView</a> and <a href="https://developers.arcgis.com/javascript/latest/api-reference/esri-WebScene.html">WebScene</a>.</p>
+<div id="webscene7">
+    <svg class="loading-progress">
+        <circle r="40%" cx="50%" cy="50%" />
+        <circle r="40%" cx="50%" cy="50%" />
+    </svg>
+    <div class="loading-progress-text"></div>
+</div>
+<p><a href="https://www.arcgis.com/home/item.html?id=0614ea1f9dd043e9ba157b9c20d3c538">Paris 3D - Vélib - Overview (arcgis.com)</a></p>
+<div id="webscene-mountain-biking8">
+    <svg class="loading-progress">
+        <circle r="40%" cx="50%" cy="50%" />
+        <circle r="40%" cx="50%" cy="50%" />
+    </svg>
+    <div class="loading-progress-text"></div>
+</div>
+<p><a href="https://www.arcgis.com/home/item.html?id=1b787e0335af4929a4a5267ebfa58a20">Mountain Biking in Bavaria - Overview (arcgis.com)</a></p>
+<p>Finally, you can enhance any map or scene with <a href="https://developers.arcgis.com/javascript/latest/api-reference/esri-widgets-Widget.html">Widgets</a>, customizable tools that add interactivity and functionality, such as search bars, legends, and measurement tools. Whether you're building a basic map or a complex 3D visualization, GeoBlazor and ArcGIS give you the tools to bring your geospatial data to life.</p>
+<div id="widgets9">
+    <svg class="loading-progress">
+        <circle r="40%" cx="50%" cy="50%" />
+        <circle r="40%" cx="50%" cy="50%" />
+    </svg>
+    <div class="loading-progress-text"></div>
+</div>
+<h2 id="creating-your-first-gis-map-in-blazor">Creating Your First GIS Map in Blazor</h2>
+<p>In addition to the free, open-source <a href="https://docs.geoblazor.com/">GeoBlazor Core</a>, <a href="https://docs.geoblazor.com/pages/pro">GeoBlazor Pro</a> includes additional features and dedicated developer support. Let’s walk through the process of adding geospatial data and maps to your Asp.NET Core Blazor applications. For even faster setup, consider using the pre-configured <a href="https://blog.dymaptic.com/getting-starting-with-geoblazor-templates">GeoBlazor .NET templates</a>.</p>
+<h3 id="step-1-adding-your-arcgis-api-key">Step 1: Adding your ArcGIS API Key</h3>
+<p>First, take the ArcGIS API key mentioned earlier and add it to the <code>appsettings.json</code> file in your Blazor project. (For tips on securing your key in production, check the <a href="http://docs.geoblazor.com/pages/authentication">GeoBlazor authentication guide</a>.)</p>
+<pre><code class="language-json">
+### Step 2: Install GeoBlazor
+
+Next, add a reference to the `dymaptic.GeoBlazor.Core` or `dymaptic.GeoBlazor.Pro` NuGet package. You can do this via your IDE's package manager or the command line.
+
+```bash
+dotnet add package dymaptic.GeoBlazor.Core
+# or
+dotnet add package dymaptic.GeoBlazor.Pro
+</code></pre>
+<blockquote>
+<p>NOTE: GeoBlazor Pro includes a reference to Core, so there's no need to install both.</p>
+</blockquote>
+<h3 id="step-3-configure-html-resources">Step 3: Configure HTML Resources</h3>
+<p>Add the required CSS and resources to your HTML. The location depends on your Blazor app type:</p>
+<ul>
+<li><strong>Blazor Web Apps</strong>: Update <code>App.razor</code>.</li>
+<li><strong>Blazor Server Apps</strong>: Update <code>_Layout.cshtml</code>.</li>
+<li><strong>Blazor WebAssembly Apps</strong>: Update <code>index.html</code>.</li>
+</ul>
+<pre><code class="language-html">&lt;!-- GeoBlazor Core --&gt;
+&lt;link href=&quot;_content/dymaptic.GeoBlazor.Core&quot;/&gt;
+&lt;link href=&quot;_content/dymaptic.GeoBlazor.Core/assets/esri/themes/light/main.css&quot; rel=&quot;stylesheet&quot; /&gt;
+&lt;link href=&quot;YourProject.styles.css&quot; rel=&quot;stylesheet&quot; /&gt;
+   
+&lt;!-- GeoBlazor Pro --&gt;
+&lt;link href=&quot;_content/dymaptic.GeoBlazor.Core&quot; /&gt;
+&lt;link href=&quot;_content/dymaptic.GeoBlazor.Pro&quot; /&gt;
+&lt;link href=&quot;_content/dymaptic.GeoBlazor.Core/assets/esri/themes/light/main.css&quot; rel=&quot;stylesheet&quot; /&gt;
+&lt;link href=&quot;YourProject.styles.css&quot; rel=&quot;stylesheet&quot; /&gt;
+</code></pre>
+<p>(depending on your project template, you might already have the <code>YourProject.styles.css</code> reference)</p>
+<h3 id="step-4-import-usings-for-geoblazor-components">Step 4: Import Usings for GeoBlazor Components</h3>
+<p>To gain access to GeoBlazor components, add the following <code>using</code> statements to <code>_Imports.razor</code>:</p>
+<blockquote>
+<p>NOTE: In the upcoming GeoBlazor 4 release, some of these namespaces will be changing. The list will be updated at <a href="https://docs.geoblazor.com/pages/gettingStarted.html">https://docs.geoblazor.com/pages/gettingStarted.html</a> when we release version 4.</p>
+</blockquote>
+<pre><code class="language-html">&commat;using dymaptic.GeoBlazor.Core
+&commat;using dymaptic.GeoBlazor.Core.Components
+&commat;using dymaptic.GeoBlazor.Core.Components.Geometries
+&commat;using dymaptic.GeoBlazor.Core.Components.Layers
+&commat;using dymaptic.GeoBlazor.Core.Components.Popups
+&commat;using dymaptic.GeoBlazor.Core.Components.Renderers
+&commat;using dymaptic.GeoBlazor.Core.Components.Renderers.ColorRamps
+&commat;using dymaptic.GeoBlazor.Core.Components.Symbols
+&commat;using dymaptic.GeoBlazor.Core.Components.Views
+&commat;using dymaptic.GeoBlazor.Core.Components.Widgets
+&commat;using dymaptic.GeoBlazor.Core.Events
+&commat;using dymaptic.GeoBlazor.Core.Model
+&commat;using dymaptic.GeoBlazor.Core.Objects
+</code></pre>
+<p>You can also include these <code>using</code> directives directly in individual pages or components if preferred.</p>
+<h3 id="step-5-configure-startup-code">Step 5: Configure Startup Code</h3>
+<p>Add the GeoBlazor service to your app’s startup configuration in <code>Program.cs</code>:</p>
+<pre><code class="language-csharp">// GeoBlazor Core
+builder.Services.AddGeoBlazor(builder.Configuration);
+// GeoBlazor Pro
+builder.Services.AddGeoBlazorPro(builder.Configuration);
+</code></pre>
+<h3 id="step-6-create-your-first-map">Step 6: Create Your First Map</h3>
+<p>Now, define your map within a Blazor page (e.g., <code>Index.razor</code>). Start by adding a <code>MapView</code>, which acts as a container for your map and controls interactivity.</p>
+<pre><code class="language-html">&lt;MapView Style=&quot;height: 400px; width: 100%&quot;&gt;
+&lt;/MapView&gt;
+</code></pre>
+<p>A <code>MapView</code> alone won't display anything just yet. However, the map view allows you to define a <code>Class</code> or <code>Style</code> parameter to define the boundaries of your map. It will also be used to control many aspects of map interactivity.</p>
+<p>Inside the <code>MapView</code>, let’s add a <code>Map</code> and a <code>Basemap</code>. A <a href="https://developers.arcgis.com/javascript/latest/api-reference/esri-Basemap.html">Basemap</a> is the visual foundation of your map, often including road networks, topographical features, or imagery. There are about 60 ArcGIS and OpenStreetMap basemap styles available by selecting from an enum in GeoBlazor.</p>
+<pre><code class="language-html">&lt;MapView Style=&quot;height: 400px; width: 100%&quot;&gt;
+    &lt;Map&gt;
+        &lt;Basemap&gt;
+            &lt;BasemapStyle Name=&quot;BasemapStyleName.ArcgisImagery&quot; /&gt;
+        &lt;/Basemap&gt;
+    &lt;/Map&gt;
+&lt;/MapView&gt;
+</code></pre>
+<h3 id="step-7-run-your-application">Step 7: Run Your Application</h3>
+<p>Run the application, and you should see your first GIS map with an <code>ArcGIS Imagery</code> basemap!</p>
+<p><img src="https://23190016.fs1.hubspotusercontent-na1.net/hubfs/23190016/undefined-Nov-29-2024-04-00-46-8220-PM.png" alt="GeoBlazor First Sample" />
+<em>GeoBlazor First Sample</em></p>
+<h2 id="customizing-your-geoblazor-map">Customizing Your GeoBlazor Map</h2>
+<p>Now that we’ve created a basic map, let’s take it further by zooming in, centering it on a specific location, and adding interactive features.</p>
+<h3 id="adjusting-mapview-settings">Adjusting MapView Settings</h3>
+<p>The default map is zoomed out to show the entire globe. To focus on a specific area, we can define the <code>Latitude</code>, <code>Longitude</code>, and <code>Zoom</code> parameters in the <code>&lt;MapView&gt;</code> component. Here’s how to center the map over Chicago, Illinois, with a medium zoom level:</p>
+<pre><code class="language-html">&lt;MapView Style=&quot;height: 400px; width: 100%&quot;
+         Latitude=&quot;41.8873&quot;
+         Longitude=&quot;-87.6195&quot;
+         Zoom=&quot;4&quot;&gt;
+    &lt;Map&gt;
+        &lt;Basemap&gt;
+            &lt;BasemapStyle Name=&quot;BasemapStyleName.ArcgisImagery&quot; /&gt;
+        &lt;/Basemap&gt;
+    &lt;/Map&gt;
+&lt;/MapView&gt;
+</code></pre>
+<p><img src="https://23190016.fs1.hubspotusercontent-na1.net/hubfs/23190016/undefined-Nov-29-2024-04-00-47-0826-PM.png" alt="GeoBlazor Sample with Latitude, Longitude, and Zoom defined" />
+<em>GeoBlazor Sample with Latitude, Longitude, and Zoom defined</em></p>
+<p>This centers the map on Chicago, but the zoom level of 4 still shows a broad view. Let’s change the <code>Zoom</code> parameter to <code>12</code> for a close-up view of the city.</p>
+<p><img src="https://23190016.fs1.hubspotusercontent-na1.net/hubfs/23190016/undefined-Nov-29-2024-04-00-47-9264-PM.png" alt="Close-up map of Chicago" />
+<em>Close-up map of Chicago</em></p>
+<p>With this update, the map provides a focused view of downtown Chicago, making it perfect for localized applications.</p>
+<h3 id="adding-interactive-search">Adding Interactive Search</h3>
+<p>To enhance usability, we can add a <code>SearchWidget</code> to let users find specific locations directly on the map. The widget is straightforward to implement—simply place the <code>&lt;SearchWidget&gt;</code> component inside the <code>&lt;MapView&gt;</code> and specify its <code>Position</code> parameter.</p>
+<p>Here’s an updated example with the search widget positioned at the top-right corner of the map:</p>
+<pre><code class="language-html">&lt;MapView Style=&quot;height: 400px; width: 100%&quot;
+         Latitude=&quot;41.8873&quot;
+         Longitude=&quot;-87.6195&quot;
+         Zoom=&quot;4&quot;&gt;
+    &lt;Map&gt;
+        &lt;Basemap&gt;
+            &lt;BasemapStyle Name=&quot;BasemapStyleName.ArcgisImagery&quot; /&gt;
+        &lt;/Basemap&gt;
+    &lt;/Map&gt;
+    &lt;SearchWidget Position=&quot;OverlayPosition.TopRight&quot; /&gt;
+&lt;/MapView&gt;
+</code></pre>
+<p><img src="https://23190016.fs1.hubspotusercontent-na1.net/hubfs/23190016/undefined-Nov-29-2024-04-00-47-6201-PM.png" alt="Map with Search Widget" />
+<em>Map with Search Widget</em></p>
+<p>With this addition, users can type destinations directly into the search box. For example, typing &quot;Field Museum&quot; zooms the map to this Chicago landmark. Try it out below.</p>
+<div id="search-widget10">
+    <svg class="loading-progress">
+        <circle r="40%" cx="50%" cy="50%" />
+        <circle r="40%" cx="50%" cy="50%" />
+    </svg>
+    <div class="loading-progress-text"></div>
+</div>
+<p><em>Interactive Search Widget</em></p>
+<h2 id="importing-custom-data">Importing Custom Data</h2>
+<p>Finding one museum is great, but what if you want to display <em>all</em> museums in Chicago? This requires a reliable dataset and a method to load and visualize the data on your map. Here's how you can get started.</p>
+<h3 id="step-1-find-a-data-source">Step 1: Find a Data Source</h3>
+<p>For geospatial datasets, platforms like ArcGIS Living Atlas offer curated options. However, many business applications rely on proprietary or custom datasets. To simulate such a scenario, we’ll use the <a href="https://www.imls.gov/research-evaluation/data-collection/museum-data-files">Institute of Museum and Library Services (IMLS)</a> dataset, which provides comprehensive information about museums across the U.S.</p>
+<p>Download the dataset from <a href="https://www.imls.gov/research-evaluation/data-collection/museum-data-files">IMLS.gov</a> and open the first CSV file. Filter the dataset by <code>ADCITY = CHICAGO</code> to isolate museums located in Chicago. Save the filtered results to a local file that your web app can access.</p>
+<h3 id="step-2-prepare-your-application-to-read-csv-files">Step 2: Prepare Your Application to Read CSV Files</h3>
+<p>To import and process the CSV data in your Blazor application, use the <code>CsvHelper</code> library. Add the library to your project by running the following command in your terminal:</p>
+<pre><code class="language-bash">
+The CsvHelper library simplifies reading and parsing CSV files, making it easier to convert your dataset into a format suitable for display on your map.
+
+### Step 3: Load and Parse the Data
+
+Create a `record` type to represent the data fields you want from the CSV file. This allows for efficient deserialization and ensures your map only processes the necessary information.
+
+```csharp
+public record MuseumRecord
+{
+    [Name(&quot;COMMONNAME&quot;)]
+    public required string CommonName { get; init; }
+
+    [Name(&quot;GSTREET&quot;)]
+    public required string StreetAddress { get; init; }
+
+    [Name(&quot;PHONE&quot;)]
+    public required string PhoneNumber { get; init; }
+
+    [Name(&quot;WEBURL&quot;)]
+    public required string Website { get; init; }
+
+    [Name(&quot;LATITUDE&quot;)]
+    public required double Latitude { get; init; }
+
+    [Name(&quot;LONGITUDE&quot;)]
+    public required double Longitude { get; init; }
+
+    [Name(&quot;DISCIPL&quot;)]
+    public required string Discipline { get; init; }
+}
+</code></pre>
+<p>Define a private <code>List&lt;MuseumRecord&gt;</code> to store the parsed data:</p>
+<pre><code class="language-csharp">private List&lt;MuseumRecord&gt; _records = [];
+</code></pre>
+<p>Now, use CsvHelper in the <code>OnInitialized</code> method of your Blazor page to read and populate the <code>List</code>:</p>
+<pre><code class="language-csharp">protected override void OnInitialized()
+{
+    string filePath = Path.Combine(WebHostEnvironment.WebRootPath, &quot;ChicagoMuseums.csv&quot;);
+    using StreamReader reader = new StreamReader(filePath);
+    using CsvReader csvReader = new CsvReader(reader, _csvConfiguration);
+    _records = csvReader.GetRecords&lt;MuseumRecord&gt;().ToList();
+}
+</code></pre>
+<p>This loads the data into <code>_records</code>, ready to be used for rendering graphics.
+Next, add a <code>GraphicsLayer</code> to your Map to show the new data:</p>
+<pre><code class="language-html">&lt;Map&gt;
+    &lt;GraphicsLayer &commat;ref=&quot;_museumLayer&quot; /&gt;
+&lt;/Map&gt;
+</code></pre>
+<pre><code class="language-csharp">&commat;code {
+    private GraphicsLayer? _museumLayer;
+</code></pre>
+<p>Create a method to load the graphics after the map has rendered:</p>
+<pre><code class="language-html">&lt;MapView OnViewRendered=&quot;OnViewRendered&quot;&gt;
+</code></pre>
+<pre><code class="language-csharp">&commat;code {
+    private async Task OnViewRendered()
+    {
+        if (!_isLoaded)
+        {
+            _isLoaded = true;
+            await LoadMuseums();
+        }
+    }
+
+    private async Task LoadMuseums()
+    {
+        await _museumLayer!.Clear();
+        List&lt;Graphic&gt; graphics = [];
+        PictureMarkerSymbol museumSymbol = new(MuseumIconUrl, 30, 30);
+
+        FieldsPopupContent content = new(
+        [
+            new FieldInfo(&quot;Discipline&quot;, &quot;Discipline&quot;),
+            new FieldInfo( &quot;StreetAddress&quot;, &quot;Address&quot;),
+            new FieldInfo(&quot;PhoneNumber&quot;, &quot;Phone Number&quot;),
+            new FieldInfo(&quot;Website&quot;, &quot;Website&quot;)
+        ]);
+
+        PopupTemplate popupTemplate = new(&quot;{CommonName}&quot;, contents: [content]);
+        foreach (MuseumRecord record in _records)
+        {
+            Point point = new Point(record.Longitude, record.Latitude);
+            AttributesDictionary attributes = new(new Dictionary&lt;string, object?&gt;
+            {
+                {nameof(MuseumRecord.Discipline), record.Discipline},
+                {nameof(MuseumRecord.CommonName), record.CommonName},
+                {nameof(MuseumRecord.StreetAddress), record.StreetAddress},
+                {nameof(MuseumRecord.PhoneNumber), record.PhoneNumber},
+                {nameof(MuseumRecord.Website), record.Website}
+            });
+
+            Graphic graphic = new Graphic(point, museumSymbol, popupTemplate, attributes);
+            graphics.Add(graphic);
+        }
+        await _museumLayer.Add(graphics);
+    }
+
+    private bool _isLoaded;
+    private static readonly string MuseumIconUrl = &quot;https://upload.wikimedia.org/wikipedia/commons/f/f8/Map_symbol_museum.svg&quot;;
+</code></pre>
+<p>This method creates a <code>Graphic</code> for each museum with a popup displaying its details, including the name, address, phone number, and website.</p>
+<p>Run your application to see the map with interactive markers for each museum in Chicago! Clicking a marker displays a popup with detailed information.</p>
+<p><img src="https://23190016.fs1.hubspotusercontent-na1.net/hubfs/23190016/image-png-Dec-02-2024-03-48-50-2254-PM.png" alt="Museum Map of Chicago" /></p>
+<p>For more advanced features, such as basemap toggling, filtering, trip routing, and adding traffic layers, explore the <a href="https://github.com/dymaptic/GeoBlazor-Samples/tree/main/MuseumsOfChicago">complete code sample on GitHub</a>.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Adding geospatial capabilities to your web applications opens a world of possibilities for visualizing, analyzing, and interacting with data in meaningful ways. Whether you're building tools for internal business insights or delivering rich, user-friendly maps for customers, GeoBlazor makes integrating GIS into your .NET applications straightforward and powerful. From plotting locations to creating interactive maps with layered data and widgets, the possibilities are limited only by your imagination. Ready to take your applications to the next level? Dive deeper into the features and documentation at <a href="https://geoblazor.com">GeoBlazor.com</a> and start building smarter, location-aware solutions today!</p>
+]]></content></item><item><link>https://timpurdum.dev/post/2025/5/11/comparing-blazor-and-react</link><title>Blazor vs. Next.js: Getting Started with Interactive Web Applications</title><description /><pubDate>Sun, 11 May 2025 00:00:00 -0500</pubDate><content type="html" xml:base="https://timpurdum.dev/post/2025/5/11/comparing-blazor-and-react"><![CDATA[<style>
+  td {
+    vertical-align: top;
+  }
+
+  .post-content img {
+    margin: 0 auto;
+  }
+</style>
+<p>As a developer working with <a href="https://blog.dymaptic.com/geographically-visualizing-customer-data-with-blazor-and-arcgis">interactive maps embedded into complex web applications</a>, I find the most interesting part of web development to be the ability to create instantaneous user feedback and smooth transitions of data between server and client environments. My tool of choice in this arena for the past five years has been <a href="https://learn.microsoft.com/en-us/aspnet/core/blazor/">ASP.NET Core Blazor</a>, a powerful web framework that allows you to write both client and server code using <a href="https://en.wikipedia.org/wiki/C_Sharp_(programming_language)">C#</a>, HTML, and CSS.</p>
+<p>While Blazor is a robust and stable tool for building production applications, it does have a much smaller ecosystem of developers, open-source packages, and online documentation compared to something like <a href="https://react.dev/">React</a>. Until frameworks like Blazor came out, JavaScript was <em>the only</em> way to create interactive and responsive web applications. That de facto status has led to the huge success of frameworks such as React.</p>
+<p>Not wanting to live fully inside my .NET bubble, I decided to dive into React and learn about this JavaScript library and how it compares to Blazor. This blog post will document my findings, coming from a perspective of starting a new application in both Blazor and <a href="https://nextjs.org/">Next.js</a>, the most popular React framework. If you are a JavaScript develope, you may find this a good starting point for learning about Blazor, or if you are a .NET developer like myself, this may help you understand the broader web development ecosystem and how Blazor fits into it.</p>
+<p><em>TL;DR:</em></p>
+<ul>
+<li>Blazor and React/Next.js both offer modern component-based web development.</li>
+<li>They each have a single unified language for client and server code, an easy starting point with simple templates, and a large ecosystem of packages and libraries to help you build your application.</li>
+<li>Blazor provides you with a &quot;batteries included&quot; template experience, giving you a full website with navigation and interactive components out of the box.</li>
+<li>Next.js starts with a minimal, &quot;blank canvas&quot; template, and lets you add the pieces you want.</li>
+</ul>
+<p>Read on for the full hands-on comparison!</p>
+<h2 id="installing-the-frameworks-and-creating-a-new-project">Installing the Frameworks and Creating a New Project</h2>
+<p>Both Next.js and Blazor are fully cross-platform, and can be developed on any Mac, Linux, or Windows machine. I'm going to start with <a href="https://learn.microsoft.com/en-us/windows/package-manager/winget/">WinGet</a> to be able to install easily on my Windows PC, but you can also use any other installation system, or download packages from the web. Below is a comparison of the commands to install and create your first application.</p>
+<h3 id="net-blazor">.NET Blazor</h3>
+<p><em>install</em></p>
+<pre><code class="language-pwsh">&gt; winget install Microsoft.DotNet.SDK.9
+</code></pre>
+<p><em>list all the available templates</em></p>
+<pre><code>&gt; dotnet new list
+</code></pre>
+<p><em>list all the options for this template</em></p>
+<pre><code>&gt; dotnet new blazor -h
+</code></pre>
+<p><em>create the application</em></p>
+<pre><code>&gt; dotnet new blazor -o HelloWorld -int Auto
+</code></pre>
+<p><em>open in VS Code</em></p>
+<pre><code>&gt; cd HelloWorld
+&gt; code .
+</code></pre>
+<p>Installing the <a href="https://dotnet.microsoft.com/en-us/download">.NET SDK</a> will prompt an installation popup. Modern .NET (5+) is not tied to Windows like the classic .NET Framework, and you can install multiple versions side-by-side on the same machine. .NET is on a yearly release cycle, and .NET 9 came out in November 2024.</p>
+<p>Before creating a project, I'm calling <code>list</code> to see all of the available templates. This includes not just web applications, but console, desktop, and cross-platform mobile applications as well! Once I find the command for the <code>blazor</code> template (there are other options which you can read about <a href="https://learn.microsoft.com/en-us/aspnet/core/blazor/tooling?view=aspnetcore-9.0&amp;pivots=cli#blazor-project-templates-and-template-options">here</a>), I similarly use <code>-h</code> to see a list of template options. The <code>-o</code> option lets you name the new project, otherwise it gets a default name.</p>
+<p>I chose <code>-int Auto</code>, which sets the <a href="https://learn.microsoft.com/en-us/aspnet/core/blazor/components/render-modes?view=aspnetcore-9.0#enable-support-for-interactive-render-modes">Interactive Render Mode</a>. Blazor was originally created to move Asp.NET Core from a server-side, non-interactive model to a fully interactive, client-side model that could compete with SPA libraries like React. This is accomplished by running .NET on top of <a href="https://webassembly.org/">WebAssembly</a> in the browser. Blazor <em>also</em> provides a second option for running interactive components on the <em>server</em>, where <a href="https://learn.microsoft.com/en-us/aspnet/signalr/overview/getting-started/introduction-to-signalr">SignalR</a> is used to send events between client and server in real time. <code>Interactive Auto</code> means that the first time you visit a page, it will connect with the SignalR server-rendered components and load the WebAssembly data in the background. Then on repeated visits or refreshes, it will use the WebAssembly version. This is a great way to get the best of both worlds, fast first load times and snappy interactive performance.</p>
+<p>After creating the project, we change directory (<code>cd</code>) into the new folder, and use <code>code .</code> to open that folder in <a href="https://code.visualstudio.com/">Visual Studio Code</a>. Of course, any IDE or even text editor will work for Blazor and Next.js, but I like VS Code for small quick projects due to its fast startup and great extensions.</p>
+<h3 id="next.js-react">Next.js React</h3>
+<p><em>install</em></p>
+<pre><code class="language-pwsh">&gt; winget install OpenJS.NodeJS
+</code></pre>
+<p><em>create the application</em></p>
+<pre><code>&gt; npx create-next-app&commat;latest
+# the following prompts appear in sequence:
+  Need to install the following packages:
+  create-next-app&commat;15.3.1
+  OK to proceed? (y)
+  What is your project named? hello.world
+  Would you like to use TypeScript? No / Yes
+  Would you like to use ESLint? No / Yes
+  Would you like to use Tailwind CSS? No / Yes
+  Would you like your code inside a `src/` directory? No / Yes
+  Would you like to use App Router? (recommended) No / Yes
+  Would you like to use Turbopack for `next dev`?  No / Yes
+  Would you like to customize the import alias (`&commat;/*` by default)? No / Yes
+  What import alias would you like configured? &commat;/*
+</code></pre>
+<p><em>open in VS Code</em></p>
+<pre><code>&gt; cd hello.world
+&gt; code .
+</code></pre>
+<p>I'm using <a href="https://nodejs.org/en">Node.js</a> and the bundled <a href="https://www.npmjs.com/">npm</a> to install and manage my JavaScript ecosystem. I started with the <a href="https://nextjs.org/docs">Next.js Getting Started</a> docs to find the command to create a new project, which is <code>create-next-app&commat;latest</code>. Unlike with the Blazor project, I am prompted here to answer a group of questions which help determine the contents of my template. This is my first React app, but <a href="https://blog.dymaptic.com/using-objectreferences-to-embed-a-javascript-text-editor-in-blazor">I'm no stranger</a> to the JavaScript ecosystem (<a href="https://geoblazor.com">GeoBlazor</a> is a wrapper around a JS library with thousands of TypeScript files). My template choices were:</p>
+<ul>
+<li>Project Name - I first tried a name similar to how I would name a .NET project: <code>Hello.React.World</code>. This gives you an error, <code>Invalid project name: name can no longer contain capital letters</code>. Not sure why that limitation exists, but no big deal, I did the same name with lowercase letters. It seems fine with periods and dashes, which still gives a lot of flexibility for naming.</li>
+<li><a href="https://www.typescriptlang.org/">TypeScript</a> - Yes. Being mostly a C# developer, I <em>strongly</em> prefer strongly-typed languages.</li>
+<li><a href="https://eslint.org/">ESLint</a> - Yes. I like relying on linting/formatting tools to keep my code clean, and warn me if I'm doing something wrong.</li>
+<li><a href="https://tailwindcss.com/">Tailwind CSS</a> - No. In my opinion, modern vanilla CSS has all the features I need for styling, and in practice it seems to be better encapsulated than Tailwind. Even on their landing page, you can see examples such as a button with <em>eight different classes</em> defined. To my eye this usage really clutters up the HTML markup, and goes against the reusability of components, scoped CSS, and custom classes. Yes, I know you <em>can</em> create custom classes with Tailwind to group the styles, but if I'm doing that, again, I'd rather just use CSS.</li>
+<li>App Router - I chose yes. Routing is apparently one of the many things in the JavaScript world that you need to choose from many options. The Next router is only one choice, there is also at least <a href="https://reactrouter.com/home">React Router</a> and <a href="https://tanstack.com/router/latest">TanStack Router</a> suggested on the React docs site. However, it appears that the Next router is the only one available directly from this wizard.</li>
+<li><a href="https://nextjs.org/docs/app/api-reference/turbopack">Turbopack</a> - Yes. This is a bundler, but I'm not sure what would happen if I chose <code>No</code>. I'm more familiar with <a href="https://esbuild.github.io/">esbuild</a>, which I love for it's speed and simplicity. Seems like with TypeScript I need <em>something</em> to run the compiler, so this is fine for now.</li>
+<li>Import Alias - I just hit enter. I found <a href="https://dev.to/justindwyer6/what-import-alias-would-you-like-configured-51n4">this blog post</a> which does a good job explaining the option.</li>
+</ul>
+<p>Here's a quick summary of my takeaways from the installation and new project processes:</p>
+<p></p>
+<p>Blazor</p>
+<p>Next</p>
+<p>Pros</p>
+<p>simple, one line to create project</p>
+<p>create command prompts you for important choices before building the template</p>
+<p></p>
+<p>fast, no extra installs necessary</p>
+<p></p>
+<p></p>
+<p>concise list of template options directly in the CLI with <code>dotnet new list</code></p>
+<p></p>
+<p>Cons</p>
+<p>templates and options are hidden behind help menu, easy to forget, harder to discover</p>
+<p>lots of questions to answer to create project, had to research what several of them meant (e.g. turbopack, import alias)</p>
+<p></p>
+<p></p>
+<p>project name can't contain capital letters?</p>
+<p></p>
+<p></p>
+<p>templates only viewable available on github, huge list</p>
+<p>While I'm used to the .NET ecosystem and CLI, I have definitely been frustrated by the inability to easily remember and select all the options for a blazor template. Options like including authentication and interactive render modes would be much easier to decide up front than change later, and I loved how the Next.js <code>create-next-app</code> command prompted me for various options.</p>
+<p>On the other hand, once you <em>do</em> know what you want, the conciseness of the .NET CLI and template can be a nice feature, and I was definitely up and running with the Blazor app more quickly than with the Next.js app. I also like the fact that I can see a short list of .NET template options with <code>dotnet new list</code>.</p>
+<h2 id="repository-overview">Repository Overview</h2>
+<p>Once open in VS Code, I like to review the file tree and see how the project is organized.</p>
+<p>Blazor File Structure</p>
+<p>Next File Structure</p>
+<p><img src="/images/BlazorFileTree.png" alt="Expanded VS Code file tree showing the project structure of the Blazor template" /></p>
+<p><img src="/images/NextFileTree.png" alt="Expanded VS Code file tree showing the project structure of the Next.js template" /></p>
+<p>First thing I notice here is that the Blazor repository is a <em>much</em> larger template. Part of this is due to my selecting <code>-int Auto</code>, which added the secondary <code>HelloBlazorWorld.Client</code> project for WebAssembly. The difference is also representative of the static-typed, business-oriented .NET ecosystem vs. the &quot;freewheeling&quot; JS approach.</p>
+<h3 id="configuration-project-files">Configuration &amp; Project Files</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Blazor Project File</th>
+      <th>Blazor App Settings</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><img src="/images/BlazorProjectFile.png" alt=".csproj file showing target framework, settings, and references"></td>
+      <td><img src="/images/BlazorAppSettings.png" alt="appsettings.json file showing logging settings"></td>
+    </tr>
+    <tr>
+      <td><ul><li><strong>TargetFramework</strong>: This is the version of .NET we are using. 10.0 is in preview, 9.0 is the latest stable version.</li><li><strong>Nullable</strong>: C# language feature to require all variables to either be initialized, explicitly set to null, or checked for null.</li><li><strong>ImplicitUsings</strong>: C# language feature to automatically include common namespaces, such as System and System.Collections.Generic.</li><li><strong>ProjectReference</strong>: This is a reference to another project in the solution, in this case the client project.</li><li><strong>PackageReference</strong>: This is a reference to a NuGet package, in this case the <a href="https://www.nuget.org/packages/Microsoft.AspNetCore.Components.Web/">Microsoft.AspNetCore.Components.Web</a> package, which is required for Blazor to work.</li></ul><ul><li><strong>Logging</strong>: This is the default logging configuration for .NET applications. You can add your own custom settings here as well.</li></ul></td>
+      <td><ul><li><strong>Logging</strong>: This is the default logging configuration for .NET applications. You can add your own custom settings here as well.</li></ul></td>
+    </tr>
+  </tbody>
+</table>
+<table>
+  <thead>
+    <tr>
+      <th>Next package.json</th>
+      <th>Next tsconfig.json</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><img src="/images/NextPackageJson.png" alt="package.json file showing npm package dependencies and scripts"></td>
+      <td><img src="/images/NextTsConfig.png" alt="tsconfig.json file showing typescript settings"></td>
+    </tr>
+    <tr>
+      <td><ul><li><strong>scripts</strong>: These are the various ways to compile, run, or deploy the application.</li><li><strong>dependencies</strong>: This is a list of all the npm packages that are required for this project. You can add your own custom packages here as well.</li><li><strong>devDependencies</strong>: This is a list of all the npm packages that are required for development only.</li></ul></td>
+      <td><ul><li><strong>compilerOptions</strong>: This is a list of all the TypeScript compiler options that are available for this project.</li><li><strong>include</strong>: This tells TSC to include these file types in the transpilation process.</li><li><strong>exclude</strong>: This tells TSC to exclude these files in the transpilation process.</li></ul></td>
+    </tr>
+  </tbody>
+</table>
+<table>
+  <thead>
+    <tr>
+      <th>Next eslint.config.mjs</th>
+      <th>Next next.config.js</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><img src="/images/NextEsLint.png" alt="eslint.config.mjs file showing eslint configuration settings"></td>
+      <td><img src="/images/NextConfig.png" alt="next.config.ts file showing where to place custom next configuration settings"></td>
+    </tr>
+    <tr>
+      <td><ul><li><strong>compat.extends</strong>: This is a list of all the ESLint extensions that are used for this project.</li></ul></td>
+      <td><ul><li><strong>NextConfig</strong>: This is where you would add any custom configuration options to impact how Next functions.</li></ul></td>
+    </tr>
+  </tbody>
+</table>
+<p>For those new to .NET, the <code>.csproj</code> is the <a href="https://learn.microsoft.com/en-us/aspnet/web-forms/overview/deployment/web-deployment-in-the-enterprise/understanding-the-project-file">Project file</a>, which you can probably tell is a flavor of XML. It's pretty self-explanatory. <code>Nullable</code> (<a href="https://learn.microsoft.com/en-us/dotnet/csharp/nullable-references">Nullable reference types</a>) and <code>ExplicitUsings</code> are modern C# language features that are &quot;opt-in&quot; to avoid breaking older applications. Like JavaScript/ECMAScript, C# is constantly evolving and has added many new features over the past two decades, most of which are definitely worth adding to your workflow. You can also see in the project file a project reference from the client application to the server application, and a <em>package</em> reference to a <a href="https://learn.microsoft.com/en-us/nuget/what-is-nuget">NuGet</a> package, the .NET equivalent of npm.</p>
+<p>When <a href="https://timpurdum.dev/2023/10/14/comparing-blazor-net-7-8.html">I first saw this architecture</a>, introduced in .NET 8, I was confused and not a fan. Why would the server application depend on the client application? But this is just a convenient way of saying that if you put code in the client project, it can be run both client <em>and</em> server side, while the client itself can be deployed independently.</p>
+<p>The other important .NET configuration file is <code>appsettings.json</code>. You can have an <code>appsettings.Development.json</code> and <code>appsettings.Production.json</code> that override the main file. These can also be overridden by <a href="https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets?view=aspnetcore-9.0&amp;tabs=windows">User Secrets</a>, and of course by environment variables in whatever deployment environment you use. The JSON schema of appsettings is completely up to you, although there are a few things like logging that are pre-defined.</p>
+<p>On the Next side, <a href="https://docs.npmjs.com/cli/v10/configuring-npm/package-json?v=true">package.json</a> is the configuration for npm. It defines our package dependencies as well as some scripts for ease of startup. <a href="https://www.typescriptlang.org/docs/handbook/tsconfig-json.html">tsconfig.json</a> is the TypeScript configuration file, which sets rules as to how the TypeScript is parsed and transpiled to JavaScript. ESLint, which helps with keeping our code organized and clean, is controlled by the <a href="https://eslint.org/docs/latest/use/configure/configuration-files">eslint.config.mjs</a>. Finally, <a href="https://nextjs.org/docs/pages/api-reference/config/next-config-js">next.config.js</a> is where we can add custom Next server settings such as base path, cross site rules, and redirects. While this is a JavaScript module, it is <em>not</em> included in the client-side bundle, but is only used at compile time by the server.</p>
+<p>Having all these separate configs in the repository definitely makes Next configuration seem more complex than Blazor. Of course, you <em>can</em> extend Blazor with TypeScript, in which case you have to deal with all of the above!</p>
+<p>The closest parallel I can draw above is between .NET's <code>appsettings.json</code> and Next's <code>next.config.ts</code>. While JSON is a universal and easy to read configuration language, I really love how Next is laying out all the configuration in the same language as the program itself is written! Of course, you can certainly do this in C#, making your settings a static class, but it is not the normal or expected pattern.</p>
+<h2 id="ui-files">UI Files</h2>
+<p>Blazor App.Razor</p>
+<p>Blazor Routes.Razor</p>
+<p><img src="/images/BlazorAppRazor.png" alt="App.razor file showing the root HTML DOCTYPE, html, head, body, meta, links, and scripts tags, as well as the nested Routes razor component" /></p>
+<p><img src="/images/BlazorRoutesRazor.png" alt="Routes.razor file showing the Router component that loads assemblies to find pages, loading from both the server and client program, and a Found, RouteView, and FocusOnNavigate component" /></p>
+<p>App.razor shows the root DOCTYPE, html, head, body, meta, links, and scripts tags, as well as the nested Routes razor component.</p>
+<p>Routes.razor file shows the Router component that loads assemblies to find pages, loading from both the server and client program, and a Found, RouteView, and FocusOnNavigate component. RouteView loads the MainLayout component.</p>
+<p>Blazor MainLayout.Razor</p>
+<p>Blazor NavMenu.Razor</p>
+<p><img src="/images/BlazorMainLayoutRazor.png" alt="MainLayout.razor file showing the layout of the page, with sidebar and top row" /></p>
+<p><img src="/images/BlazorNavMenuRazor.png" alt="NavMenu.razor file showing the navigation bar" /></p>
+<p>MainLayout.razor shows the layout of the page, including the sidebar with the NavMenu component, a top row with a static About link, and an error handler.</p>
+<p>NavMenu.razor shows the sidebar navigation menu, with NavLink components to the various pages in the application.</p>
+<p>Blazor Home.Razor</p>
+<p><img src="/images/BlazorHomeRazor.png" alt="Home.razor file showing the contents of the main page" /></p>
+<p>Home.razor demonstrates a Razor component page, with the &commat;page declaration showing the route, the PageTitle component showing the title for the page in the browser, and markup for the page content.</p>
+<p>Here we can see more of the .NET attention to code and application structure. Not only are the UI files organized into <code>Layout</code>, <code>Pages</code>, and <code>Components</code> folders, but the main page itself is broken down into <code>App.razor</code>, which contains the HTML structure, head, and metadata, <code>Routes.razor</code>, which details the functionality of the Blazor router, <code>MainLayout.razor</code>, which gives the shared structural layout to be used across pages, <code>NavMenu.razor</code>, which details the navigational side bar, and <code>Home.razor</code>, which contains the page content. These are all examples of <a href="https://learn.microsoft.com/en-us/aspnet/core/blazor/components/?view=aspnetcore-9.0">Razor components</a>, the fundamental building block of Blazor. The <code>&commat;</code> symbol throughout the file identifies where C# code begins, and the <code>PascalCase</code> markup tags are other nested Razor components, while lowercase tags are plain HTML. Code, components, and HTML can all be intermixed within a Razor file to encapsulate and generate our UI.</p>
+<p>I didn't include the other pages and components in the screenshots, but the template also includes <code>Counter.razor</code>, which demonstrates user interaction on a button, and <code>Weather.razor</code>, which shows a data grid loading weather data. Notice the <code>&commat;page &quot;/&quot;</code> line at the top of <code>Home.razor</code>. <code>Counter.razor</code> starts with <code>&commat;page &quot;/counter&quot;</code>. These are the <a href="https://learn.microsoft.com/en-us/aspnet/core/blazor/components/?view=aspnetcore-9.0#route-parameters">route parameters</a>, and also the only difference between a page and any other component. There is also an <code>Error.razor</code> component for showing errors during development, and a <code>ReconnectModal.razor</code> component for showing while fixing interactive sessions that get disconnected.</p>
+<p>Next layout.tsx</p>
+<p>Next page.tsx</p>
+<p><img src="/images/NextLayoutTsx.png" alt="layout.tsx file showing the React function that generates the root html tag" /></p>
+<p><img src="/images/NextPageTsx.png" alt="page.tsx file showing the React function that generates the home page content" /><img src="/images/NextPageTsx2.png" alt="NextPageTsx2" /></p>
+<p>layout.tsx shows the React function that generates the root html tag, with a metadata variable for the head and a RootLayout component. It takes a  inner content, which is the page.</p>
+<p>page.tsx shows the React function that generates the home page content, with a header, image, and button.</p>
+<p>Next/React has a very different approach. The <code>layout.tsx</code> exports a <a href="https://nextjs.org/docs/app/getting-started/metadata-and-og-images">Metadata</a> variable, which appears to feed the HTML <code>&lt;head&gt;</code>. However, there's definitely other content in the head, some of which appears to be the necessary loading scripts for React to function. The <code>RootLayout</code> at the bottom of the file is our first <a href="https://react.dev/reference/react/Component">React component</a>. As you can see, the Markup-first approach of Razor is flipped upside down here, with the TypeScript code <em>emitting</em> the HTML. But there are still similarities in how variables can be used to insert properties or child components.</p>
+<p>In <code>page.tsx</code>, we see a full page React component, with curly braces <code>{}</code> indicating TypeScript code injection. Like in Razor files, it appears that PascalCase represents child components; here we see <code>&lt;Image&gt;</code> components laid out on the page.</p>
+<p>Unlike in Blazor, the navigation route is not defined in the file, but by the folder structure. Since this <code>page.tsx</code> is in the <code>app</code> folder, it is the home route. If you put a page inside an <code>app/counter</code> folder, then you would navigate to that page with the <code>/counter</code> route. This <a href="https://nextjs.org/docs/app/getting-started/layouts-and-pages">pages routing</a> approach is wild to me because <em>every page is called <code>page</code></em>, so only thing differentiating them is the directory! I think this would drive me crazy in an IDE, where I typically use a keyboard shortcut and file name search to quickly navigate between files.</p>
+<h2 id="static-assets">Static Assets</h2>
+<p>The approach to CSS and image files is quite similar between the two frameworks. The one difference as I mentioned above is the folder structure. In ASP.NET Core, <a href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/static-files?view=aspnetcore-9.0">wwwroot,</a> signifies the &quot;public&quot; folder, and this contains global CSS, JavaScript scripts, and static images. In Next, this most closely corresponds to the <a href="https://nextjs.org/docs/pages/api-reference/file-conventions/public-folder">public</a> folder. However, only truly static files can live in this folder, because the CSS and TS files are typically imported into React components. Notice the line <code>import styles from &quot;./page.module.css&quot;;</code> at the top of <code>page.tsx</code>. The <code>.module.css</code> file is a &quot;scoped&quot; CSS file, meaning it will only impact that one component. Scoping is a very handy way to keep global CSS from causing conflicts between components.</p>
+<p>Blazor does also support compiled and scoped CSS, which you can see in files like <code>MainLayout.razor.css</code> and <code>NavMenu.razor.css</code>. Unlike in Next, these are imported and applied automatically by the framework compiler, and don't need to be declared in the Razor component.</p>
+<h2 id="running-the-application">Running the Application</h2>
+<p>Lets get these applications started!</p>
+<pre><code class="language-pwsh">&gt; dotnet run
+</code></pre>
+<p><img src="/images/BlazorScreenShot.png" alt="Screen shot of the Hello World landing page of the running Blazor template, with Home, Counter, and Weather navigation links on the left, and an About link on the top right" /></p>
+<pre><code class="language-pwsh">&gt; npm run dev
+</code></pre>
+<p><img src="/images/NextScreenShot.png" alt="Screen shot of the Next.js template, all black with a centered white Next.js logo and links to documentation" /></p>
+<p>.NET can implicitly find a project file in the current directory to run, and defaults to debug/development mode, so the simple command <code>dotnet run</code> is shorthand for <code>dotnet run HelloBlazorWorld.csproj -c Debug</code>. To switch to production/release you would use <code>-c Release</code>. For Next, the scripts <code>dev</code> and <code>start</code> correspond to development and release environments.</p>
+<p>It was really simple as a new React developer to build and get started with Next.js. I was surprised by how simple the template was compared to Blazor templates, and had to learn to understand the pages and folder navigation, but once I had these basic concepts down, creating a basic application was very simple.</p>
+<p>Startup for both applications was quite fast. Next reported ~800 milliseconds, while Blazor took a whopping 7-8 seconds. I will warn any developers new to .NET, as your applications become larger, this build time does go up. However, .NET supports <a href="https://learn.microsoft.com/en-us/aspnet/core/test/hot-reload?view=aspnetcore-9.0">Hot Reload</a> of file changes, (from the command line use <a href="https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-watch">dotnet watch run</a>), which allows continuous incremental changes, for a development cycle more akin to what JS developers are used to. Even with hot reload, however, .NET, as a fully-compiled and managed environment, will likely never match the rapid development cycle of the JavaScript ecosystem. This is definitely a tradeoff worth considering alongside the significant runtime server performance gains of .NET over Next/Node as demonstrated in the <a href="https://www.techempower.com/benchmarks/#section=data-r23">TechEmpower Framework Benchmarks</a>.</p>
+<p><img src="/images/TechEmpower.png" alt="TechEmpower Benchmarks screenshot comparing Asp.NET Core and NodeJS" /></p>
+<p>The differences in default templates for each framework are very noticeable on startup. ASP.NET Core begins with a multi-page template including sidebar navigation, top banner, and interactive page samples. This is great if you want or need such a framework, but otherwise might be code you just need to delete. There is an option <code>-e</code> or <code>--empty</code> that will remove most of the UI and give an empty template.</p>
+<p>Next.js presents a very minimal single page template with a few links, images, and buttons. There <em>are</em> other Next templates available in the <a href="https://github.com/vercel/next.js/tree/canary/examples">Next.js Examples Repository</a>, which you can create with <code>npm create-next-app&commat;latest --example [example-name]</code>. This is a large list of samples, and would require a lot of study, picking and choosing from multiple templates to get the pieces that you really wanted. For example, there are examples <code>with-cms</code>, <code>with-stencil</code>, and <code>with-stripe-typescript</code>. If you want all 3 in one project, you would have to combine them yourself. .NET on the other hand doesn't even really have a repository like this. It <em>does</em> have more built-in options for things like authentication and database/ORM setup right in the template, but everything else is a NuGet package and you must find and follow the instructions for each library.</p>
+<p>As mentioned above, if I run <code>dotnet watch run</code> to get the .NET hot reload, then I can work in both environments pretty much seeing my changes in real time, at least as long as I'm doing simple UI changes. I was able to change the page text, css, and markup in both without any issues.</p>
+<p>Up to this point, both Blazor and Next appear to be very straightforward and capable frameworks for simple web development. In the next post of this series, we turn up the complexity a lot, by building a practical GIS web application using each framework. We’ll explore:</p>
+<ul>
+<li>Component architecture and data flow</li>
+<li>Interactive map integration</li>
+<li>State management approaches</li>
+<li>Server/client communication patterns</li>
+<li>Performance optimization techniques</li>
+<li>Development workflow and debugging tools</li>
+</ul>
+<p>Whether you're a .NET developer considering React, or a JavaScript developer curious about Blazor, you'll see how these modern frameworks handle real-world challenges in building complex interactive applications.</p>
+]]></content></item></channel></rss>

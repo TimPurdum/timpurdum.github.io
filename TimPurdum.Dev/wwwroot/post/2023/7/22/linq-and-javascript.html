@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LINQ Equivalents in JavaScript</title>
+    <meta name="generator" content="TimPurdum.Dev Blazor Site Generator">
+    <meta property="og:title" content="LINQ Equivalents in JavaScript" />
+    <meta property="og:locale" content="en_US">
+    <meta name="description" content="" />
+    <meta property="og:description" content="" />
+    <link rel="canonical" href="/post/2023/7/22/linq-and-javascript" />
+    <meta property="og:url" content="/post/2023/7/22/linq-and-javascript" />
+    <meta property="og:site_name" content="TimPurdum.Dev" />
+    <meta property="og:type" content="website">
+    <base href="/">
+    <link rel="stylesheet" href="css/app.css">
+    <link href="TimPurdum.Dev.styles.css" rel="stylesheet" />
+    <link href="_content/dymaptic.GeoBlazor.Core" />
+<link href="_content/dymaptic.GeoBlazor.Pro" />
+<link href="_content/dymaptic.GeoBlazor.Core/assets/esri/themes/dark/main.css" rel="stylesheet" /></head>
+
+<body><header class="site-header" role="banner"><div class="wrapper"><a class="site-title" rel="author" href="/" aria-label="Home"><img src="/images/headshot.png" class="site-logo" alt="Tim Purdum's headshot">
+            Tim Purdum
+        </a>
+        <nav class="site-nav"><input type="checkbox" id="nav-trigger" class="nav-trigger">
+    <label for="nav-trigger"><span class="menu-icon"><svg viewBox="0 0 18 15" width="18px" height="15px"><path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"></path></svg></span></label>
+
+    <div class="trigger"><a class="page-link" href="/"><span class="home-icon"><svg viewBox="0 0 24 24" width="24px" height="24px"><path d="M12,3L2,12h3v7h5v-5h4v5h5v-7h3L12,3z" fill="#4FD1C5"></path></svg></span></a><a class="page-link" href="/post/2022/11/7/static-site-with-jekyll.html">Creating a static website with Jekyll</a><a class="page-link" href="/post/2022/11/19/mastodon-feed-in-jekyll.html">Adding a Mastodon Feed to your Blog</a><a class="page-link" href="/post/2022/12/10/let-the-sunshine-in-blazor.html">Let the Sunshine In</a><a class="page-link" href="/post/2023/4/22/creating-geoblazor.html">Creating GeoBlazor</a><a class="page-link" href="/post/2023/7/22/linq-and-javascript.html">LINQ Equivalents in JavaScript</a><a class="page-link" href="/post/2023/10/8/using-esbuild-with-blazor.html">Using ESBuild with Blazor</a><a class="page-link" href="/post/2023/10/14/comparing-blazor-net-7-8.html">Comparing Blazor Project Structure in .NET 7 and 8</a><a class="page-link" href="/post/2024/5/1/vslive-chicago.html">VS Live Chicago Presentation Links</a><a class="page-link" href="/post/2024/9/25/tech-bash.html">TechBash 2024 Presentation Links</a><a class="page-link" href="/post/2024/10/26/iowa-code-camp.html">Iowa Code Camp 2024 Presentation Links</a><a class="page-link" href="/post/2025/4/26/geographically-visualizing-customer-data.html">Geographically Visualizing Customer Data with Blazor and ArcGIS</a><a class="page-link" href="/post/2025/5/11/comparing-blazor-and-react.html">Blazor vs. Next.js: Getting Started with Interactive Web Applications</a><p class="rss-subscribe">subscribe <a href="/feed.xml">via RSS</a></p></div></nav></div></header>
+<main class="page-content" aria-label="content"><div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header"><h1 class="post-title p-name" itemprop="name headline">LINQ Equivalents in JavaScript</h1><h2 class="post-subtitle" itemprop="name subtitle">Move Seamlessly Between Languages</h2><p class="post-meta"><time class="dt-published" datetime="2023-07-22T00:00:00Z" itemprop="datePublished">Jul 22, 2023</time></p></header>
+            <div class="post-content e-content" itemprop="articleBody"><p><a href="https://blog.dymaptic.com/c-linq-equivalents-in-javascript">Originally posted on the dymaptic blog on June 16, 2023</a></p>
+<p>When I'm working on <a href="www.geoblazor.com">GeoBlazor</a> or other Blazor applications, I often have to switch between C# and JavaScript/TypeScript. While the two languages have a <em>lot</em> in common (C family syntax, async/await, lambda functions), one place I often get confused is when dealing with arrays or collections of items. In C#, the most straightforward way to do this is with <a href="https://learn.microsoft.com/en-us/dotnet/api/system.linq.enumerable"><code>LINQ</code> queries</a>. Most of these query methods work on any collection type, including <code>Array</code>, <code>List</code>, <code>ReadOnlyList</code>, <code>HashSet</code>, and the related interfaces. The root interface necessary is <code>IEnumerable</code>.</p>
+<p>With ES6 and later versions, JavaScript has adopted many of these same approaches as <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">methods on the <code>Array</code> class</a>, using <code>Array.prototype</code> (<a href="https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Objects/Object_prototypes">prototype is the JavaScript concept of inheritance</a>).</p>
+<p><img src="/images/C-Sharp-LINQ.jpg" alt="C# LINQ to JavaScript Equivalents" /></p>
+<p>In this post, I am going to discuss all of the methods of <code>IEnumerable</code> in <code>LINQ</code> and their JavaScript equivalents. Some of these methods are very common, while others, such as the <a href="https://exceptionnotfound.net/bite-size-dotnet-6-unionby-intersectby-exceptby-and-distinctby/">new .NET 6 <code>...By</code> methods</a>, are less well known. I'm also not going to deal with every possible parameter overload, as many LINQ methods allow for custom <code>IComparer</code> implementations or other optional parameters. In most cases, you will see that JavaScript has fewer methods than C#, but that they can be used in many of the same ways. It is also important to note that all <code>IEnumerable</code> methods return a <em>new</em> collection, and do not modify the original input collection. C# does have mutable collection methods, for example on the <code>List</code> class, such as <code>Add</code>, <code>Remove</code>, <code>Sort</code>, but these are kept distinct from the LINQ methods to make it clearer when you are mutating the original value. In JavaScript, both mutating and functional methods exist on <code>Array.prototype</code>. In fact, there is a recent collection of new methods that <em>only</em> return a new array, such as <code>toSorted</code>, <code>toReversed</code>, and <code>toSpliced</code>, but these are <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/toSpliced#browser_compatibility">not yet implemented in all major browsers</a> at the time of writing. In the comparison chart, I do use several mutating array methods, but only because there is no functional equivalent in JavaScript to compare to LINQ.</p>
+<p>If you want to skip to the comparison table to look up a method, <a href="#comparison-chart">jump to the end of this post</a>.</p>
+<h2 id="creating-a-new-collection">Creating a new Collection</h2>
+<p>In both languages, you can easily create a new collection. <code>new List&lt;T&gt;()</code> in C#, or <code>[]</code> in JavaScript, for example. C# also has the following convenience static methods on <code>IEnumerable</code> to generate a new collection.</p>
+<h3 id="c">C#</h3>
+<ul>
+<li><code>Empty</code> - Creates a new, empty <code>IEnumerable</code> instance.</li>
+<li><code>Range</code> - Creates a new collection of sequential intervals, with a given start index and count.</li>
+<li><code>Repeat</code> - Generates a new collection with the same item repeated a given <code>Count</code> times.</li>
+</ul>
+<h2 id="finding-a-single-record">Finding a Single Record</h2>
+<h3 id="c-1">C#</h3>
+<ul>
+<li><code>ElementAt</code> - Finds the element at a particular index. Similar to using an indexer (e.g., <code>array[index]</code>). Throws if the index is out of range.</li>
+<li><code>ElementAtOrDefault</code> - Like <code>ElementAt</code> but returns <code>default</code> (<code>null</code> for nullable types) if the index is out of range.</li>
+<li><code>First</code> - Finds the first item that matches the predicate. Throws on no match.</li>
+<li><code>FirstOrDefault</code> - Like <code>First</code> but returns <code>default</code> if no match is found.</li>
+<li><code>Last</code> - Finds the <em>last</em> item that matches the predicate. Throws on no match.</li>
+<li><code>LastOrDefault</code> - Like <code>Last</code> but returns <code>default</code> if no match is found.</li>
+<li><code>Max</code> - Returns the item with the highest numeric value.</li>
+<li><code>MaxBy</code> - Returns the item with the highest <code>Key</code> value according to the given <code>IComparer</code>.</li>
+<li><code>Min</code> - Returns the item with the lowest numeric value.</li>
+<li><code>MinBy</code> - Returns the item with the lowest <code>Key</code> value according to the given <code>IComparer</code>.</li>
+<li><code>Single</code> - Like <code>First</code> but also throws if multiple matches are found.</li>
+<li><code>SingleOrDefault</code> Like <code>FirstOrDefault</code> but also throws if multiple matches are found.</li>
+</ul>
+<p>As you can see, each method comes in two flavors, <code>null</code>-forgiving, and <code>null</code>-throwing. Like <a href="https://learn.microsoft.com/en-us/dotnet/csharp/nullable-references">Nullable Reference Types</a>, this is useful for explicitly declaring your intentions, and not accidentally returning a <code>null</code> where you really expected there to be a value. The <code>Single</code> methods also verify that you have exactly one match in your collection.</p>
+<h3 id="javascript">JavaScript</h3>
+<ul>
+<li><code>at</code> - Finds the element at a particular index.</li>
+<li><code>find</code> - Finds the first element that matches the predicate.</li>
+<li><code>findLast</code> - Finds the <em>last</em> element that matches the predicate.</li>
+</ul>
+<p>In JavaScript, we have fewer methods that return a single value. Unlike in C#, JavaScript never throws errors if it fails to find an item. Instead, all of these methods return an <code>undefined</code> value if a match is not found. There is also no equivalent of <code>Single</code> in JavaScript. Instead, you would have to <code>filter</code> and then <code>throw</code> if you found more than one match.</p>
+<h2 id="finding-or-filtering-multiple-records">Finding or Filtering Multiple Records</h2>
+<h3 id="c-2">C#</h3>
+<ul>
+<li><code>Distinct</code> - Removes any duplicate entries and returns a collection in which each entry is unique.</li>
+<li><code>DistinctBy</code> - Removes entries with duplicate <code>Key</code> values.</li>
+<li><code>Except</code> - Returns all items from the first collection that are <em>not</em> in the second collection.</li>
+<li><code>ExceptBy</code> - Returns all items from the first collection that do <em>not</em> have a matching <code>Key</code> value in the second collection.</li>
+<li><code>Intersect</code> - Compares two collections and returns all items that are present in both.</li>
+<li><code>IntersectBy</code> - Compares two collections and returns all items that have matching <code>Key</code> values in both.</li>
+<li><code>OfType&lt;T&gt;</code> - Filters the collection to only records of a particular <code>Type</code>.</li>
+<li><code>Skip</code> - Skips a specified number of records, and then returns the rest of the collection.</li>
+<li><code>SkipLast</code> - Returns the collection minus the specified number of records at the end.</li>
+<li><code>SkipWhile</code> - Skips forward over the collection until the predicate is <code>false</code>, and then returns the rest of the collection.</li>
+<li><code>Take</code> - Returns the first specified number of elements in the collection.</li>
+<li><code>TakeLast</code> - Returns the specified number of elements from the end of the collection.</li>
+<li><code>TakeWhile</code> - Returns all elements from the start of the collection until the predicate is <code>false</code>.</li>
+<li><code>Where</code> - Finds all matches to the predicate. If none found, returns an empty IEnumerable.</li>
+</ul>
+<h3 id="javascript-1">JavaScript</h3>
+<ul>
+<li><code>filter</code> - Finds all matches to the predicate. If none found, returns an empty array.</li>
+<li><code>slice</code> - Returns a sub-section of the collection by start index and optional end index.</li>
+</ul>
+<p>Once again, C# has multipe methods that can filter a collection, whereas JavaScript has just the one. Yet you can easily <code>filter</code> on class type or the contents of a second array.</p>
+<h2 id="sorting-records">Sorting Records</h2>
+<h3 id="c-3">C#</h3>
+<ul>
+<li><code>Order</code> - Sorts the items by their default comparison in ascending order.</li>
+<li><code>OrderBy</code> - Sorts the items by a <code>Key</code> value in ascending order.</li>
+<li><code>OrderByDescending</code> - Sorts the items by a <code>Key</code> value in descending order.</li>
+<li><code>OrderDescending</code> - Sorts the items by their default comparison in descending order.</li>
+<li><code>Reverse</code> - Returns a collection in the opposite order from the original.</li>
+<li><code>ThenBy</code> - Used to chain sorting calls with any <code>Order</code>, <code>OrderBy</code> or other <code>ThenBy</code> call. Sorts by a new <code>Key</code> ascending.</li>
+<li><code>ThenByDescending</code> - Used to chain sorting calls with any <code>Order</code>, <code>OrderBy</code> or other <code>ThenBy</code> call. Sorts by a new <code>Key</code> descending.</li>
+</ul>
+<h3 id="javascript-2">JavaScript</h3>
+<ul>
+<li><code>sort</code> - Sorts the items by their default order or a comparison function. Mutates the original array.</li>
+<li><code>reverse</code> - Returns the array in the opposite order from the original. Mutates the original array.</li>
+</ul>
+<h2 id="combining-or-adding-to-collections">Combining or Adding to Collections</h2>
+<h3 id="c-4">C#</h3>
+<ul>
+<li><code>Append</code> - Adds a new item to the end of the collection.</li>
+<li><code>Concat</code> - Adds a new collection to the end of the first collection.</li>
+<li><code>Join</code> - Combines two collections, based on a defined <code>Key</code> in each, and a custom function to join the two together.</li>
+<li><code>Prepend</code> - Adds a new item to the beginning of the collection.</li>
+<li><code>Union</code> - Combines two collections, excluding duplicates.</li>
+<li><code>UnionBy</code> - Combines two collections, limiting each <code>Key</code> to a single instance.</li>
+</ul>
+<h3 id="javascript-3">JavaScript</h3>
+<ul>
+<li><code>concat</code> - Adds a new array to the end of the first array. Does not alter the existing arrays.</li>
+<li><code>push</code> - Adds a new item to the end of the array, and returns the new <code>length</code>.</li>
+<li><code>unshift</code> - Adds a new item to the beginning of the array, and returns the new <code>length</code>.</li>
+</ul>
+<h2 id="boolean-methods">Boolean Methods</h2>
+<p>These methods return a <code>true</code> or <code>false</code> depending on what is in the collection.</p>
+<h3 id="c-5">C#</h3>
+<ul>
+<li><code>All</code> - Returns <code>true</code> if all items match the predicate.</li>
+<li><code>Any</code> - Returns <code>true</code> if any item matches the predicate.</li>
+<li><code>Contains</code> - Returns <code>true</code> if the item is in the collection.</li>
+<li><code>SequenceEqual</code> - Compares each item in two collections, and returns <code>true</code> if they all match.</li>
+</ul>
+<h3 id="javascript-4">JavaScript</h3>
+<ul>
+<li><code>every</code> - Returns <code>true</code> if all items match the predicate.</li>
+<li><code>includes</code> - Returns <code>true</code> if the item is in the array.</li>
+<li><code>some</code> - Returns <code>true</code> if any item matches the predicate.</li>
+</ul>
+<h2 id="counting-and-transforming-items">Counting and Transforming Items</h2>
+<p>There are many transformations possible on a collection of items, especially on numeric types. These methods can be very powerful, and are in my opinion the hardest to keep straight in terms of different names. For example, <code>Aggregate</code>, and <code>reduce</code> seem like opposite terms, yet they are actually the same concept! <code>Select</code> and <code>map</code> are probably the most common transformation in each language, so it is important to know how to use them well.</p>
+<h3 id="c-6">C#</h3>
+<ul>
+<li><code>Aggregate</code> - Applies an <code>Accumulator</code> function to the collection, where each item and the accumulation are passed as parameters. Also supports giving a starting <code>seed</code> value.</li>
+<li><code>Average</code> - Finds the numeric average of the collection values.</li>
+<li><code>Count</code> - Returns the number of collection items as an <code>int</code>.</li>
+<li><code>LongCount</code> - Returns the number of collection items as a <code>long</code>.</li>
+<li><code>Select</code> - Transforms each item in the collection via a custom function into a new value.</li>
+<li><code>SelectMany</code> - Transforms each item in the collection into a new <em>collection</em> of values, which are then flattened into a single new collection.</li>
+<li><code>Sum</code> - Adds all the values together for the collection.</li>
+<li><code>TryGetNonEnumeratedCount</code> - Attempts to count the items in the collection without actually enumerating the items. Returns a boolean to indicate success, and has an <code>out</code> parameter with the count value.</li>
+<li><code>Zip</code> - Uses a custom function to combine each item in two collections together by index.</li>
+</ul>
+<h3 id="javascript-5">JavaScript</h3>
+<ul>
+<li><code>flatMap</code> - Transforms each item in the collection into a new <em>array</em> of values, which are then flattened into a single array.</li>
+<li><code>length</code> - Returns the number of items in the array.</li>
+<li><code>map</code> - Transforms each item in the array via a custom function into a new value.</li>
+<li><code>reduce</code> - Applies an <code>accumulator</code> function to the array, where each item and the accumulation are passed as parameters. Also supports an <code>initialValue</code>.</li>
+</ul>
+<h2 id="c-only-type-transformations">C#-Only Type Transformations</h2>
+<p>These methods do not have a JavaScript equivalent because JS is a loosely-typed language. Instead, you can simply <em>treat</em> one type like another, and if it has the correct properties and methods, it will work. In C#, not only do you need to cast to the appropriate collection type for some usages, but since many LINQ methods use <a href="https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/linq/classification-of-standard-query-operators-by-manner-of-execution#deferred">deferred execution</a>, this also forces the query to actually run and produce an in-memory collection.</p>
+<ul>
+<li><code>AsEnumerable</code> - Returns the collection as an <code>IEnumerable&lt;T&gt;</code>.</li>
+<li><code>Cast&lt;T&gt;</code> - Returns the collection with each item cast to the <code>T</code> value in an <code>IEnumerable&lt;T&gt;</code>.</li>
+<li><code>DefaultIfEmpty</code> - Returns the original collection, or if the collection was empty, returns a new collection with a single, default value (e.g., <code>null</code>).</li>
+<li><code>ToArray</code> - Returns a fixed-length array.</li>
+<li><code>ToDictionary</code> - Transforms a simple collection into a Key/Value pair Dictionary.</li>
+<li><code>ToHashSet</code> - Returns a collection with no duplicates, similar to <code>Distinct</code>, but the <code>HashSet</code> type prevents adding duplicates in the future as well.</li>
+<li><code>ToList</code> - Returns a mutable list that can be added to or removed from.</li>
+<li><code>ToLookup</code> - Groups the collection under <code>key</code> lookup values.</li>
+</ul>
+<h2 id="c-only-grouping-records">C#-Only Grouping Records</h2>
+<ul>
+<li><code>Chunk</code> - Creates a collection of arrays, of a fixed maximum size, from the original collection.</li>
+<li><code>GroupBy</code> - Creates a collection of <code>IGrouping</code> elements, each of which is a collection of items from the original collection grouped by a predicate.</li>
+<li><code>GroupJoin</code> - Creates a new collection, normally with a different <code>Type</code>, that contains the joined results of two collections.</li>
+</ul>
+<h2 id="comparison-chart">Comparison Chart</h2>
+<p>In the following chart, I aimed for a 1-1 comparison whenever possible. If there was no JavaScript Array method, I tried to find the most succinct way of achieving the same result in code.</p>
+<p>C# LINQ <code>IEnumerable</code> Method</p>
+<p>JavaScript <code>Array.prototype</code> Method</p>
+<p><code>Aggregate((acc, x) =&gt; function, seed)</code></p>
+<p><code>reduce((acc, x) =&gt; function, seed)</code></p>
+<p><code>All(x =&gt; predicate)</code></p>
+<p><code>every(x =&gt; predicate)</code></p>
+<p><code>Any(x =&gt; predicate)</code></p>
+<p><code>some(x =&gt; predicate)</code></p>
+<p><code>Append(item)</code></p>
+<p><code>push(item)</code></p>
+<p><code>AsEnumerable()</code></p>
+<p>N/A</p>
+<p><code>Average()</code></p>
+<p><code>reduce((acc, x) =&gt; acc + x) / array.length</code></p>
+<p><code>Cast&lt;T&gt;()</code></p>
+<p>N/A</p>
+<p><code>Chunk(size)</code></p>
+<p>no simple equivalent</p>
+<p><code>Concat(otherIEnumerable)</code></p>
+<p><code>concat(otherArray)</code></p>
+<p><code>Contains(item)</code></p>
+<p><code>includes(item)</code></p>
+<p><code>Count()</code></p>
+<p><code>length</code></p>
+<p><code>DefaultIfEmpty()</code></p>
+<p><code>some() ? array : undefined</code></p>
+<p><code>Distinct()</code></p>
+<p><code>[...new Set(array)]</code> <sup>2</sup></p>
+<p><code>DistinctBy(x =&gt; x.Key)</code></p>
+<p>no simple equivalent</p>
+<p><code>ElementAt(index)</code></p>
+<p><code>at(index)</code></p>
+<p><code>ElementAtOrDefault(index)</code></p>
+<p><code>at(index)</code></p>
+<p><code>Empty&lt;T&gt;()</code> <sup>1</sup></p>
+<p><code>[]</code> <sup>2</sup></p>
+<p><code>Except(otherIEnumerable)</code></p>
+<p><code>filter(x =&gt; !otherArray.includes(x))</code></p>
+<p><code>ExceptBy(other, x =&gt; x.Key)</code></p>
+<p>no simple equivalent</p>
+<p><code>First(x =&gt; predicate)</code></p>
+<p><code>find(x =&gt; predicate)</code></p>
+<p><code>FirstOrDefault(x =&gt; predicate)</code></p>
+<p><code>find(x =&gt; predicate)</code></p>
+<p><code>GroupBy(x =&gt; predicate)</code></p>
+<p>no simple equivalent <sup>3</sup></p>
+<p><code>GroupJoin(inner, o =&gt; o.Key, i =&gt; i.Key, func, comparer)</code></p>
+<p>no simple equivalent</p>
+<p><code>Intersect(other)</code></p>
+<p><code>filter(x =&gt; otherArray.includes(x))</code></p>
+<p><code>IntersectBy(other, x =&gt; x.Key, comparer)</code></p>
+<p>no simple equivalent</p>
+<p><code>Join(inner, o =&gt; o.Key, i =&gt; i.Key, func)</code></p>
+<p>no simple equivalent</p>
+<p><code>Last(x =&gt; predicate)</code></p>
+<p><code>findLast(x =&gt; predicate)</code></p>
+<p><code>LastOrDefault(x =&gt; predicate)</code></p>
+<p><code>findLast(x =&gt; predicate)</code></p>
+<p><code>LongCount()</code></p>
+<p><code>length</code></p>
+<p><code>Max()</code></p>
+<p><code>Math.max(...array)</code> <sup>2</sup></p>
+<p><code>MaxBy(x =&gt; x.Key)</code></p>
+<p><code>sort((a, b) =&gt; b.Key - a.Key)[0]</code></p>
+<p><code>Min()</code></p>
+<p><code>Math.min(...array)</code> <sup>2</sup></p>
+<p><code>MinBy(x =&gt; x.Key)</code></p>
+<p><code>sort((a, b) =&gt; a.Key - b.Key)[0]</code></p>
+<p><code>OfType&lt;T&gt;()</code></p>
+<p><code>filter(x =&gt; x instanceof T)</code></p>
+<p><code>Order()</code></p>
+<p><code>sort()</code> <sup>4</sup></p>
+<p><code>OrderBy(x =&gt; x.Key)</code></p>
+<p><code>sort((a, b) =&gt; a.key - b.key)</code> <sup>4</sup></p>
+<p><code>OrderByDescending(x =&gt; x.Key)</code></p>
+<p><code>sort((a, b) =&gt; b.key - a.key)</code> <sup>4</sup></p>
+<p><code>OrderDescending()</code></p>
+<p><code>sort((a, b) =&gt; b - a)</code> <sup>4</sup></p>
+<p><code>Prepend(item)</code></p>
+<p><code>unshift(item)</code> <sup>4</sup></p>
+<p><code>Range(start, count)</code> <sup>1</sup></p>
+<p><code>[...Array(count + start).keys()].slice(start)</code> <sup>2</sup></p>
+<p><code>Repeat(item, count)</code> <sup>1</sup></p>
+<p><code>fill(item, startIndex, endIndex)</code> <sup>4</sup></p>
+<p><code>Reverse()</code></p>
+<p><code>reverse()</code> <sup>4</sup></p>
+<p><code>Select(x =&gt; function)</code></p>
+<p><code>map(x =&gt; function)</code></p>
+<p><code>SelectMany(x =&gt; function)</code></p>
+<p><code>flatMap(x =&gt; function)</code></p>
+<p><code>SequenceEqual(otherIEnumerable)</code></p>
+<p>no simple equivalent</p>
+<p><code>Single(x =&gt; predicate)</code></p>
+<p><code>filter(x =&gt; predicate); result.length &gt; 1 ? throw error;</code></p>
+<p><code>SingleOrDefault(x =&gt; predicate)</code></p>
+<p><code>filter(x =&gt; predicate); result.length &gt; 1 ? throw error;</code></p>
+<p><code>Skip(count)</code></p>
+<p><code>slice(count)</code></p>
+<p><code>SkipLast(count)</code></p>
+<p><code>slice(0, -count)</code></p>
+<p><code>SkipWhile(x =&gt; predicate)</code></p>
+<p>no simple equivalent</p>
+<p><code>Sum()</code></p>
+<p><code>reduce((acc, x) =&gt; acc + x)</code></p>
+<p><code>Take(count)</code></p>
+<p><code>slice(0, count)</code></p>
+<p><code>TakeLast(count)</code></p>
+<p><code>slice(-count)</code></p>
+<p><code>TakeWhile(x =&gt; predicate)</code></p>
+<p>no simple equivalent</p>
+<p><code>ThenBy(x =&gt; x.Key)</code></p>
+<p>no simple equivalent</p>
+<p><code>ThenByDescending(x =&gt; x.Key)</code></p>
+<p>no simple equivalent</p>
+<p><code>ToArray()</code></p>
+<p>N/A</p>
+<p><code>ToDictionary(x =&gt; function, x =&gt; function)</code></p>
+<p><code>reduce((acc, x, i) =&gt; acc[functionK] = functionV)</code></p>
+<p><code>ToHashSet()</code></p>
+<p><code>new Set(array)</code> <sup>2</sup></p>
+<p><code>ToList()</code></p>
+<p>N/A</p>
+<p><code>ToLookup(x =&gt; function, x =&gt; function)</code></p>
+<p>no simple equivalent</p>
+<p><code>TryGetNonEnumerated(out int count)</code></p>
+<p>no simple equivalent</p>
+<p><code>Where(x =&gt; predicate)</code></p>
+<p><code>filter(x =&gt; predicate)</code></p>
+<p><code>Union(otherIEnumerable)</code></p>
+<p><code>[...new Set(array.concat(otherArray))]</code></p>
+<p><code>UnionBy(other, x =&gt; x.Key)</code></p>
+<p>no simple equivalent</p>
+<p><code>Zip(other, (a, b) =&gt; function)</code></p>
+<p><code>map((a, i) =&gt; functionWithOther[i])</code></p>
+<p><sup>1</sup> - <em>static method on <code>Enumerable</code></em><br/>
+<sup>2</sup> - <em>not a method on <code>Array.prototype</code></em><br/>
+<sup>3</sup> - <em><code>group</code> method is in experimental stage</em><br/>
+<sup>4</sup> - <em>mutates the original array</em><br/></p>
+<h2 id="conclusion">Conclusion</h2>
+<p>I hope this deep dive into LINQ functional methods and their JavaScript Array counterparts was useful. If you are a .NET Blazor developer or interested in GeoSpatial Information Systems (GIS), checkout <a href="https://geoblazor.com">GeoBlazor</a> and the <a href="https://blog.dymaptic.com">dymaptic blog</a> for more content!</p>
+</div></article></div></main>
+<footer class="site-footer h-card"><div class="wrapper"><ul class="contact-list"><li class="p-name">Tim Purdum</li><li><a class="u-email" href="mailto:tim.purdum@dymaptic.com">tim.purdum@dymaptic.com</a></li></ul>
+    <ul class="social-media-list"><li><a href="https://github.com/TimPurdum"><svg width="16" height="16" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8C0 11.54 2.29 14.53 5.47 15.59C5.87 15.66 6.02 15.42 6.02 15.21C6.02 15.02 6.01 14.39 6.01 13.72C4 14.09 3.48 13.23 3.32 12.78C3.23 12.55 2.84 11.84 2.5 11.65C2.22 11.5 1.82 11.13 2.49 11.12C3.12 11.11 3.57 11.7 3.72 11.94C4.44 13.15 5.59 12.81 6.05 12.6C6.12 12.08 6.33 11.73 6.56 11.53C4.78 11.33 2.92 10.64 2.92 7.58C2.92 6.71 3.23 5.99 3.74 5.43C3.66 5.23 3.38 4.41 3.82 3.31C3.82 3.31 4.49 3.1 6.02 4.13C6.66 3.95 7.34 3.86 8.02 3.86C8.7 3.86 9.38 3.95 10.02 4.13C11.55 3.09 12.22 3.31 12.22 3.31C12.66 4.41 12.38 5.23 12.3 5.43C12.81 5.99 13.12 6.7 13.12 7.58C13.12 10.65 11.25 11.33 9.47 11.53C9.76 11.78 10.01 12.26 10.01 13.01C10.01 14.08 10 14.94 10 15.21C10 15.42 10.15 15.67 10.55 15.59C13.71 14.53 16 11.53 16 8C16 3.58 12.42 0 8 0Z" transform="scale(64)" fill="white"></path></svg>
+          <span class="username">github.com/TimPurdum</span></a></li>
+      <li><a href="https://www.linkedin.com/in/crttim"><svg version="1.1" id="svg2" sodipodi:version="0.32" inkscape:version="0.47 r22583" sodipodi:docname="linkedin.svg" inkscape:output_extension="org.inkscape.output.svg.inkscape" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="16" height="16px" viewBox="0 0 256 256" enable-background="new 0 0 256 256" xml:space="preserve"><g id="layer1" transform="translate(-373.642,-318.344)" inkscape:label="Layer 1" inkscape:groupmode="layer"><path id="rect1942" fill="#1D8CB5" d="M583.659,328.849H419.625c-19.599,0-35.487,15.888-35.487,35.487v164.015c0,19.599,15.888,35.486,35.487,35.486h164.033
+              c19.599,0,35.487-15.888,35.487-35.486V364.337C619.146,344.738,603.257,328.849,583.659,328.849z"></path>
+
+              <linearGradient id="path1950_1_" gradientUnits="userSpaceOnUse" x1="-808.8727" y1="199.8918" x2="-860.5692" y2="49.2029" gradientTransform="matrix(-0.5915 0 0 -0.5915 -34.5417 412.5453)"><stop offset="0" style="stop-color:#FFFFFF"></stop>
+                <stop offset="1" style="stop-color:#FFFFFF;stop-opacity:0"></stop></linearGradient>
+
+              <path id="path1950" opacity="0.7811" fill="url(#path1950_1_)" d="M557.056,338.895H446.227c-29.337,0-52.955,23.81-52.955,53.385v108.127c0.95,23.087,4.603,8.491,11.555-17.075
+              c8.081-29.713,34.396-55.682,66.445-75.145c24.461-14.855,51.84-24.341,101.679-25.244
+              C601.216,382.432,598.721,346.26,557.056,338.895z"></path></g>
+            <g id="layer1_1_" transform="translate(-200.55198,-393.96227)"><g id="g3019" transform="matrix(1.018827,0,0,-1.018827,170.5996,498.03288)"><path id="path28_1_" fill="#FFFFFF" d="M109.495-101.774V2.533H74.828v-104.307H109.495z
+                M92.168,16.775c12.081,0,19.612,8.01,19.612,18.021c-0.224,10.233-7.531,18.021-19.385,18.021
+                c-11.864,0-19.615-7.788-19.615-18.021c0-10.011,7.521-18.021,19.159-18.021H92.168L92.168,16.775z"></path>
+                <path id="path30_1_" fill="#FFFFFF" d="M128.681-101.774h34.673v58.249
+                c0,3.119,0.226,6.235,1.143,8.462c2.5,6.232,8.209,12.681,17.784,12.681c12.547,0,17.562-9.568,17.562-23.588v-55.804h34.666
+                v59.81c0,32.039-17.1,46.946-39.913,46.946c-18.701,0-26.915-10.45-31.476-17.571h0.234V2.533h-34.673
+                C129.141-7.253,128.681-101.774,128.681-101.774L128.681-101.774z"></path></g></g></svg>
+          <span class="username">linkedin.com/in/crttim</span></a></li>
+      <li><a href="https://bsky.app/profile/timpurdum.dev"><svg width="16" height="16" version="1.1" xmlns="http://www.w3.org/2000/svg"><path transform="scale(0.027 0.027)" d="m135.72 44.03c66.496 49.921 138.02 151.14 164.28 205.46 26.262-54.316 97.782-155.54 164.28-205.46 47.98-36.021 125.72-63.892 125.72 24.795 0 17.712-10.155 148.79-16.111 170.07-20.703 73.984-96.144 92.854-163.25 81.433 117.3 19.964 147.14 86.092 82.697 152.22-122.39 125.59-175.91-31.511-189.63-71.766-2.514-7.3797-3.6904-10.832-3.7077-7.8964-0.0174-2.9357-1.1937 0.51669-3.7077 7.8964-13.714 40.255-67.233 197.36-189.63 71.766-64.444-66.128-34.605-132.26 82.697-152.22-67.108 11.421-142.55-7.4491-163.25-81.433-5.9562-21.282-16.111-152.36-16.111-170.07 0-88.687 77.742-60.816 125.72-24.795z" fill="#1185fe"></path></svg>
+          <span class="username">timpurdum.dev</span></a></li>
+      <li><a rel="me" href="https://dotnet.social/@TimPurdum"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 216.4144 232.00976"><path fill="#2b90d9" d="M211.80734 139.0875c-3.18125 16.36625-28.4925 34.2775-57.5625 37.74875-15.15875 1.80875-30.08375 3.47125-45.99875 2.74125-26.0275-1.1925-46.565-6.2125-46.565-6.2125 0 2.53375.15625 4.94625.46875 7.2025 3.38375 25.68625 25.47 27.225 46.39125 27.9425 21.11625.7225 39.91875-5.20625 39.91875-5.20625l.8675 19.09s-14.77 7.93125-41.08125 9.39c-14.50875.7975-32.52375-.365-53.50625-5.91875C9.23234 213.82 1.40609 165.31125.20859 116.09125c-.365-14.61375-.14-28.39375-.14-39.91875 0-50.33 32.97625-65.0825 32.97625-65.0825C49.67234 3.45375 78.20359.2425 107.86484 0h.72875c29.66125.2425 58.21125 3.45375 74.8375 11.09 0 0 32.975 14.7525 32.975 65.0825 0 0 .41375 37.13375-4.59875 62.915"></path>
+            <path fill="#fff" d="M177.50984 80.077v60.94125h-24.14375v-59.15c0-12.46875-5.24625-18.7975-15.74-18.7975-11.6025 0-17.4175 7.5075-17.4175 22.3525v32.37625H96.20734V85.42325c0-14.845-5.81625-22.3525-17.41875-22.3525-10.49375 0-15.74 6.32875-15.74 18.7975v59.15H38.90484V80.077c0-12.455 3.17125-22.3525 9.54125-29.675 6.56875-7.3225 15.17125-11.07625 25.85-11.07625 12.355 0 21.71125 4.74875 27.8975 14.2475l6.01375 10.08125 6.015-10.08125c6.185-9.49875 15.54125-14.2475 27.8975-14.2475 10.6775 0 19.28 3.75375 25.85 11.07625 6.36875 7.3225 9.54 17.22 9.54 29.675"></path></svg>
+          <span class="username">@TimPurdum@dotnet.social</span></a></li></ul></div></footer>
+    <script src="_framework/blazor.webassembly.js"></script></body></html>
