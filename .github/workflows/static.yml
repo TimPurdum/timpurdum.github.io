@@ -52,7 +52,7 @@ jobs:
       - name: Copy AppSettings
         shell: pwsh
         run: |
-          $appSettings = "${{ secrets.APP_SETTINGS }}"
+          $appSettings = '${{ secrets.APP_SETTINGS }}'
           $appSettings | Out-File -FilePath ./TimPurdum.Dev/wwwroot/appsettings.json -Encoding utf8
           
       - name: Publish app
