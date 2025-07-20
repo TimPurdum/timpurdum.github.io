@@ -49,6 +49,12 @@ jobs:
           cd TimPurdum.Dev.BlogCreator
           dotnet run -c Release ../TimPurdum.Dev
 
+      - name: Copy AppSettings
+        shell: pwsh
+        run: |
+          $appSettings = "{{ secrets.APP_SETTINGS }}"
+          $appSettings | Out-File -FilePath ./TimPurdum.Dev/wwwroot/appsettings.json -Encoding utf8
+          
       - name: Publish app
         run: |
           cd TimPurdum.Dev
