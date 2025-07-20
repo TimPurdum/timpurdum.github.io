@@ -47,7 +47,7 @@ jobs:
       - name: Generate Static Pages
         run: |
           cd TimPurdum.Dev.BlogCreator
-          dotnet run TimPurdum.Dev.BlogCreator.csproj -c Release '../TimPurdum.Dev'
+          dotnet run TimPurdum.Dev.BlogCreator.csproj -c Release ../TimPurdum.Dev
 
       - name: Publish app
         run: |
