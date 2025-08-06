@@ -1645,4 +1645,19 @@ Next, add a <code>GraphicsLayer</code> to your Map to show the new data:</p>
 <li>Development workflow and debugging tools</li>
 </ul>
 <p>Whether you're a .NET developer considering React, or a JavaScript developer curious about Blazor, you'll see how these modern frameworks handle real-world challenges in building complex interactive applications.</p>
+]]></content></item><item><link>https://timpurdum.dev/post/2025/8/6/devup</link><title>DevUp 2025</title><description /><pubDate>Wed, 06 Aug 2025 00:00:00 -0500</pubDate><content type="html" xml:base="https://timpurdum.dev/post/2025/8/6/devup"><![CDATA[<h1 id="devup-2025">DevUp 2025</h1>
+<p>Hello DevUp 2025 attendees! This post is to help you find the resources I mentioned in my
+two sessions at the conference.</p>
+<div id="dev-up-map1">
+    <svg class="loading-progress">
+        <circle r="40%" cx="50%" cy="50%" />
+        <circle r="40%" cx="50%" cy="50%" />
+    </svg>
+    <div class="loading-progress-text"></div>
+</div>
+<p><a style="font-size: 1.5rem; font-weight: bold;" href="https://www.geoblazor.com" target="_blank">Check out GeoBlazor</a> to quickly add powerful interactive maps to your Blazor applications.</p>
+<h2 id="session-1-blazor-for-javascript-developers">Session 1: Blazor for JavaScript Developers</h2>
+<p><a style="font-size: 1.5rem; font-weight: bold;" href="/files/Blazor_for_JavaScript_Developers.pdf" target="_blank">Slide Show</a></p>
+<h2 id="session-2-blazor-state-management">Session 2: Blazor State Management</h2>
+<p><a style="font-size: 1.5rem; font-weight: bold;" href="/files/Blazor_State_Management.pdf" target="_blank">Slide Show</a></p>
 ]]></content></item></channel></rss>

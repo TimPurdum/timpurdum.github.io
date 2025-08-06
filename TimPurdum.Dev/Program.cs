@@ -29,7 +29,14 @@ foreach (Type type in razorComponentTypes)
     if (htmlContent.Contains($"id=\"{type.Name.PascalToKebabCase()}\""))
     {
         Console.WriteLine($"Adding component {type.Name} with selector #{type.Name.PascalToKebabCase()}");
-        builder.RootComponents.Add(type, $"#{type.Name.PascalToKebabCase()}");
+        try
+        {
+            builder.RootComponents.Add(type, $"#{type.Name.PascalToKebabCase()}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error adding component {type.Name}: {ex.Message}");
+        }
     }
     else
     {
