@@ -10,6 +10,5 @@ public static class Settings
     public const string HeaderLinks = """
                                 <link href="_content/dymaptic.GeoBlazor.Core" />
                                 <link href="_content/dymaptic.GeoBlazor.Pro" />
-                                <link href="_content/dymaptic.GeoBlazor.Core/assets/esri/themes/dark/main.css" rel="stylesheet" />
                                 """;
 }

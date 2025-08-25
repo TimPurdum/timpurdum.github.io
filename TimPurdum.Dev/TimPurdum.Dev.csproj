@@ -11,7 +11,7 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.0-preview.5.25277.114" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.0-preview.5.25277.114" PrivateAssets="all" />
-        <PackageReference Include="dymaptic.GeoBlazor.Pro" Version="4.0.1" />
+        <PackageReference Include="dymaptic.GeoBlazor.Pro" Version="4.2.0" />
     </ItemGroup>
 
 
