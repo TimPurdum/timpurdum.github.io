@@ -3,219 +3,648 @@
   "features": [
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-94.6065, 38.9721] },
-      "properties": { "aff": "Burns McDonnell", "loc": "9400 Ward Pkwy, Kansas City, MO 64114" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -94.6065,
+          38.9721
+        ]
+      },
+      "properties": {
+        "title": "Burns McDonnell",
+        "loc": "9400 Ward Pkwy, Kansas City, MO 64114",
+        "marker-color": "#e92e8b"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-90.5462, 38.5951] },
-      "properties": { "aff": "REJIS", "loc": "Ballwin, Missouri, United States" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.5462,
+          38.5951
+        ]
+      },
+      "properties": {
+        "title": "REJIS",
+        "loc": "Ballwin, Missouri, United States",
+        "marker-color": "#07edd5"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-90.4444, 38.6965] },
-      "properties": { "aff": "Ascent Corp", "loc": "2350 Ball Dr, St. Louis, MO 63146" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.4444,
+          38.6965
+        ]
+      },
+      "properties": {
+        "title": "Ascent Corp",
+        "loc": "2350 Ball Dr, St. Louis, MO 63146",
+        "marker-color": "#e6469b"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-90.4443, 38.5126] },
-      "properties": { "aff": "Swank Motion Pictures, Inc.", "loc": "Fenton, Missouri, United States" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.4443,
+          38.5126
+        ]
+      },
+      "properties": {
+        "title": "Swank Motion Pictures, Inc.",
+        "loc": "Fenton, Missouri, United States",
+        "marker-color": "#2e68d2"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-90.3108, 38.6488] },
-      "properties": { "aff": "WashU", "loc": "Shepley Dr, Clayton, MO 63105" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.3108,
+          38.6488
+        ]
+      },
+      "properties": {
+        "title": "WashU",
+        "loc": "Shepley Dr, Clayton, MO 63105",
+        "marker-color": "#ccbee6"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-90.4444, 38.6965] },
-      "properties": { "aff": "Safety National", "loc": "1832 Schuetz Rd, St. Louis, MO 63146" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.4444,
+          38.6965
+        ]
+      },
+      "properties": {
+        "title": "Safety National",
+        "loc": "1832 Schuetz Rd, St. Louis, MO 63146",
+        "marker-color": "#2ef45a"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-90.4446, 38.7706] },
-      "properties": { "aff": "Cognizant", "loc": "3300 Rider Trail S, Earth City, MO 63045" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.4446,
+          38.7706
+        ]
+      },
+      "properties": {
+        "title": "Cognizant",
+        "loc": "3300 Rider Trail S, Earth City, MO 63045",
+        "marker-color": "#f607d1"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-75.1491, 39.9516] },
-      "properties": { "aff": "Federal Reserve Bank of Philadelphia", "loc": "10 N Independence Mall W, Philadelphia, PA 19106" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -75.1491,
+          39.9516
+        ]
+      },
+      "properties": {
+        "title": "Federal Reserve Bank of Philadelphia",
+        "loc": "10 N Independence Mall W, Philadelphia, PA 19106",
+        "marker-color": "#6edd20"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-90.4206, 38.7687] },
-      "properties": { "aff": "Hunter Engineering", "loc": "11250 Hunter Dr, Bridgeton, MO 63044" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.4206,
+          38.7687
+        ]
+      },
+      "properties": {
+        "title": "Hunter Engineering",
+        "loc": "11250 Hunter Dr, Bridgeton, MO 63044",
+        "marker-color": "#08ad5f"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-90.3269, 38.6012] },
-      "properties": { "aff": "Arco Business Services", "loc": "900 N Rock Hill Rd, St. Louis, MO 63119" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.3269,
+          38.6012
+        ]
+      },
+      "properties": {
+        "title": "Arco Business Services",
+        "loc": "900 N Rock Hill Rd, St. Louis, MO 63119",
+        "marker-color": "#00cede"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-90.6265, 38.8003] },
-      "properties": { "aff": "Aviron", "loc": "St. Charles County, 7055 Mexico Rd, St Peters, MO 63376" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.6265,
+          38.8003
+        ]
+      },
+      "properties": {
+        "title": "Aviron",
+        "loc": "St. Charles County, 7055 Mexico Rd, St Peters, MO 63376",
+        "marker-color": "#622892"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-90.5871, 38.6017] },
-      "properties": { "aff": "Architectnow", "loc": "513 Autumn Bluff Dr, Ellisville, MO 63021" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.5871,
+          38.6017
+        ]
+      },
+      "properties": {
+        "title": "Architectnow",
+        "loc": "513 Autumn Bluff Dr, Ellisville, MO 63021",
+        "marker-color": "#998ead"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-91.0124, 38.5581] },
-      "properties": { "aff": "Sonaca NA", "loc": "Vossbrink Dr, Washington, MO 63090" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -91.0124,
+          38.5581
+        ]
+      },
+      "properties": {
+        "title": "Sonaca NA",
+        "loc": "Vossbrink Dr, Washington, MO 63090",
+        "marker-color": "#300ec5"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-84.411324, 39.324024] },
-      "properties": { "aff": "Microsoft", "loc": "West Chester, Ohio, United States" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -84.411324,
+          39.324024
+        ]
+      },
+      "properties": {
+        "title": "Microsoft",
+        "loc": "West Chester, Ohio, United States",
+        "marker-color": "#bcf626"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-90.57851941349402, 38.66744313150876] },
-      "properties": { "aff": "Dot Foods Inc", "loc": "Chesterfield, MO 63005" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.57851941349402,
+          38.66744313150876
+        ]
+      },
+      "properties": {
+        "title": "Dot Foods Inc",
+        "loc": "Chesterfield, MO 63005",
+        "marker-color": "#9665c3"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-90.54241840146211, 38.65008320881414] },
-      "properties": { "aff": "Rabobank", "loc": "" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.54241840146211,
+          38.65008320881414
+        ]
+      },
+      "properties": {
+        "title": "Rabobank",
+        "loc": "",
+        "marker-color": "#2f1309"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-90.1994, 38.6270] },
-      "properties": { "aff": "Boostie", "loc": "St Louis, Missouri, United States" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.1994,
+          38.627
+        ]
+      },
+      "properties": {
+        "title": "Boostie",
+        "loc": "St Louis, Missouri, United States",
+        "marker-color": "#0368f4"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-104.79947298607165, 39.760430922205714] },
-      "properties": { "aff": "Jasper Engines and Transmissions", "loc": "" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -104.79947298607165,
+          39.760430922205714
+        ]
+      },
+      "properties": {
+        "title": "Jasper Engines and Transmissions",
+        "loc": "",
+        "marker-color": "#658ef8"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-90.9571, 38.8081] },
-      "properties": { "aff": "ServiceTitan", "loc": "Foristell, Missouri" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.9571,
+          38.8081
+        ]
+      },
+      "properties": {
+        "title": "ServiceTitan",
+        "loc": "Foristell, Missouri",
+        "marker-color": "#d840cc"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-90.3776, 38.4328] },
-      "properties": { "aff": "REJIS", "loc": "Arnold, Missouri, United States" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.3776,
+          38.4328
+        ]
+      },
+      "properties": {
+        "title": "REJIS",
+        "loc": "Arnold, Missouri, United States",
+        "marker-color": "#69991d"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-89.9846, 38.5889] },
-      "properties": { "aff": "Washington University", "loc": "Fairview Heights, Illinois, United States" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -89.9846,
+          38.5889
+        ]
+      },
+      "properties": {
+        "title": "Washington University",
+        "loc": "Fairview Heights, Illinois, United States",
+        "marker-color": "#a2a36f"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-90.1994, 38.6270] },
-      "properties": { "aff": "Microsoft", "loc": "St. Louis, Missouri" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.1994,
+          38.627
+        ]
+      },
+      "properties": {
+        "title": "Microsoft",
+        "loc": "St. Louis, Missouri",
+        "marker-color": "#987055"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-90.6265, 38.8003] },
-      "properties": { "aff": "Hunter Engineering Company", "loc": "St Peters, Missouri, United States" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.6265,
+          38.8003
+        ]
+      },
+      "properties": {
+        "title": "Hunter Engineering Company",
+        "loc": "St Peters, Missouri, United States",
+        "marker-color": "#56cd71"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-90.1994, 38.6270] },
-      "properties": { "aff": "Federal Reserve Bank of St. Louis", "loc": "St. Louis, MO" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.1994,
+          38.627
+        ]
+      },
+      "properties": {
+        "title": "Federal Reserve Bank of St. Louis",
+        "loc": "St. Louis, MO",
+        "marker-color": "#cc70b8"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-90.62295919942203, 38.87503892363048] },
-      "properties": { "aff": "SHARx, LLC", "loc": "" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.62295919942203,
+          38.87503892363048
+        ]
+      },
+      "properties": {
+        "title": "SHARx, LLC",
+        "loc": "",
+        "marker-color": "#8bdf26"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-92.1735, 38.5767] },
-      "properties": { "aff": "State of Missouri OA-ITSD", "loc": "Jefferson City MO" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -92.1735,
+          38.5767
+        ]
+      },
+      "properties": {
+        "title": "State of Missouri OA-ITSD",
+        "loc": "Jefferson City MO",
+        "marker-color": "#f17823"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-87.65667258121341, 41.88930271292357] },
-      "properties": { "aff": "curbsidesos", "loc": "Chicago, Illinois, United States" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -87.65667258121341,
+          41.88930271292357
+        ]
+      },
+      "properties": {
+        "title": "curbsidesos",
+        "loc": "Chicago, Illinois, United States",
+        "marker-color": "#749576"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-90.1994, 38.6270] },
-      "properties": { "aff": "RGA", "loc": "Greater St. Louis" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.1994,
+          38.627
+        ]
+      },
+      "properties": {
+        "title": "RGA",
+        "loc": "Greater St. Louis",
+        "marker-color": "#4384bb"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-90.1994, 38.6270] },
-      "properties": { "aff": "NISC", "loc": "St. Louis, Missouri" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.1994,
+          38.627
+        ]
+      },
+      "properties": {
+        "title": "NISC",
+        "loc": "St. Louis, Missouri",
+        "marker-color": "#44a3a5"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-91.53697947516554, 41.65775098845702] },
-      "properties": { "aff": "Aviron Software", "loc": "Iowa City, Iowa" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -91.53697947516554,
+          41.65775098845702
+        ]
+      },
+      "properties": {
+        "title": "Aviron Software",
+        "loc": "Iowa City, Iowa",
+        "marker-color": "#a451e8"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-90.41260122050213, 38.55546779256884] },
-      "properties": { "aff": "Swank Motion Pictures", "loc": "" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.41260122050213,
+          38.55546779256884
+        ]
+      },
+      "properties": {
+        "title": "Swank Motion Pictures",
+        "loc": "",
+        "marker-color": "#920701"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-90.9807, 38.9795] },
-      "properties": { "aff": "Hunter Engineering", "loc": "Troy, Missouri, United States" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.9807,
+          38.9795
+        ]
+      },
+      "properties": {
+        "title": "Hunter Engineering",
+        "loc": "Troy, Missouri, United States",
+        "marker-color": "#a0cc31"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-90.3700, 38.7716] },
-      "properties": { "aff": "Stax Payments", "loc": "Hazelwood, Missouri, United States" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.37,
+          38.7716
+        ]
+      },
+      "properties": {
+        "title": "Stax Payments",
+        "loc": "Hazelwood, Missouri, United States",
+        "marker-color": "#0cb6a7"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-90.4082539186546, 38.560902216853194] },
-      "properties": { "aff": "Concordia Plans", "loc": "" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.4082539186546,
+          38.560902216853194
+        ]
+      },
+      "properties": {
+        "title": "Concordia Plans",
+        "loc": "",
+        "marker-color": "#99b226"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-90.1994, 38.6270] },
-      "properties": { "aff": "Federal Reserve Bank of St. Louis", "loc": "St Louis, Missouri, United States" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.1994,
+          38.627
+        ]
+      },
+      "properties": {
+        "title": "Federal Reserve Bank of St. Louis",
+        "loc": "St Louis, Missouri, United States",
+        "marker-color": "#9e350c"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-90.1994, 38.6270] },
-      "properties": { "aff": "Allsup, LLC", "loc": "Greater St. Louis" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.1994,
+          38.627
+        ]
+      },
+      "properties": {
+        "title": "Allsup, LLC",
+        "loc": "Greater St. Louis",
+        "marker-color": "#87acdd"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-90.4974, 38.7881] },
-      "properties": { "aff": "Seiler Instrument & Mfg. Co., Inc.", "loc": "St. Charles, MO" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.4974,
+          38.7881
+        ]
+      },
+      "properties": {
+        "title": "Seiler Instrument & Mfg. Co., Inc.",
+        "loc": "St. Charles, MO",
+        "marker-color": "#c17bc2"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-92.4523473377554, 42.534245114157756] },
-      "properties": { "aff": "Dymaptic", "loc": "Cedar Falls, Iowa" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -92.4523473377554,
+          42.534245114157756
+        ]
+      },
+      "properties": {
+        "title": "Dymaptic",
+        "loc": "Cedar Falls, Iowa",
+        "marker-color": "#a7e472"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-90.5610052156462, 39.25143528496763] },
-      "properties": { "aff": "CCA Global Partners", "loc": "" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.5610052156462,
+          39.25143528496763
+        ]
+      },
+      "properties": {
+        "title": "CCA Global Partners",
+        "loc": "",
+        "marker-color": "#ea9e98"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-90.3226, 38.7892] },
-      "properties": { "aff": "Turner Construction Company", "loc": "Florissant, Missouri, United States" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.3226,
+          38.7892
+        ]
+      },
+      "properties": {
+        "title": "Turner Construction Company",
+        "loc": "Florissant, Missouri, United States",
+        "marker-color": "#9ff2e0"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-76.28265754078195, 36.76999797925718] },
-      "properties": { "aff": ".NET Foundation", "loc": "Chesapeake, Virginia, United States" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -76.28265754078195,
+          36.76999797925718
+        ]
+      },
+      "properties": {
+        "title": ".NET Foundation",
+        "loc": "Chesapeake, Virginia, United States",
+        "marker-color": "#2e6c4c"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-90.1994, 38.6270] },
-      "properties": { "aff": "ArchitectNow", "loc": "St. Louis, Missouri" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.1994,
+          38.627
+        ]
+      },
+      "properties": {
+        "title": "ArchitectNow",
+        "loc": "St. Louis, Missouri",
+        "marker-color": "#ff068c"
+      }
     },
     {
       "type": "Feature",
-      "geometry": { "type": "Point", "coordinates": [-89.9839, 38.5201] },
-      "properties": { "aff": "Ranken Technical College", "loc": "Belleville, Illinois, United States" }
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -89.9839,
+          38.5201
+        ]
+      },
+      "properties": {
+        "title": "Ranken Technical College",
+        "loc": "Belleville, Illinois, United States",
+        "marker-color": "#f7c2d0"
+      }
     }
   ]
 }
-

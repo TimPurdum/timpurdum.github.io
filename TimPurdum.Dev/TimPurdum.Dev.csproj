@@ -4,26 +4,34 @@
         <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <CompressionEnabled Condition="$(Configuration) != 'RELEASE'">false</CompressionEnabled>
+        <AttachWeakETagToCompressedAssetsDuringDevelopment>true</AttachWeakETagToCompressedAssetsDuringDevelopment>
     </PropertyGroup>
 
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.0-preview.5.25277.114" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.0-preview.5.25277.114" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.0-rc.1.25451.107" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.0-rc.1.25451.107" PrivateAssets="all" />
         <PackageReference Include="dymaptic.GeoBlazor.Pro" Version="4.2.0" />
     </ItemGroup>
 
 
     <ItemGroup>
-      <Content Remove="Templates\PostTemplate.razor" />
+      <ProjectReference Include="..\TimPurdum.Dev.BlogGenerator\TimPurdum.Dev.BlogGenerator.csproj" />
     </ItemGroup>
-<!--    -->
-<!--    <Target Name="Compile Markdown Pages" BeforeTargets="PreBuildEvent" Condition="'$(Configuration)' != 'RELEASE'">-->
-<!--        <Message Text="Compiling Markdown" Importance="high" />-->
-<!--        <Exec WorkingDirectory="$(MSBuildProjectDirectory)\..\TimPurdum.Dev.BlogConverter" -->
-<!--              Command="dotnet run &#45;&#45; $(MSBuildProjectDirectory)"-->
-<!--              ContinueOnError="false" />-->
-<!--    </Target>-->
+
+
+    <ItemGroup>
+      <Folder Include="Source\" />
+    </ItemGroup>
+
+
+    <ItemGroup>
+      <AdditionalFiles Include="Source\Templates\Footer.razor" />
+      <AdditionalFiles Include="Source\Templates\Header.razor" />
+      <AdditionalFiles Include="Source\Templates\NavMenu.razor" />
+      <AdditionalFiles Include="Source\Templates\RootTemplate.razor" />
+      <AdditionalFiles Include="Source\Content\Pages\Index.razor" />
+      <AdditionalFiles Include="Source\Content\Pages\Sessions.razor" />
+    </ItemGroup>
 </Project>
 

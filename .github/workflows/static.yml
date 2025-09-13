@@ -46,7 +46,7 @@ jobs:
           
       - name: Generate Static Pages
         run: |
-          cd TimPurdum.Dev.BlogCreator
+          cd TimPurdum.Dev.BlogGenerator
           dotnet run -c Release ../TimPurdum.Dev
 
       - name: Copy AppSettings

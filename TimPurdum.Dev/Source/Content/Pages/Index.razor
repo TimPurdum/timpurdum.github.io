@@ -1,0 +1,77 @@
+﻿@page "/"
+
+<PageTitle>@BlogSettings.SiteTitle</PageTitle>
+
+<div class="home">
+    <h1>TimPurdum.Dev</h1>
+    <div id="intro">
+        @((MarkupString)BlogSettings.SiteDescription)
+    </div>
+    <div class="flex-row flex-between">
+        <div id="link-sidebar">
+            <h2 class="post-list-heading">Posts</h2>
+            <ul class="post-list">
+                @foreach (LinkData link in NavLinks.OrderByDescending(p => p.PublishedDate))
+                {
+                    <li>
+                        <span class="post-meta">@link.PublishedDate.ToLongDateString()</span>
+                        <h3>
+                            <a class="post-link" href="@(link.Url).html">
+                                @link.Title.KebabCaseToTitleCase()
+                                @if (!string.IsNullOrWhiteSpace(link.SubTitle))
+                                {
+                                    <div style="font-size: 1rem">@link.SubTitle</div>
+                                }
+                            </a>
+                        </h3>
+                    </li>
+                }
+            </ul>
+
+            <p class="rss-subscribe">subscribe <a href="/feed.xml">via RSS</a></p>
+        </div>
+        <div id="social-col">
+            <div id="sessionize-events"></div>
+            <a href="sessions">View larger map</a>
+            <SessionizeMap />
+            <div id="sessionize-sessions"></div>
+            <div id="bsky-section">
+                <div id="bsky-header">
+                    <img alt="Bluesky" style="width: 16rem;" src="images/bsky.webp">
+                </div>
+                <div id="bsky-feed">
+                    <bsky-embed
+                        username="timpurdum.dev"
+                        mode="dark"
+                        limit="10"
+                        link-target="_blank"
+                        link-image="true"
+                        load-more="true"
+                        disable-styles="false"
+                        custom-styles=".border-slate-300 { border-color: #1185fe; } article > .flex.gap-2 { flex-direction: column; overflow: hidden } article > div > div > div.items-center { flex-direction: column; align-items: start; }"
+                        date-format='{"type":"absolute","options":{"year":"2-digit","month":"short","day":"numeric","hour":"numeric", "minute":"numeric"}}'>
+                    </bsky-embed>
+                </div>
+            </div>
+            <div id="mastodon-section">
+                <div id="mastodon-header">
+                    <img alt="Mastodon" style="width: 16rem;" src="images/mastodon-header.png">
+                </div>
+                <div id="mastodon"></div>
+            </div>
+        </div>
+        
+        <script type="module" src="https://cdn.jsdelivr.net/npm/bsky-embed/dist/bsky-embed.es.js" async></script>
+        <script src="js/mastodon.js"></script>
+        <script src="js/sessionize-events.js"></script>
+        <script src="js/sessionize-sessions.js"></script>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public required List<LinkData> NavLinks { get; set; }
+    
+    [Inject]
+    public required BlogSettings BlogSettings { get; set; }
+}

@@ -11,3 +11,10 @@
                       TimeExtent="new(DateTime.Now, DateTime.Now.AddDays(3))"
                       Stops="new StopsByInterval(new TimeInterval(TemporalTime.Hours, 8))" />
 </MapView>
+
+@code
+{
+    [System.Diagnostics.CodeAnalysis.DynamicDependency(
+        System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.All, typeof(PrecipitationForecast5))]
+    private static void Preserve() { }
+}

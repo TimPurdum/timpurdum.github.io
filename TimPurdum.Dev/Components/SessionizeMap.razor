@@ -1,0 +1,47 @@
+<MapView Style="height:400px;width:100%;" 
+         Latitude="38.7705" 
+         Longitude="-90.5024" 
+         Zoom="2">
+    <Map>
+        <Basemap>
+            <BasemapStyle Name="BasemapStyleName.ArcgisNova"/>
+        </Basemap>
+        <ProGeoJSONLayer Url="/files/sessions.geojson"
+                         OutFields="@(["*"])"
+                         PopupEnabled="true"
+                         ApplyStyles="true">
+            <PopupTemplate Title="{name}">
+                <CustomPopupContent CreatorFunction="@GenerateSessions" OutFields="@(["session-titles"])"/>
+            </PopupTemplate>
+        </ProGeoJSONLayer>
+    </Map>
+    <PopupWidget DockEnabled="false">
+        <PopupDockOptions BreakPoint="@(new BreakPoint(false))" />
+    </PopupWidget>
+</MapView>
+
+@code {
+    private async Task<string> GenerateSessions(PopupTemplateCreatorEvent creatorEvent)
+    {
+        if (creatorEvent.Graphic is null)
+        {
+            return string.Empty;
+        }
+        
+        string? location = await creatorEvent.Graphic.GetAttribute("location") as string;
+        string? url = await creatorEvent.Graphic.GetAttribute("url") as string;
+        long? startingDateTicks = await creatorEvent.Graphic.GetAttribute("starting_date") as long?;
+        long? endingDateTicks = await creatorEvent.Graphic.GetAttribute("ending_date") as long?;
+        DateTimeOffset? startingDate = startingDateTicks is not null ? DateTimeOffset.FromUnixTimeMilliseconds(startingDateTicks.Value) : null;
+        DateTimeOffset? endingDate = endingDateTicks is not null ? DateTimeOffset.FromUnixTimeMilliseconds(endingDateTicks.Value) : null;
+        string dateLine = endingDate > startingDate
+            ? $"{startingDate.Value:MMM dd} - {endingDate.Value:MMM dd}, {endingDate.Value:yyyy}"
+            : startingDate?.ToString("MMM dd, yyyy") ?? string.Empty;
+        
+        string? sessionString = await creatorEvent.Graphic.GetAttribute("session_titles") as string;
+        string[] sessions = sessionString?.Split(";", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
+        return @$"<p><b>{location}</b>, {dateLine}</p>
+<ul><li>{string.Join("</li><li>", sessions)}</li></ul>
+<p><em><a target='_blank' href='{url}'>{url}</a></em></p>";
+    }
+}
