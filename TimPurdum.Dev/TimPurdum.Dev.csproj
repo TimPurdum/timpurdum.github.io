@@ -11,12 +11,12 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.0-rc.1.25451.107" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.0-rc.1.25451.107" PrivateAssets="all" />
-        <PackageReference Include="dymaptic.GeoBlazor.Pro" Version="4.2.0" />
+        <PackageReference Include="dymaptic.GeoBlazor.Pro" Version="4.2.1-beta-1.1" />
     </ItemGroup>
 
 
     <ItemGroup>
-      <ProjectReference Include="..\TimPurdum.Dev.BlogGenerator\TimPurdum.Dev.BlogGenerator.csproj" />
+      <ProjectReference Include="..\BlogGenerator\TimPurdum.Dev.BlogGenerator\TimPurdum.Dev.BlogGenerator.csproj" />
     </ItemGroup>
 
 

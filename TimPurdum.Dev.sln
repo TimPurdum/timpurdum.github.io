@@ -2,13 +2,13 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimPurdum.Dev", "TimPurdum.Dev\TimPurdum.Dev.csproj", "{D4CAB0F4-E206-4FCD-B679-658B1202ACBE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimPurdum.Dev.BlogGenerator.Compiler", "TimPurdum.Dev.BlogGenerator.Compiler\TimPurdum.Dev.BlogGenerator.Compiler.csproj", "{D75CDEC3-F952-470D-BB71-79CAAEC18674}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimPurdum.Dev.BlogGenerator.Compiler", "BlogGenerator\TimPurdum.Dev.BlogGenerator.Compiler\TimPurdum.Dev.BlogGenerator.Compiler.csproj", "{D75CDEC3-F952-470D-BB71-79CAAEC18674}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdig", "markdig\src\Markdig\Markdig.csproj", "{48AB49BA-C1C0-4D0D-93E4-D388BFB391AD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdig", "BlogGenerator\markdig\src\Markdig\Markdig.csproj", "{48AB49BA-C1C0-4D0D-93E4-D388BFB391AD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimPurdum.Dev.BlogGenerator", "TimPurdum.Dev.BlogGenerator\TimPurdum.Dev.BlogGenerator.csproj", "{4B806BD2-2A0A-457A-8716-286DDBBCAE42}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimPurdum.Dev.BlogGenerator", "BlogGenerator\TimPurdum.Dev.BlogGenerator\TimPurdum.Dev.BlogGenerator.csproj", "{4B806BD2-2A0A-457A-8716-286DDBBCAE42}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimPurdum.Dev.BlogGenerator.Shared", "TimPurdum.Dev.BlogGenerator.Shared\TimPurdum.Dev.BlogGenerator.Shared.csproj", "{DEE6E057-C544-47AA-9CB9-00E09C77886E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimPurdum.Dev.BlogGenerator.Shared", "BlogGenerator\TimPurdum.Dev.BlogGenerator.Shared\TimPurdum.Dev.BlogGenerator.Shared.csproj", "{DEE6E057-C544-47AA-9CB9-00E09C77886E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
