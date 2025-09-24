@@ -39,9 +39,6 @@ jobs:
         with:
           submodules: true
           
-      - name: Confirm Submodules
-        run: git submodule update --init --recursive
-
       - name: Get latest .NET SDK
         uses: actions/setup-dotnet@v4
         with:
@@ -54,14 +51,13 @@ jobs:
           
       - name: Generate Static Pages
         run: |
-          cd ../BlogGenerator/TimPurdum.Dev.BlogGenerator.Compiler
+          cd BlogGenerator/TimPurdum.Dev.BlogGenerator.Compiler
           dotnet run -c Release
 
       - name: Copy AppSettings
         shell: pwsh
         run: |
           $appSettings = '${{ secrets.APP_SETTINGS }}'
-          cd ../../
           $appSettings | Out-File -FilePath ./TimPurdum.Dev/wwwroot/appsettings.json -Encoding utf8
           
       - name: Publish app
