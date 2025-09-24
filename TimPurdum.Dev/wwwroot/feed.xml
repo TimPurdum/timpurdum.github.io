@@ -1664,4 +1664,11 @@ two sessions at the conference.</p>
 <h2 id="session-2-blazor-state-management">Session 2: Blazor State Management</h2>
 <p><a style="font-size: 1.5rem; font-weight: bold;" href="/files/Blazor_State_Management.pdf" target="_blank">Slide Show</a></p>
 <p><a style="font-size: 1.5rem; font-weight: bold;" href="https://github.com/dymaptic/dy-blazor-statemanagement" target="_blank">Blazor State Management GitHub Repo</a></p>
+]]></content></item><item><link>https://www.timpurdum.dev/post/2025/9/25/blazor-day</link><title>BlazorDay 2025</title><description /><pubDate>Thu, 25 Sep 2025 00:00:00 -0500</pubDate><content type="html" xml:base="https://www.timpurdum.dev/post/2025/9/25/blazor-day"><![CDATA[<p>Hello Blazor Day 2025 attendees! This post is to help you find the resources I mentioned in my session on Blazor Render Modes</p>
+<p><a style="font-size: 1.5rem; font-weight: bold;" href="https://www.geoblazor.com" target="_blank">Check out GeoBlazor</a> to quickly add powerful interactive maps to your Blazor applications.</p>
+<h2 id="links">Links</h2>
+<p><a style="font-size: 1.5rem; font-weight: bold;" href="/files/Blazor_Render_Modes_BlazorDay_2025.pdf" target="_blank">Slide Show</a></p>
+<p><a style="font-size: 1.5rem; font-weight: bold;" href="https://github.com/dymaptic/GeoBlazor.RenderModes" target="_blank">Render Modes Sample Code Repository</a></p>
+<p><a style="font-size: 1.5rem; font-weight: bold;" href="https://learn.microsoft.com/en-us/aspnet/core/blazor/components/render-modes?view=aspnetcore-9.0" target="_blank">ASP.NET Core Blazor Render Modes</a></p>
+<p><a style="font-size: 1.5rem; font-weight: bold;" href="https://blazorday.net/" target="_blank">BlazorDay.net</a></p>
 ]]></content></item></channel></rss>

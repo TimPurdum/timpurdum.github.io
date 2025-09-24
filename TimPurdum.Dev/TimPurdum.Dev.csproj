@@ -6,32 +6,16 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <AttachWeakETagToCompressedAssetsDuringDevelopment>true</AttachWeakETagToCompressedAssetsDuringDevelopment>
     </PropertyGroup>
-
-
+    
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.0-rc.1.25451.107" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.0-rc.1.25451.107" PrivateAssets="all" />
         <PackageReference Include="dymaptic.GeoBlazor.Pro" Version="4.2.1-beta-1.1" />
     </ItemGroup>
 
-
     <ItemGroup>
-      <ProjectReference Include="..\BlogGenerator\TimPurdum.Dev.BlogGenerator\TimPurdum.Dev.BlogGenerator.csproj" />
-    </ItemGroup>
-
-
-    <ItemGroup>
-      <Folder Include="Source\" />
-    </ItemGroup>
-
-
-    <ItemGroup>
-      <AdditionalFiles Include="Source\Templates\Footer.razor" />
-      <AdditionalFiles Include="Source\Templates\Header.razor" />
-      <AdditionalFiles Include="Source\Templates\NavMenu.razor" />
-      <AdditionalFiles Include="Source\Templates\RootTemplate.razor" />
-      <AdditionalFiles Include="Source\Content\Pages\Index.razor" />
-      <AdditionalFiles Include="Source\Content\Pages\Sessions.razor" />
+      <ProjectReference Include="..\BlogGenerator\TimPurdum.Dev.BlogGenerator\TimPurdum.Dev.BlogGenerator.csproj"
+                        PrivateAssets="all" />
     </ItemGroup>
 </Project>
 

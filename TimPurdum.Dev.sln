@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimPurdum.Dev.BlogGenerator
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimPurdum.Dev.BlogGenerator.Shared", "BlogGenerator\TimPurdum.Dev.BlogGenerator.Shared\TimPurdum.Dev.BlogGenerator.Shared.csproj", "{DEE6E057-C544-47AA-9CB9-00E09C77886E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimPurdum.Dev.Source", "TimPurdum.Dev.Source\TimPurdum.Dev.Source.csproj", "{C4602A81-39C4-4540-8DC0-FD4657C3FF01}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{DEE6E057-C544-47AA-9CB9-00E09C77886E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DEE6E057-C544-47AA-9CB9-00E09C77886E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DEE6E057-C544-47AA-9CB9-00E09C77886E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4602A81-39C4-4540-8DC0-FD4657C3FF01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4602A81-39C4-4540-8DC0-FD4657C3FF01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4602A81-39C4-4540-8DC0-FD4657C3FF01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4602A81-39C4-4540-8DC0-FD4657C3FF01}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
