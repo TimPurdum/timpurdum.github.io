@@ -38,6 +38,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: true
+          
+      - name: Confirm Submodules
+        run: git submodule update --init --recursive
 
       - name: Get latest .NET SDK
         uses: actions/setup-dotnet@v4
