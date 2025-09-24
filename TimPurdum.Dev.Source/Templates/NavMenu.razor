@@ -1,3 +1,5 @@
+@inherits BaseNavMenu
+
 <nav class="site-nav">
     <input type="checkbox" id="nav-trigger" class="nav-trigger">
     <label for="nav-trigger">
@@ -23,11 +25,3 @@
         }
         <p class="rss-subscribe">subscribe <a href="/feed.xml">via RSS</a></p></div>
 </nav>
-
-@code {
-
-    [EditorRequired]
-    [Parameter]
-    public required List<LinkData> NavLinks { get; set; }
-
-}

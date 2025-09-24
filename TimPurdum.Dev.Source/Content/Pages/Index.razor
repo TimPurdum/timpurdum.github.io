@@ -1,11 +1,11 @@
 ﻿@page "/"
 
-<PageTitle>@Settings.SiteTitle</PageTitle>
+<PageTitle>@BlogSettings.SiteTitle</PageTitle>
 
 <div class="home">
-    <h1>@Settings.SiteName</h1>
+    <h1>TimPurdum.Dev</h1>
     <div id="intro">
-        @((MarkupString)Settings.SiteDescription)
+        @((MarkupString)BlogSettings.SiteDescription)
     </div>
     <div class="flex-row flex-between">
         <div id="link-sidebar">
@@ -14,7 +14,7 @@
                 @foreach (LinkData link in NavLinks.OrderByDescending(p => p.PublishedDate))
                 {
                     <li>
-                        <span class="post-meta">@link.PublishedDate</span>
+                        <span class="post-meta">@link.PublishedDate.ToLongDateString()</span>
                         <h3>
                             <a class="post-link" href="@(link.Url).html">
                                 @link.Title.KebabCaseToTitleCase()
@@ -32,6 +32,8 @@
         </div>
         <div id="social-col">
             <div id="sessionize-events"></div>
+            <a href="sessions">View larger map</a>
+            <SessionizeMap />
             <div id="sessionize-sessions"></div>
             <div id="bsky-section">
                 <div id="bsky-header">
@@ -69,4 +71,7 @@
 @code {
     [Parameter]
     public required List<LinkData> NavLinks { get; set; }
+    
+    [Inject]
+    public required BlogSettings BlogSettings { get; set; }
 }

@@ -1,4 +1,4 @@
-﻿@inherits LayoutComponentBase
+﻿@inherits BasePageLayout
 
 <Header NavLinks="NavLinks"></Header>
 <main class="page-content" aria-label="content">
@@ -18,20 +18,3 @@
     </div>
 </main>
 <Footer></Footer>
-
-@code {
-    
-    [Parameter]
-    public required MarkupString Title { get; set; }
-    
-    [Parameter]
-    public MarkupString? SubTitle { get; set; }
-    
-    [Parameter]
-    public required MarkupString Content { get; set; }
-
-    [EditorRequired]
-    [Parameter]
-    public required List<LinkData> NavLinks { get; set; }
-
-}

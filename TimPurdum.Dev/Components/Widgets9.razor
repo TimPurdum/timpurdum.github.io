@@ -113,9 +113,16 @@
     }
 </MapView>
 
-@code {
+@code
+{
+    [System.Diagnostics.CodeAnalysis.DynamicDependency(
+        System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.All, typeof(Widgets9))]
+    private static void Preserve() { }
+    
+    
 [Inject]    
-public required NavigationManager NavigationManager { get; set; }
+public required NavigationManager NavigationManager { get; set; 
+}
 
     private async Task ToggleWidget(string widgetTypeName)
     {

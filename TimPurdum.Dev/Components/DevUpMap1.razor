@@ -1,7 +1,7 @@
 <MapView Style="height:400px;width:100%;" 
          Latitude="38.7705" 
          Longitude="-90.5024" 
-         Zoom="12">
+         Zoom="8">
     <Map>
         <Basemap>
             <BasemapStyle Name="BasemapStyleName.ArcgisNova"/>
@@ -9,10 +9,36 @@
         <GraphicsLayer>
             <Graphic>
                 <Point Longitude="-90.5024" Latitude="38.7705"/>
-                <Symbol>
-                    <PictureMarkerSymbol Url="/images/devUp.png" Height="30" Width="30" />
-                </Symbol>
+                <PictureMarkerSymbol Url="/images/devUp.png" Height="20" Width="20" />
+                <PopupTemplate Title="DevUp Conference">
+                    <TextPopupContent Text="<a target='_blank' href='https://www.devupconf.org/'>https://www.devupconf.org/</a>" />
+                </PopupTemplate>
             </Graphic>
         </GraphicsLayer>
+        <ProGeoJSONLayer @ref="_attendeeLayer"
+                         Url="/files/devup_attendees_filtered.geojson"
+                         PopupEnabled="true"
+                         ApplyStyles="true">
+            <PopupTemplate Title="DevUp Attendee">
+                <TextPopupContent Text="Organization: <b>{title}</b>" />
+            </PopupTemplate>
+        </ProGeoJSONLayer>
     </Map>
+    <ExpandWidget Position="OverlayPosition.BottomLeft">
+        <LegendWidget>
+            <LegendLayerInfos Title="Attendee Organizations" LayerId="_attendeeLayer?.Id" />
+        </LegendWidget>
+    </ExpandWidget>
 </MapView>
+
+@code
+{
+    [System.Diagnostics.CodeAnalysis.DynamicDependency(
+        System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.All, typeof(DevUpMap1))]
+    private static void Preserve() { }
+    
+    
+
+    private ProGeoJSONLayer? _attendeeLayer;
+
+}
