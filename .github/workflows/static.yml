@@ -48,17 +48,17 @@ jobs:
         run: |
           cd TimPurdum.Dev.Source
           dotnet build -c Release
-          
-      - name: Generate Static Pages
-        run: |
-          cd BlogGenerator/TimPurdum.Dev.BlogGenerator.Compiler
-          dotnet run -c Release
 
       - name: Copy AppSettings
         shell: pwsh
         run: |
           $appSettings = '${{ secrets.APP_SETTINGS }}'
           $appSettings | Out-File -FilePath ./TimPurdum.Dev/wwwroot/appsettings.json -Encoding utf8
+          
+      - name: Generate Static Pages
+        run: |
+          cd BlogGenerator/TimPurdum.Dev.BlogGenerator.Compiler
+          dotnet run -c Release
           
       - name: Publish app
         run: |
