@@ -37,7 +37,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          submodules: true
+          submodules: recursive
           
       - name: Get latest .NET SDK
         uses: actions/setup-dotnet@v4
