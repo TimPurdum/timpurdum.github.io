@@ -1,3 +1,6 @@
 [submodule "markdig"]
 	path = markdig
 	url = https://github.com/TimPurdum/markdig.git
+[submodule "BlogGenerator"]
+	path = BlogGenerator
+	url = https://github.com/TimPurdum/BlogGenerator.git
