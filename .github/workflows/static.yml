@@ -1,7 +1,7 @@
 # Simple workflow for deploying static content to GitHub Pages
 name: Deploy static content to Pages
 env:
-  PUBLISH_DIR: TimPurdum.Dev/bin/Release/net10.0/publish/wwwroot
+  PUBLISH_DIR: TimPurdum.Dev/bin/Release/net9.0/publish/wwwroot
 
 on:
   # Runs on pushes targeting the default branch for the app's folder path
@@ -43,7 +43,7 @@ jobs:
       - name: Get latest .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.x'
+          dotnet-version: '9.x'
           
       - name: Build Source Project
         run: |
