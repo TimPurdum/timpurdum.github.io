@@ -40,8 +40,6 @@
         
         string? sessionString = await creatorEvent.Graphic.GetAttribute("session_titles") as string;
         string[] sessions = sessionString?.Split(";", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
-        return @$"<p><b>{location}</b>, {dateLine}</p>
-<ul><li>{string.Join("</li><li>", sessions)}</li></ul>
-<p><em><a target='_blank' href='{url}'>{url}</a></em></p>";
+        return $"<p><b>{location}</b>, {dateLine}</p><ul><li>{string.Join("</li><li>", sessions)}</li></ul><p><em><a target='_blank' href='{url}'>{url}</a></em></p>";
     }
 }
