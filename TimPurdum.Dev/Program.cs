@@ -9,5 +9,6 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddScoped(_ => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
 builder.Services.AddGeoBlazorPro(builder.Configuration);
+builder.Services.AddMemoryCache();
 await builder.AddGeneratedBlogContent();
 await builder.Build().RunAsync();

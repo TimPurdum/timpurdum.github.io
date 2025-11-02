@@ -18,12 +18,19 @@
     <base href="/" />
     <link rel="stylesheet" href="css/app.css" />
     <link href="@($"{SiteName}.styles.css")" rel="stylesheet" />
+    <link rel="stylesheet" data-name="vs/editor/editor.main" href="monaco-editor/min/vs/editor/editor.main.css" />
     @HeaderLinks
 </head>
 
 <body>
     <DynamicComponent Type="LayoutType" Parameters="Parameters" />
     <script src="_framework/blazor.webassembly.js"></script>
+    <script src="js/extensions.js"></script>
+    <script>
+			var require = { paths: { vs: 'monaco-editor/min/vs' } };
+		</script>
+    <script src="monaco-editor/min/vs/loader.js"></script>
+    <script src="monaco-editor/min/vs/editor/editor.main.js"></script>
     @foreach (MarkupString script in Scripts ?? [])
     {
         @script

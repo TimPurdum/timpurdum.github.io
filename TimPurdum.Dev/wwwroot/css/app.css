@@ -83,6 +83,16 @@
     padding: 1.5rem 0 0 0;
 }
 
+.map-view {
+    height: 600px;
+    width: 100%;
+}
+
+.monaco-editor-block {
+    height: 400px;
+    width: 100%;
+}
+
 code {
     color: #c02d76;
 }

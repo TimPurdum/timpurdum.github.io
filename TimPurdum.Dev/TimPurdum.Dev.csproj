@@ -11,11 +11,16 @@
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.0-rc.1.25451.107" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.0-rc.1.25451.107" PrivateAssets="all" />
         <PackageReference Include="dymaptic.GeoBlazor.Pro" Version="4.2.1-beta-1.1" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.10" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\BlogGenerator\TimPurdum.Dev.BlogGenerator\TimPurdum.Dev.BlogGenerator.csproj"
                         PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="wwwroot\monaco-editor\" />
     </ItemGroup>
 </Project>
 
