@@ -8,10 +8,10 @@
     </PropertyGroup>
     
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.0-rc.1.25451.107" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.0-rc.1.25451.107" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.0-rc.2.25502.107" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.0-rtm.25517.4" PrivateAssets="all" />
         <PackageReference Include="dymaptic.GeoBlazor.Pro" Version="4.2.1-beta-1.1" />
-        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.10" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.0-rtm.25513.102" />
     </ItemGroup>
 
     <ItemGroup>
