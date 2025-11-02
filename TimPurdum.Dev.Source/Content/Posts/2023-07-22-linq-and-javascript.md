@@ -2,8 +2,8 @@
 layout: post
 title: "LINQ Equivalents in JavaScript"
 subtitle: "Move Seamlessly Between Languages"
+lastmodified: "2025-11-02 17:43:38"
 ---
-
 [Originally posted on the dymaptic blog on June 16, 2023](https://blog.dymaptic.com/c-linq-equivalents-in-javascript)
 
 

@@ -1,8 +1,8 @@
 ---
 layout: post
 title: "Creating a static website with Jekyll"
+lastmodified: "2025-11-02 17:43:38"
 ---
-
 While working on the docs site for [GeoBlazor](https://docs.geoblazor.com), I was introduced to [Jekyll](https://jekyllrb.com/). Now, I've heard of static site generators before, but this was just the perfect fit for a docs site. It also made me think of all the hoops I tend to jump through while creating static sites like this blog, that could be made simpler by using a generator and just writing good ol' markdown.
 
 There's a lot to recommend about Jekyll. The main downside? I had to install Ruby 😜. No big deal. [Jekyll Installation Docs](https://jekyllrb.com/docs/installation/) are pretty easy to follow to get going. Here's a short list of steps for Windows (different OSes will vary):

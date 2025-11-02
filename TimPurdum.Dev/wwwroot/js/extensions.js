@@ -5,3 +5,7 @@ window.setLayerOnTop = (layerId, viewId, core) => {
         view.map.reorder(layer, view.map.layers.length - 1);
     }
 };
+
+window.setCursor = (cursorStyle) => {
+    document.body.style.cursor = cursorStyle;
+};

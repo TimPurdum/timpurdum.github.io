@@ -2,8 +2,8 @@
 layout: post
 title: "Using ESBuild with Blazor"
 subtitle: "How to Bundle JavaScript packages and Compile TypeScript for your Blazor project"
+lastmodified: "2025-11-02 17:43:38"
 ---
-
 [Originally posted on the dymaptic blog on April 21, 2023](https://blog.dymaptic.com/using-esbuild-with-blazor)
 
 With Blazor, .NET developers can create fully-featured client or server web applications using only C#, HTML, and CSS. But Blazor developers can also access any JavaScript libraries, as I discussed in [Using ObjectReferences to Embed a JavaScript Text Editor in Blazor](https://blog.dymaptic.com/using-objectreferences-to-embed-a-javascript-text-editor-in-blazor). In that example, we referenced the JS library via a `script` tag from a CDN, but it is also possible to use NPM and import packages into your Blazor application using a build tool like [ESBuild](https://esbuild.github.io/).

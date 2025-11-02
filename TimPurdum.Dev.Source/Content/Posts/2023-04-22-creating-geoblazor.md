@@ -2,8 +2,8 @@
 layout: post
 title: "Creating GeoBlazor"
 subtitle: "How I started an open source library"
+lastmodified: "2025-11-02 17:43:38"
 ---
-
 [*Originally posted on the dymaptic blog on 3/2/23*](https://blog.dymaptic.com/creating-geoblazor-the-asp-net-core-web-mapping-library)
 
 This is a story about how I came to build the [GeoBlazor](https://geoblazor.com) SDK and component library. In 2022 dymaptic invited me to attend my first [Esri Developer Summit](https://www.esri.com/en-us/about/events/devsummit/overview), where I learned all about the ArcGIS platform, SDKs, and services. ArcGIS is the leading enterprise Geospatial Information software service, used by private and public sector agencies around the world. The scope of both the conference and the software was impressive, and I learned a great deal in that week.

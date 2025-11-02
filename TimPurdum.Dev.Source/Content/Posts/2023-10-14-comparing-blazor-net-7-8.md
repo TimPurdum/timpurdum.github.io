@@ -2,8 +2,8 @@
 layout: post
 title: "Comparing Blazor Project Structure in .NET 7 and 8"
 subtitle: "Understanding How to Set Up or Update a Complex Project"
+lastmodified: "2025-11-02 17:43:38"
 ---
-
 .NET 8, which is currently a preview Release Candidate (RC2) and will be released fully next month, brings about vast changes in the structure of Asp.NET Core Blazor projects. ~~The goal behind these structural changes is to support, from a single project, the ability to render pages and components as static html, server-connected interactive, or WebAssembly-based client interactive.~~ **_UPDATE: Apparently, .NET 8 does NOT provide a single-project solution for Server and WebAssembly. Instead, in Visual Studio, if you select `Auto` or `WebAssembly` rendering, you get a second `.Client` project. If you create a template from the command line, there is no notification that this is the case, and so you can easily be misled into thinking you can do all the work in one project [(Source)](https://learn.microsoft.com/en-us/aspnet/core/blazor/project-structure?view=aspnetcore-8.0#blazor-web-app)._** Previously, when developing a project, one would have to choose between Blazor Server and Blazor WebAssembly, and static rendering was not an option.
 
 The new goals are lofty and intriguing, but they come with a lot of challenges for current Blazor developers. The entire setup of a Blazor project has shifted, in both helpful and painful ways. First, I should say, they have not announced any plans to _deprecate_ any of the .NET 6/7 patterns. So if you leave your existing applications alone, they will continue to work on .NET 8. However, if you, like me, are constantly building complex applications that use shared Razor Class Libraries, combine Web APIs with Blazor, or any other pattern where you do not just click `File -> New Project`, it's important to understand these differences so that you can make informed decisions about your project structure.

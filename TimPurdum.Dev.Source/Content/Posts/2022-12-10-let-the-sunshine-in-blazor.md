@@ -2,8 +2,8 @@
 layout: post
 title: "Let the Sunshine In"
 subtitle: "Finding Your Daylight with GeoBlazor"
+lastmodified: "2025-11-02 17:43:38"
 ---
-
 [*Originally posted on the dymaptic blog on 12/9/22*](https://www.dymaptic.com/let-the-sunshine-in-blazor/)
 
 Here in the Northern Hemisphere, we are rapidly approaching the Winter Solstice, also known as the shortest day of the year. Yet sunshine is crucial to human wellbeing. Want to know how to find out when the sun rises and set in your location? We can build a Blazor application that shows the Day/Night Terminator, which is a shadow graphic laid on top of a map that shows exactly where the line is between day and night for any given date and time. 
@@ -264,4 +264,5 @@ Run the application, and you will be able to control the terminator graphic by c
 ![Summer Terminator](/images/summerTerminator.png)
 
 You can now put in the date and time for any day you want, and the application will show you where the terminator sits. To find sunrise or sunset at your location, use the `Locate` or `Search` widget, then use the up/down arrow keys in the `Time` field to watch the shadow move, until the line is just on top of your point. Now you have a fun, interactive tool to track the sun, so don’t forget to go out and soak in some rays while you can! A more full-featured version of this tool is online at [advent2022.GeoBlazor.com](https://advent2022.geoblazor.com) and the code can be found on GitHub. You can get in touch with me at [tim.purdum@dymaptic.com](mailto:tim.purdum@dymaptic.com), [@TimPurdum@dotnet.social](https://dotnet.social/@TimPurdum) (Mastodon) or Join our Discord server. Ask [dymaptic](https://www.dymaptic.com) how we can help you with software or GIS. I hope you enjoyed the post and continue to enjoy the winter holiday season!
+
 

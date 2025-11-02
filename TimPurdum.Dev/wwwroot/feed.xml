@@ -1039,4 +1039,18 @@ program led by the CDC around the past census, which gives some context on food 
 </div>
 <h2 id="source-code">Source Code</h2>
 <div id="code-block1" class="monaco-editor-block"></div>
+]]></content></item><item><link>https://www.timpurdum.dev/post/2025/11/2/map-challenge-lines</link><title>30 Day Map Challenge: Day 2 - Lines</title><description /><pubDate>Sun, 02 Nov 2025 00:00:00 -0500</pubDate><content type="html" xml:base="https://www.timpurdum.dev/post/2025/11/2/map-challenge-lines"><![CDATA[<p>Day 2 of the <a href="https://30daymapchallenge.com/">30 Day Map Challenge</a> is all about lines! Continuing the theme of human struggles, I found the
+<a href="https://gmdac.iom.int/">Global Migration Data Analysis Center</a> from the UN International Organization for Migration, which has
+some fascinating datasets around migration patterns worldwide, and downloaded the <a href="https://www.un.org/development/desa/pd/content/international-migrant-stock">International Migrant Stock</a>
+dataset for 2024.</p>
+<p>Use the dropdowns and radio buttons to filter the data set by different region groupings and select either origin or destination regions to see migration
+patterns. The dashed red lines represent migration routes, with labels indicating the number of migrants on each route.</p>
+<p>Click on a line or target to see a popup detailing the direction and number of migrants.</p>
+<div id="migration-map1" class="component-block">
+    <svg class="loading-progress">
+        <circle r="40%" cx="50%" cy="50%" />
+        <circle r="40%" cx="50%" cy="50%" />
+    </svg>
+    <div class="loading-progress-text"></div>
+</div>
 ]]></content></item></channel></rss>

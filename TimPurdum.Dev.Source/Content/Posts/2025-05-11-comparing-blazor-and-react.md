@@ -1,8 +1,8 @@
 ---
 layout: post
 title: "Blazor vs. Next.js: Getting Started with Interactive Web Applications"
+lastmodified: "2025-11-02 17:43:38"
 ---
-
 <style>
   td {
     vertical-align: top;

@@ -1,8 +1,8 @@
 ---
 layout: post
 title: "Geographically Visualizing Customer Data with Blazor and ArcGIS"
+lastmodified: "2025-11-02 17:43:38"
 ---
-
 [*Originally posted on the dymaptic blog on 4/23/25*](https://blog.dymaptic.com/geographically-visualizing-customer-data-with-blazor-and-arcgis)
 
 In today’s data-driven world, mapping business trends and insights can turn complex problems into actionable strategies. Using geographic information system (GIS) tools make this possible by transforming location-tagged datasets into dynamic, interactive maps and charts. Whether you're pinpointing the perfect spot for a new store, analyzing customer demographics, or optimizing delivery routes, GIS lets you uncover insights you can’t see in spreadsheets alone. For businesses using Asp.NET Core, tools like GeoBlazor and ArcGIS make it easier than ever to create shared web and mobile GIS solutions that bring your data to life.

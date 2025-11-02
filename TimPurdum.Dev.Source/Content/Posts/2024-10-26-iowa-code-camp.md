@@ -1,8 +1,8 @@
 ---
 layout: post
 title: "Iowa Code Camp 2024 Presentation Links"
+lastmodified: "2025-11-02 17:43:38"
 ---
-
 # Iowa Code Camp
 
 If you came to my presentation at ICC this year, here are the promised links!

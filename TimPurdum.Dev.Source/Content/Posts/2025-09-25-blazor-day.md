@@ -1,8 +1,8 @@
 ---
 layout: post
 title: "BlazorDay 2025: Render Modes"
+lastmodified: "2025-11-02 17:43:38"
 ---
-
 # 🎉 Welcome BlazorDay 2025 Participants! 
 
 ## Thank you for joining my session on Blazor Render Modes!
@@ -92,3 +92,4 @@ Transform your Blazor apps with <strong>powerful interactive maps</strong> in ju
 <p style="color: white; margin: 1rem 0;">Questions? Find me on social media or at future Blazor events!</p>
 <p style="color: white; font-weight: bold;">Keep on Blazing! 🔥</p>
 </div>
+

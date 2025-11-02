@@ -1,0 +1,385 @@
+---
+layout: post
+title: "30 Day Map Challenge: Day 2 - Lines"
+lastmodified: "2025-11-02 21:49:54"
+---
+Day 2 of the [30 Day Map Challenge](https://30daymapchallenge.com/) is all about lines! Continuing the theme of human struggles, I found the
+[Global Migration Data Analysis Center](https://gmdac.iom.int/) from the UN International Organization for Migration, which has
+some fascinating datasets around migration patterns worldwide, and downloaded the [International Migrant Stock](https://www.un.org/development/desa/pd/content/international-migrant-stock)
+dataset for 2024.
+
+Use the dropdowns and radio buttons to filter the data set by different region groupings and select either origin or destination regions to see migration
+patterns. The dashed red lines represent migration routes, with labels indicating the number of migrants on each route.
+
+Click on a line or target to see a popup detailing the direction and number of migrants.
+
+```blazor-component migration-map
+@if (_migrationData is null)
+{
+    <p>Loading migration data...</p>
+}
+else
+{
+    <MapView Class="map-view" 
+             Zoom="1"
+             OnViewRendered="OnViewRendered">
+        <Map>
+            <Basemap>
+                <BasemapStyle Name="BasemapStyleName.ArcgisHumanGeography" />
+            </Basemap>
+            <GraphicsLayer @ref="_graphicsLayer" />
+            <FeatureLayer PopupEnabled="false">
+                <PortalItem PortalItemId="30b5ef2245cb47bdb05ca83df7fd93b5" />
+            </FeatureLayer>
+        </Map>
+        <CustomOverlay Position="OverlayPosition.TopRight">
+            <div class="custom-overlay-div">
+                <label for="comparison-level-select">
+                    Select Comparison Level:
+                </label>
+                <select id="comparison-level-select" @onchange="ChangeComparisonLevel">
+                    @foreach (ComparisonLevel level in Enum.GetValues<ComparisonLevel>())
+                    {
+                        <option value="@level" selected="@(level == _selectedComparisonLevel)">@level</option>
+                    }
+                </select>
+                <div class="flex-row">
+                    <input type="radio" id="starting-radio-btn" name="direction-group" value="starting" checked
+                           @onchange="@(() => DirectionChanged("starting"))"/>
+                    <label for="starting-radio-btn">Select an Origin</label>
+                    <input type="radio" id="ending-radio-btn" name="direction-group" value="ending"
+                           @onchange="@(() => DirectionChanged("ending"))"/>
+                    <label for="ending-radio-btn">Select a Destination</label>
+                </div>
+                <label for="location-select">
+                    Select @(_showStartingLocations ? "an origin" : "a destination") location on the map to filter migration routes:
+                </label>
+                <select id="location-select" @onchange="ChangeTargetRegion">
+                    <option value="All" selected="@(_targetRegion is null)">All Regions</option>
+                    @foreach (Region region in RegionCodes.Where(r => r.Level == _selectedComparisonLevel))
+                    {
+                        <option value="@region.Code" selected="@(_targetRegion == region)">@region.Name</option>
+                    }
+                </select>
+            </div>
+        </CustomOverlay>
+    </MapView>
+}
+       
+@code
+{
+    [Inject]
+    public required IMemoryCache MemoryCache { get; set; }
+    
+    [Inject]
+    public required NavigationManager NavigationManager { get; set; }
+    
+    [Inject]
+    public required GeometryEngine GeometryEngine { get; set; }
+    
+    [Inject]
+    public required IJSRuntime JsRuntime { get; set; }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        const string cacheKey = "migrationData";
+        if (!MemoryCache.TryGetValue(cacheKey, out List<MigrationData>? migrationData))
+        {
+            HttpClient httpClient = new HttpClient();
+            httpClient.BaseAddress = new Uri(NavigationManager.BaseUri);
+            string migrationDataUrl = "/files/2024_migrant_stock_by_location.csv";
+
+            HttpResponseMessage response = await httpClient.GetAsync(migrationDataUrl);
+            response.EnsureSuccessStatusCode();
+            string csvResponse = await response.Content.ReadAsStringAsync();
+            string[] csvLines = csvResponse.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries | 
+                StringSplitOptions.TrimEntries);
+            int[] destinations = csvLines[0].Split(',', StringSplitOptions.TrimEntries)
+                .Skip(1)
+                .Select(int.Parse)
+                .ToArray();
+            migrationData = new List<MigrationData>();
+            for (int i = 1; i < csvLines.Length; i++)
+            {
+                string[] columns = csvLines[i].Split(',', StringSplitOptions.TrimEntries);
+                if (!int.TryParse(columns[0], out int originCode))
+                {
+                    continue; // skip header or invalid rows
+                }
+                
+                ComparisonLevel? level = RegionCodes.FirstOrDefault(r => r.Code == originCode)?.Level;
+
+                if (level is null)
+                {
+                    continue; // skip if origin code is not recognized
+                }
+                
+                for (int j = 1; j < columns.Length; j++)
+                {
+                    int destination = destinations[j - 1];
+                    ComparisonLevel? destinationLevel = RegionCodes.FirstOrDefault(r => r.Code == destination)?.Level;
+                    if (destinationLevel is null || destinationLevel != level)
+                    {
+                        continue; // skip if destination code is not recognized or levels do not match
+                    }
+                    
+                    // the CSV uses spaces as thousands separators
+                    if (!int.TryParse(columns[j].Replace(" ", ""), out int migrantCount))
+                    {
+                        continue; // skip invalid data
+                    }
+                    
+                    if (migrantCount > 0)
+                    {
+                        migrationData.Add(new MigrationData(originCode, destinations[j - 1], migrantCount, level));
+                    }
+                }
+            }
+
+            MemoryCache.Set(cacheKey, migrationData, TimeSpan.FromHours(24));
+        }
+        
+        _migrationData = migrationData;
+        StateHasChanged();
+    }
+    
+    private async Task OnViewRendered()
+    {
+        if (_graphicsLayer.Graphics.Count == 0)
+        {
+            await DrawMigrationRoutes();   
+        }
+    }
+    
+    private async Task ChangeComparisonLevel(ChangeEventArgs arg)
+    {
+        if (Enum.TryParse(arg.Value?.ToString(), out ComparisonLevel newLevel))
+        {
+            _selectedComparisonLevel = newLevel;
+            await DrawMigrationRoutes();
+        }
+    }
+    
+    private async Task ChangeTargetRegion(ChangeEventArgs arg)
+    {
+        string? value = arg.Value?.ToString();
+        if (value == "All")
+        {
+            _targetRegion = null;
+        }
+        else if (int.TryParse(value, out int regionCode))
+        {
+            _targetRegion = RegionCodes.FirstOrDefault(r => r.Code == regionCode);
+        }
+        await DrawMigrationRoutes();
+    }
+    
+    private async Task DrawMigrationRoutes()
+    {
+        await JsRuntime.InvokeVoidAsync("setCursor", "wait");
+        await _cancellationTokenSource.CancelAsync();
+        _cancellationTokenSource = new CancellationTokenSource();
+        CancellationToken token = _cancellationTokenSource.Token;
+        
+        if (_graphicsLayer.Graphics.Count > 0)
+        {
+            await _graphicsLayer.Clear();
+        }
+
+        List<MigrationData> filtered = _migrationData!
+            .Where(d => d.Level == _selectedComparisonLevel
+                && (_targetRegion is null 
+                    || (_showStartingLocations && d.OriginCode == _targetRegion!.Code) 
+                    || (!_showStartingLocations && d.DestinationCode == _targetRegion!.Code)))
+            .ToList();
+        
+        // Compute min/max for the current filtered set so marker sizes are relative to the dataset
+        int minCount = filtered.Count > 0 ? filtered.Min(d => d.MigrantCount) : 0;
+        int maxCount = filtered.Count > 0 ? filtered.Max(d => d.MigrantCount) : 0;
+        // Tunable visual parameters
+        double minMarkerSize = 12.0;         // smallest circle size in pixels
+        double maxMarkerSize = 36.0;        // largest circle size in pixels
+
+        // Local helper: normalized (0..1) -> scaled size with optional exponent to increase contrast
+        double CalculateMarkerSize(int count)
+        {
+            if (count <= 0)
+            {
+                return minMarkerSize;
+            }
+
+            if (maxCount <= minCount)
+            {
+                // fallback to log-based size when there's no range (all values equal)
+                return Math.Max(minMarkerSize, Math.Log10(Math.Max(1, count)) * 2);
+            }
+
+            double normalized = (count - minCount) / (double)(maxCount - minCount);
+            double scaled = minMarkerSize + normalized * (maxMarkerSize - minMarkerSize);
+            return scaled;
+        }
+        
+        List<Graphic> graphics = [];
+        foreach (MigrationData data in filtered)
+        {
+            if (_cancellationTokenSource.IsCancellationRequested)
+            {
+                return;
+            }
+            
+            Region? origin = RegionCodes.FirstOrDefault(r => r.Code == data.OriginCode);
+            Region? destination = RegionCodes.FirstOrDefault(r => r.Code == data.DestinationCode);
+            if (origin is not null && destination is not null)
+            {
+                // Create a polyline from origin to destination
+                Polyline straightPolyline = new([[new MapPoint(origin.Longitude, origin.Latitude),
+                        new MapPoint(destination.Longitude, destination.Latitude)]], 
+                    spatialReference: SpatialReference.Wgs84);
+                
+                Polyline geodesicPolyline = 
+                    await GeometryEngine.GeodesicDensify(straightPolyline, 5000) as Polyline 
+                    ?? straightPolyline;
+
+                AttributesDictionary attributes = new(new Dictionary<string, object?>
+                {
+                    { "Origin", origin.Name },
+                    { "Destination", destination.Name },
+                    { "MigrantCount", data.MigrantCount.ToString("N0") }
+                });
+                
+                PopupTemplate popupTemplate = new("Migration Route",
+                    "<p>{Origin} → {Destination}</p><p>Migrant Count: {MigrantCount}</p>");
+
+                Graphic pathGraphic = new(geodesicPolyline, _lineSymbol, popupTemplate, attributes);
+
+                graphics.Add(pathGraphic);
+
+                if (_showStartingLocations)
+                {
+                    Point endingPoint = new(destination.Longitude, destination.Latitude);
+                    SimpleMarkerSymbol endSymbol = new(new Outline(new MapColor("black")),
+                        new MapColor(255, 219, 75, 0.5), CalculateMarkerSize(data.MigrantCount),
+                        SimpleMarkerSymbolStyle.Circle);
+                    Graphic endGraphic = new(endingPoint, endSymbol, popupTemplate, attributes);
+                    graphics.Add(endGraphic);
+                    Graphic endLabel = new(endingPoint, new TextSymbol(data.MigrantCount.ToString("N0")));
+                    graphics.Add(endLabel);
+                }
+                else
+                {
+                    Point startingPoint = new(origin.Longitude, origin.Latitude);
+                    SimpleMarkerSymbol startSymbol = new(new Outline(new MapColor("black")),
+                        new MapColor(255, 219, 75, 0.5), CalculateMarkerSize(data.MigrantCount),
+                        SimpleMarkerSymbolStyle.Circle);
+                    Graphic startGraphic = new(startingPoint, startSymbol, popupTemplate, attributes);
+                    graphics.Add(startGraphic);
+                    Graphic startLabel = new(startingPoint, new TextSymbol(data.MigrantCount.ToString("N0")));
+                    graphics.Add(startLabel);
+                }
+            }
+        }
+        
+        await _graphicsLayer.Add(graphics, token);
+        await JsRuntime.InvokeVoidAsync("setCursor", token, "default");
+    }
+    
+    private void DirectionChanged(string value)
+    {
+        if (value == "starting")
+        {
+            _showStartingLocations = true;
+        }
+        else if (value == "ending")
+        {
+            _showStartingLocations = false;
+        }
+    }
+    
+    private GraphicsLayer _graphicsLayer = new();
+    private List<MigrationData>? _migrationData;
+    private readonly SimpleLineSymbol _lineSymbol = new(new MapColor(255, 0, 0), 1.0, 
+        SimpleLineSymbolStyle.Dash);
+    private ComparisonLevel _selectedComparisonLevel = ComparisonLevel.Continent;
+    private Region? _targetRegion = RegionCodes.Find(r => r.Code == 905);
+    private CancellationTokenSource _cancellationTokenSource = new();
+    private bool _showStartingLocations = true;
+    
+    private static readonly List<Region> RegionCodes = 
+    [
+        new(1834, "Sub-Saharan Africa", 0.0, 20.0, ComparisonLevel.IOMRegion),
+        new(1833, "Northern Africa and Western Asia", 25.0, 30.0, ComparisonLevel.IOMRegion),
+        new(1831, "Central and Southern Asia", 25.0, 80.0, ComparisonLevel.IOMRegion),
+        new(1832, "Eastern and South-Eastern Asia", 20.0, 110.0, ComparisonLevel.IOMRegion),
+        new(1830, "Latin America and the Caribbean", -10.0, -60.0, ComparisonLevel.IOMRegion),
+        new(1835, "Oceania (excluding Australia and New Zealand)", -20.0, 160.0, ComparisonLevel.IOMRegion),
+        new(1836, "Australia and New Zealand", -25.0, 133.0, ComparisonLevel.IOMRegion),
+        new(1829, "Europe and Northern America", 50.0, -10.0, ComparisonLevel.IOMRegion),
+        new(901, "Developed regions", 40.0, 0.0, ComparisonLevel.DevelopmentGroup),
+        new(902, "Less developed regions", 0.0, 30.0, ComparisonLevel.DevelopmentGroup),
+        new(934, "Less developed regions, excluding least developed countries", 10.0, 30.0, ComparisonLevel.DevelopmentGroup),
+        new(948, "Less developed regions, excluding China", 10.0, 60.0, ComparisonLevel.DevelopmentGroup),
+        new(941, "Least developed countries", 5.0, 20.0, ComparisonLevel.DevelopmentGroup),
+        new(1636, "Land-locked Developing Countries (LLDC)", 20.0, 20.0, ComparisonLevel.DevelopmentGroup),
+        new(1637, "Small island developing States (SIDS)", -5.0, 160.0, ComparisonLevel.DevelopmentGroup),
+        new(5503, "High-and-upper-middle-income countries", 30.0, 0.0, ComparisonLevel.IncomeGroup),
+        new(5504, "Low-and-Lower-middle-income countries", 10.0, 60.0, ComparisonLevel.IncomeGroup),
+        new(1503, "High-income countries", 40.0, 0.0, ComparisonLevel.IncomeGroup),
+        new(1859, "Low-and-middle-income countries", 10.0, 30.0, ComparisonLevel.IncomeGroup),
+        new(1517, "Middle-income countries", 15.0, 60.0, ComparisonLevel.IncomeGroup),
+        new(1502, "Upper-middle-income countries", 20.0, 60.0, ComparisonLevel.IncomeGroup),
+        new(1501, "Lower-middle-income countries", 10.0, 80.0, ComparisonLevel.IncomeGroup),
+        new(1500, "Low-income countries", 5.0, 20.0, ComparisonLevel.IncomeGroup),
+        new(1518, "No income group available", 0.0, 0.0, ComparisonLevel.IncomeGroup),
+        new(903, "AFRICA", 0.0, 20.0, ComparisonLevel.Continent),
+        new(910, "Eastern Africa", 5.0, 40.0, ComparisonLevel.SubContinent),
+        new(911, "Middle Africa", 0.0, 20.0, ComparisonLevel.SubContinent),
+        new(912, "Northern Africa", 25.0, 15.0, ComparisonLevel.SubContinent),
+        new(913, "Southern Africa", -25.0, 25.0, ComparisonLevel.SubContinent),
+        new(914, "Western Africa", 8.0, 0.0, ComparisonLevel.SubContinent),
+        new(935, "ASIA", 30.0, 100.0, ComparisonLevel.Continent),
+        new(5500, "Central Asia", 45.0, 65.0, ComparisonLevel.SubContinent),
+        new(906, "Eastern Asia", 35.0, 115.0, ComparisonLevel.SubContinent),
+        new(920, "South-Eastern Asia", 10.0, 105.0, ComparisonLevel.SubContinent),
+        new(5501, "Southern Asia", 20.0, 80.0, ComparisonLevel.SubContinent),
+        new(922, "Western Asia", 30.0, 45.0, ComparisonLevel.SubContinent),
+        new(908, "EUROPE", 54.0, 15.0, ComparisonLevel.Continent),
+        new(923, "Eastern Europe", 50.0, 30.0, ComparisonLevel.SubContinent),
+        new(924, "Northern Europe", 60.0, 10.0, ComparisonLevel.SubContinent),
+        new(925, "Southern Europe", 40.0, 15.0, ComparisonLevel.SubContinent),
+        new(926, "Western Europe", 50.0, 0.0, ComparisonLevel.SubContinent),
+        new(904, "LATIN AMERICA AND THE CARIBBEAN", -10.0, -60.0, ComparisonLevel.Continent),
+        new(915, "Caribbean", 15.0, -70.0, ComparisonLevel.SubContinent),
+        new(916, "Central America", 15.0, -85.0, ComparisonLevel.SubContinent),
+        new(931, "South America", -15.0, -60.0, ComparisonLevel.SubContinent),
+        new(905, "NORTHERN AMERICA", 45.0, -100.0, ComparisonLevel.Continent),
+        new(909, "OCEANIA ", -20.0, 150.0, ComparisonLevel.Continent),
+        new(927, "Australia and New Zealand", -25.0, 133.0, ComparisonLevel.SubContinent),
+        new(928, "Melanesia", -8.0, 155.0, ComparisonLevel.SubContinent),
+        new(954, "Micronesia", 7.0, 150.0, ComparisonLevel.SubContinent),
+        new(957, "Polynesia", -15.0, -150.0, ComparisonLevel.SubContinent)
+    ];
+    
+    public enum ComparisonLevel
+    {
+        Continent,
+        SubContinent,
+        IncomeGroup,
+        DevelopmentGroup,
+        IOMRegion
+    }
+    
+    public record Region(int Code, string Name, double Latitude, double Longitude, ComparisonLevel Level);
+    public record MigrationData(int OriginCode, int DestinationCode, int MigrantCount, ComparisonLevel? Level);
+}
+```
+
+
+
+
+
+
+
+
+
+

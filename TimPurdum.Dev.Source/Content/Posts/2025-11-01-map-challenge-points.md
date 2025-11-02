@@ -1,8 +1,8 @@
 ---
 layout: post
 title: "30 Day Map Challenge: Day 1 - Points"
+lastmodified: "2025-11-02 17:43:38"
 ---
-
 I decided to take part in the [30 Day Map Challenge](https://30daymapchallenge.com/) this year and show off some of 
 the functionality of [GeoBlazor](https://geoblazor.com). Each day has a different theme, and today's theme is "Points".
 

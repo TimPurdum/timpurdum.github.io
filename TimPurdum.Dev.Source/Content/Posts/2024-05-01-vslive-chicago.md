@@ -1,8 +1,8 @@
 ---
 layout: post
 title: "VS Live Chicago Presentation Links"
+lastmodified: "2025-11-02 17:43:38"
 ---
-
 # VS Live Chicago
 
 If you came to my presentations at VS Live Chicago this year, here are the promised links!
