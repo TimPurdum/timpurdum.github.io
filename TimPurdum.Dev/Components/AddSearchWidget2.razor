@@ -1,0 +1,36 @@
+<MapView Style="height: 100vh; width: 100%;"
+         Longitude="-98.5795"
+         Latitude="39.8283"
+         Zoom="4">
+    <Map>
+        <Basemap>
+            <BasemapStyle Name="BasemapStyleName.ArcgisNavigation" />
+        </Basemap>
+    </Map>
+
+    <SearchWidget Position="OverlayPosition.TopRight"
+                  AllPlaceholder="Where to, Grandma's house?"
+                  OnSelectResult="OnDestinationSelected" />
+</MapView>
+
+@code {
+    private Point? _destination;
+
+    private void OnDestinationSelected(SearchSelectResultEvent evt)
+    {
+        _destination = evt.Result?.Feature?.Geometry as Point;
+
+        if (_destination is not null)
+        {
+            Console.WriteLine($"Destination set: {_destination.Latitude}, {_destination.Longitude}");
+            // Grandma's house found!
+        }
+    }
+}
+
+@code
+{
+    [System.Diagnostics.CodeAnalysis.DynamicDependency(
+        System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.All, typeof(AddSearchWidget2))]
+    private static void Preserve() { }
+}

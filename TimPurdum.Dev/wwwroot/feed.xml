@@ -24,13 +24,13 @@ I found a few more things I needed to add.</p>
 <p>Once these steps are added, try pushing your code up to GitHub, and navigate to <code>https://YOURNAME.github.io</code> to see the code in action!</p>
 ]]></content></item><item><link>https://www.timpurdum.dev/post/2022/11/19/mastodon-feed-in-jekyll</link><title>Adding a Mastodon Feed to your Blog</title><description /><pubDate>Sat, 19 Nov 2022 00:00:00 -0600</pubDate><content type="html" xml:base="https://www.timpurdum.dev/post/2022/11/19/mastodon-feed-in-jekyll"><![CDATA[<p>While I was <a href="2022-11-07-static-site-width-jekyll">setting up my new Jekyll static blog site</a>, I have also been investigating the rapidly growing world of <a href="https://joinmastodon.org/">Mastodon</a> and the <a href="https://www.fediverse.to/">Fediverse</a>. I wanted to bring the two worlds together, and share a bit of my Mastodon feed on my website. So I threw together a JavaScript function to import and display my feed. This is made possible by the fact that every Mastodon feed is also an <a href="https://en.wikipedia.org/wiki/RSS">RSS</a> feed. For example, if you go to <a href="https://dotnet.social/&commat;TimPurdum.rss">https://dotnet.social/&commat;TimPurdum.rss</a>, you will see my feed as RSS XML.</p>
 <p>Grabbing this feed in modern JavaScript is a breeze with <code>fetch</code>.</p>
-<div id="code-block1" class="monaco-editor-block"></div>
+<div id="code-block1" class="monaco-editor-block" style="height: 9rem;"></div>
 <p>Digging into the XML feed, I realized that the <code>description</code> node is already encoded HTML.</p>
-<div id="code-block2" class="monaco-editor-block"></div>
+<div id="code-block2" class="monaco-editor-block" style="height: 4rem;"></div>
 <p>Unfortunately, because of the encoding, we can't inject this directly into a DOM element as <code>innerHTML</code>. Instead, we need to decode it first. The simplest way to do this is to create a temporary <code>HTMLTextArea</code> element and use that to parse the encoded string.</p>
-<div id="code-block3" class="monaco-editor-block"></div>
+<div id="code-block3" class="monaco-editor-block" style="height: 8rem;"></div>
 <p>Now we can pass the decoded value to <code>innerHTML</code>.</p>
-<div id="code-block4" class="monaco-editor-block"></div>
+<div id="code-block4" class="monaco-editor-block" style="height: 11rem;"></div>
 <p>That's the basics! The full code is <a href="https://github.com/TimPurdum/timpurdum.github.io/blob/main/main.js">here</a>, and includes parsing the <code>Date</code> of each post and creating click-through links. Checkout the results on <a href="https://timpurdum.com">my home page</a>! And follow me on Mastodon to talk about software development, especially with #dotnet and #csharp!</p>
 ]]></content></item><item><link>https://www.timpurdum.dev/post/2022/12/10/let-the-sunshine-in-blazor</link><title>Let the Sunshine In</title><description>Finding Your Daylight with GeoBlazor</description><pubDate>Sat, 10 Dec 2022 00:00:00 -0600</pubDate><content type="html" xml:base="https://www.timpurdum.dev/post/2022/12/10/let-the-sunshine-in-blazor"><![CDATA[<p><a href="https://www.dymaptic.com/let-the-sunshine-in-blazor/"><em>Originally posted on the dymaptic blog on 12/9/22</em></a></p>
 <p>Here in the Northern Hemisphere, we are rapidly approaching the Winter Solstice, also known as the shortest day of the year. Yet sunshine is crucial to human wellbeing. Want to know how to find out when the sun rises and set in your location? We can build a Blazor application that shows the Day/Night Terminator, which is a shadow graphic laid on top of a map that shows exactly where the line is between day and night for any given date and time.</p>
@@ -44,34 +44,34 @@ I found a few more things I needed to add.</p>
 <p>Hit <code>Ctrl-C</code> to stop your application, then type <code>dotnet add package dymaptic.GeoBlazor.Core</code>. This will import the free and Open-Source <a href="https://www.geoblazor.com">GeoBlazor</a> package into your project.</p>
 <p>To complete this quest, you will also need to sign up for a free ArcGIS Developer account at <a href="https://developers.arcgis.com/sign-up/">https://developers.arcgis.com/sign-up/</a>. Once you create this account, head to <a href="https://developers.arcgis.com/api-keys/">https://developers.arcgis.com/api-keys/</a>, and click <code>New API Key</code>. Give it a title like <code>Solar Tracker</code>, and copy down the generated token.</p>
 <p>Now it's time to fire up your favorite IDE and open your SolarTracker project. Inside, create a new file called <code>appsettings.json</code> inside the <code>wwwroot</code> folder. If you're familiar with Asp.NET Core, you know this is a configuration file. However, by default Blazor WASM doesn't include this file. Paste your ArcGIS API key into the file with the key &quot;ArcGISApiKey&quot;.</p>
-<div id="code-block1" class="monaco-editor-block"></div>
+<div id="code-block1" class="monaco-editor-block" style="height: 6rem;"></div>
 <p>Let's add some references to make GeoBlazor work. In <code>wwwroot/index.html</code>, add the following three lines to the <code>head</code> tag. (The third line should already be there, just un-comment it).</p>
-<div id="code-block2" class="monaco-editor-block"></div>
+<div id="code-block2" class="monaco-editor-block" style="height: 6rem;"></div>
 <p>Next, open up <code>_Imports.razor</code>, and let's add some <code>&commat;using</code> statements to make sure we have access to the GeoBlazor types.</p>
-<div id="code-block3" class="monaco-editor-block"></div>
+<div id="code-block3" class="monaco-editor-block" style="height: 12rem;"></div>
 <p>Finally, open <code>Program.cs</code> and add the following line to import the GeoBlazor &quot;services&quot;.</p>
-<div id="code-block4" class="monaco-editor-block"></div>
+<div id="code-block4" class="monaco-editor-block" style="height: 4rem;"></div>
 <h2 id="add-a-map-to-your-blazor-page">Add a Map to your Blazor Page</h2>
 <p>Now to see the reason for all these imports! Let's open <code>Pages/Imports.razor</code>. Delete the <code>Hello World</code> and add the following.</p>
-<div id="code-block5" class="monaco-editor-block"></div>
+<div id="code-block5" class="monaco-editor-block" style="height: 10rem;"></div>
 <p>Run your application again, and you should see a world map!</p>
 <p><img src="/images/simple_map_with_search.png" alt="Simple Map with Search" /></p>
 <p>Go ahead and play around with the<code>Locate</code> and <code>Search</code> widgets. Notice that when using either one, there will be a nice dot added to the map to show the location of your device or the search result.</p>
 <p><img src="/images/map_with_point.png" alt="Map with Search Point" /></p>
 <h2 id="calculate-and-draw-the-day-night-terminator">Calculate and Draw the Day / Night Terminator</h2>
 <p>We want to create an interactive graphic that shows where the line is between day and night, so we can figure out when the sun will rise and set. Add the following methods inside a <code>&commat;code { }</code> block at the bottom of <code>Index.razor</code>.</p>
-<div id="code-block6" class="monaco-editor-block"></div>
+<div id="code-block6" class="monaco-editor-block" style="height: 30rem;"></div>
 <p>We also need to hook up <code>MapView</code> and <code>GraphicsLayer</code> to the reference fields and the <code>OnMapRendered</code> Event Callback, and add an <code>&commat;inject</code> reference at the top of the file.</p>
-<div id="code-block7" class="monaco-editor-block"></div>
+<div id="code-block7" class="monaco-editor-block" style="height: 11rem;"></div>
 <p>The next bit I borrowed logic heavily from <a href="https://github.com/jgravois/midnight-commander/blob/master/js/SolarTerminator.js">midnight-commander by Jim Blaney</a>, who in turn used <a href="https://en.wikipedia.org/wiki/Declination">Declination on Wikipedia</a> to build the calculations. Add the following two methods to your <code>&commat;code</code> block.</p>
-<div id="code-block8" class="monaco-editor-block"></div>
+<div id="code-block8" class="monaco-editor-block" style="height: 63rem;"></div>
 <p>Running your application now should show the Day/Night Terminator laid on top of the map!</p>
 <p><img src="/images/DayNightTerminator.png" alt="Day / Night Terminator" /></p>
 <h2 id="control-the-date-and-time">Control The Date and Time</h2>
 <p>Let's give our application some controls and a header. Right after the <code>&commat;inject</code> line at the top, add the following.</p>
-<div id="code-block9" class="monaco-editor-block"></div>
+<div id="code-block9" class="monaco-editor-block" style="height: 20rem;"></div>
 <p>In the <code>&commat;code</code> block, add the new methods.</p>
-<div id="code-block10" class="monaco-editor-block"></div>
+<div id="code-block10" class="monaco-editor-block" style="height: 27rem;"></div>
 <p>Run the application, and you will be able to control the terminator graphic by changing the date/time. Try switching to a summer month, and notice the drastically different shadow!</p>
 <h3 id="winter">Winter</h3>
 <p><img src="/images/winterTerminator.png" alt="Winter Terminator" /></p>
@@ -85,7 +85,7 @@ I found a few more things I needed to add.</p>
 <p>I then went looking for web development options, and I found the <a href="https://developers.arcgis.com/javascript/latest/">ArcGIS API for JavaScript</a> (now rebranded to &quot;ArcGIS MAPS SDK for JavaScript&quot;). This tool allows embedding ArcGIS maps in any web application and is also the backbone of the other Esri web applications, such as <a href="https://www.esri.com/en-us/arcgis/products/arcgis-online/overview">ArcGIS Online</a> and <a href="https://www.esri.com/en-us/arcgis/products/arcgis-experience-builder/overview">ArcGIS Experience Builder</a>.</p>
 <p>I quickly noticed a &quot;gap&quot; in the Esri product offerings for developers. While .NET was obviously a core part of the Esri developer community, there was no way to run ArcGIS with Asp.NET Core web applications. All of the .NET solutions were geared toward on-device applications. Yet, I knew from my previous experience with <a href="https://learn.microsoft.com/en-us/aspnet/core/blazor/?view=aspnetcore-7.0">Blazor</a> that it was quite possible to call any JavaScript code from Blazor, and run such an application on an Asp.NET Core server, in WebAssembly on the client, or even embed it within a MAUI application. I started attending the JavaScript API sessions at the conference, and while listening, was also building a proof-of-concept Blazor application that simply called into the same JS samples that were being presented. This was the foundation of what would become GeoBlazor.</p>
 <p>One early decision I made for GeoBlazor was to offer more than simply a 1-1 wrapper around ArcGIS. I decided that GeoBlazor should be component-first, like Blazor and many JS frameworks. Thus, I came up with a pattern of <a href="https://learn.microsoft.com/en-us/aspnet/core/blazor/components/?view=aspnetcore-7.0">Razor Components</a> that could be stacked together in HTML-based markup to build a map view.</p>
-<div id="code-block1" class="monaco-editor-block"></div>
+<div id="code-block1" class="monaco-editor-block" style="height: 9rem;"></div>
 <p>Internally, Blazor is designed to render each Razor Component independently and iterates through components from the child up to the parent. It also is built to re-render any changes immediately. Translating these patterns into a JavaScript wrapper for ArcGIS was a development challenge. Even more challenging was returning state changes from JavaScript and user interaction back to the C# code. My article on <a href="https://www.dymaptic.com/blazor-and-javascript-passing-object-references/">Using ObjectReferences to Embed a JavaScript Text Editor in Blazor</a> outlines some simple examples of how Blazor and JavaScript are kept in sync in GeoBlazor.</p>
 <p>We recently released version 2.0.0 of GeoBlazor where we continue to build upon the early component-model concept with additional layer types, widgets, and other components. GeoBlazor now also offers more support for user interactions, such as click event handlers, hit tests (determine what graphics were clicked on), and feature querying. You can see our full set of sample pages at <a href="https://samples.geoblazor.com">https://samples.geoblazor.com</a>.</p>
 ]]></content></item><item><link>https://www.timpurdum.dev/post/2023/7/22/linq-and-javascript</link><title>LINQ Equivalents in JavaScript</title><description>Move Seamlessly Between Languages</description><pubDate>Sat, 22 Jul 2023 00:00:00 -0500</pubDate><content type="html" xml:base="https://www.timpurdum.dev/post/2023/7/22/linq-and-javascript"><![CDATA[<p><a href="https://blog.dymaptic.com/c-linq-equivalents-in-javascript">Originally posted on the dymaptic blog on June 16, 2023</a></p>
@@ -385,27 +385,27 @@ I found a few more things I needed to add.</p>
 <p><img src="/images/Using-ESBuild-with-Blazor-1.webp" alt="ESBuild allows you to construct a new project with TypeScript and Blazor" /></p>
 <h2 id="getting-started">Getting Started</h2>
 <p>First, you need to <a href="https://docs.npmjs.com/downloading-and-installing-node-js-and-npm">download and install npm</a>, which is the JavaScript package manager used to install ESBuild and other resources. Next, from your Blazor project folder, open a terminal window and run the following commands. We will use the npm package <a href="https://litepicker.com/">litepicker</a>, a drop-down date range selector component, as an example to bundle into our application for this demonstration.</p>
-<div id="code-block1" class="monaco-editor-block"></div>
+<div id="code-block1" class="monaco-editor-block" style="height: 5rem;"></div>
 <h2 id="setting-up-the-sample-component">Setting Up the Sample Component</h2>
 <p>In that same folder, create a new subfolder called <code>Scripts</code>, and a new file called <code>components.ts</code>. This is where we will add our own logic to set up the litepicker and call from C#.</p>
-<div id="code-block2" class="monaco-editor-block"></div>
+<div id="code-block2" class="monaco-editor-block" style="height: 47rem;"></div>
 <p>Now let's create a Razor Component class that wraps this logic into .NET.</p>
 <h3 id="daterangepicker.razor">DateRangePicker.razor</h3>
-<div id="code-block3" class="monaco-editor-block"></div>
-<div id="code-block4" class="monaco-editor-block"></div>
+<div id="code-block3" class="monaco-editor-block" style="height: 11rem;"></div>
+<div id="code-block4" class="monaco-editor-block" style="height: 100rem;"></div>
 <h3 id="daterangepicker.razor.css">DateRangePicker.razor.css</h3>
-<div id="code-block5" class="monaco-editor-block"></div>
+<div id="code-block5" class="monaco-editor-block" style="height: 12rem;"></div>
 <h3 id="index.razor">Index.razor</h3>
-<div id="code-block6" class="monaco-editor-block"></div>
+<div id="code-block6" class="monaco-editor-block" style="height: 4rem;"></div>
 <p>Note that although we created a TypeScript file <code>components.ts</code>, the module import reference in this component is to <code>./js/components.js</code>. This is where ESBuild will come in, to transpile (convert from TypeScript to JavaScript) and bundle the litepicker npm package and our own code into a new minimized and bundled JavaScript file.</p>
 <h2 id="bundling-and-transpiling">Bundling and Transpiling</h2>
 <p>When you ran <code>npm install</code> previously, it created a JSON file in your directory called <code>package.json</code>. Open this file in an editor, and create or add to the scripts element the following lines.</p>
-<div id="code-block7" class="monaco-editor-block"></div>
+<div id="code-block7" class="monaco-editor-block" style="height: 7rem;"></div>
 <p>These two scripts are nearly identical, with the exception of calling <code>--minify</code> on a release build, which makes the file smaller and more portable, but harder to inspect. You may also remove the <code>--sourcemap</code> option from the release build, if you don't want to support debugging the original TypeScript files in the browser in release mode.</p>
 <p>To test ESBuild, you can run these scripts from the command line with <code>npm run debugBuild</code> or <code>npm run releaseBuild</code>. Try that now and take a look at the generated JavaScript file inside the <code>wwwroot/js</code> folder.  In my testing, with this single component, the ESBuild step takes less than 100ms to complete!</p>
 <h2 id="automating-the-build">Automating the Build</h2>
 <p>Since we are building a .NET Blazor web application, we already have a build and run process, either from the command line like <code>dotnet run</code> or using our IDE. It would be a challenge to remember to separately trigger the ESBuild script every time we want to run our application. So we will tap into the extensibility of MSBuild and the project file. Open your project's <code>.csproj</code> file, and add the following elements.</p>
-<div id="code-block8" class="monaco-editor-block"></div>
+<div id="code-block8" class="monaco-editor-block" style="height: 14rem;"></div>
 <p>Run your .NET application now, and you should see the NPM commands and ESBuild script outputs directly in the build output window. When the application opens, test out the date range picker element. If you find any issues, check out the <a href="https://github.com/dymaptic/dy-esbuild-sample">full code sample on GitHub</a>, or leave a comment below. I will leave it to you to explore the parameter and callback bindings available in the <code>DateRangePicker</code>.</p>
 <h2 id="esbuild-a-simple-solution-that-scales">ESBuild - A Simple Solution that Scales</h2>
 <p>Even though this sample only had a single, simple component, we have used <a href="https://esbuild.github.io/">ESBuild</a> as the transpiler and bundler for <a href="https://geoblazor.com/">GeoBlazor</a>, a large-scale open-source library that provides a wrapper around the <a href="https://developers.arcgis.com/javascript/latest/">ArcGIS Maps for JavaScript</a> library, allowing .NET developers to easily add interactive, custom mapping solutions to any website. ESBuild has easily scaled to be able to compile the large GeoBlazor and ArcGIS libraries into a single bundle, and is still fast and reliable at a much larger scale. If you have any questions about GeoBlazor or Blazor development, please reach out!</p>
@@ -414,62 +414,62 @@ I found a few more things I needed to add.</p>
 <h2 id="project-settings.csproj">Project Settings / .csproj</h2>
 <p>We will start with looking at the project settings, which are in the <code>.csproj</code> file.</p>
 <h3 id="net-67-blazor-server.csproj">.NET 6/7 Blazor Server .csproj</h3>
-<div id="code-block1" class="monaco-editor-block"></div>
+<div id="code-block1" class="monaco-editor-block" style="height: 8rem;"></div>
 <p>Blazor Server is very straight-forward, requiring no NuGet packages. The <code>.Web</code> SDK brings in all the Asp.NET Core libraries by default.</p>
 <h3 id="net-67-blazor-webassembly.csproj">.NET 6/7 Blazor WebAssembly .csproj</h3>
-<div id="code-block2" class="monaco-editor-block"></div>
+<div id="code-block2" class="monaco-editor-block" style="height: 13rem;"></div>
 <p>WebAssembly projects have a different SDK target than all other Asp.NET Core projects, <code>Microsoft.NET.Sdk.BlazorWebAssembly</code>. They also require specific NuGet references.</p>
 <h3 id="net-8-web-app.csproj">.NET 8 Web App .csproj</h3>
-<div id="code-block3" class="monaco-editor-block"></div>
+<div id="code-block3" class="monaco-editor-block" style="height: 13rem;"></div>
 <p>This is <em>almost</em> the same as Blazor Server. However, if you want to include the ability to manually or automatically move components to WebAssembly, you need the new NuGet reference to <code>WebAssembly.Server</code>.</p>
 <p><strong>UPDATE: The Blazor Web App <code>.Client</code> extension project is similar to the .NET 6/7 WebAssembly project. However, you don't need the <code>WebAssembly.DevServer</code> package.</strong></p>
 <h2 id="program.cs">Program.cs</h2>
 <p>Some of the biggest changes are in the startup code for your project.</p>
 <h3 id="net-67-blazor-server-program.cs">.NET 6/7 Blazor Server Program.cs</h3>
-<div id="code-block4" class="monaco-editor-block"></div>
+<div id="code-block4" class="monaco-editor-block" style="height: 17rem;"></div>
 <p>These are the basic lines that make Blazor Server work. We call <code>AddRazorPages</code> because Blazor server bootstraps itself on top of a Razor Page (<code>_Host.cshtml</code>). Then we explicitly call <code>AddServerSideBlazor</code>, and in the router, we <code>MapBlazorHub</code> to find all routable Razor Components (i.e., Blazor pages).</p>
 <h3 id="net-67-blazor-webassembly-program.cs">.NET 6/7 Blazor WebAssembly Program.cs</h3>
-<div id="code-block5" class="monaco-editor-block"></div>
+<div id="code-block5" class="monaco-editor-block" style="height: 11rem;"></div>
 <p>Since the WebAssembly project is built around Blazor, it has a more straightforward hookup, where the <code>builder</code> object accepts <code>RootComponents</code> that are Razor Components.</p>
 <h3 id="net-8-blazor-web-app-program.cs">.NET 8 Blazor Web App Program.cs</h3>
-<div id="code-block6" class="monaco-editor-block"></div>
+<div id="code-block6" class="monaco-editor-block" style="height: 20rem;"></div>
 <p>The Blazor Web App startup includes all new extension methods on both <code>builder</code> and <code>app</code>. <code>AddRazorComponents</code> and <code>MapRazorComponents</code> are both required, but the <code>Interactive</code> methods are optional, and you select these based on which render modes you want to support. One positive improvement over Blazor Server is that we have removed the need to bootstrap from Razor Pages, and instead can directly map routes via the <code>App.razor</code> component.</p>
 <p><strong>UPDATE: The .NET 8 Blazor Web App requires a <code>.Client</code> WebAssembly project, which has a very minimal <code>Program.cs</code>, seen below. You cannot use WebAssembly rendering from your main Blazor Web App project.</strong></p>
-<div id="code-block7" class="monaco-editor-block"></div>
+<div id="code-block7" class="monaco-editor-block" style="height: 8rem;"></div>
 <h2 id="pages-and-components">Pages and Components</h2>
 <p>Pages and component differences are more involved to explain the differences. I will focus on what is actually different between versions. At the end, all versions of Blazor support routable Razor Components (Blazor Pages) and nested Razor Components.</p>
 <h3 id="net-67-blazor-server-pagescomponents">.NET 6/7 Blazor Server Pages/Components</h3>
 <h4 id="host.cshtml">_Host.cshtml</h4>
-<div id="code-block8" class="monaco-editor-block"></div>
+<div id="code-block8" class="monaco-editor-block" style="height: 11rem;"></div>
 <p><code>_Host.cshtml</code> is the root Razor Page that receives routing from the Asp.NET Core router. You can see how it calls <code>App</code> as a <code>component</code>.</p>
 <h4 id="layout.cshtml">_Layout.cshtml</h4>
-<div id="code-block9" class="monaco-editor-block"></div>
+<div id="code-block9" class="monaco-editor-block" style="height: 31rem;"></div>
 <p><code>_Layout.cshtml</code> is the root html content that will be used by <code>_Host</code>, including the <code>&lt;head&gt;</code> tag and scripts. Note that <code>&commat;RenderBody()</code> marks where the <code>_Host</code> content, and therefore its child components, will be rendered.</p>
 <h4 id="app.razor-blazor-server">App.razor (Blazor Server)</h4>
-<div id="code-block10" class="monaco-editor-block"></div>
+<div id="code-block10" class="monaco-editor-block" style="height: 15rem;"></div>
 <p>This is the first &quot;Blazor&quot;/Razor Component. It manages routing within the Blazor pages. While the name and concept remains across all versions of Blazor, the implementation varies.</p>
 <h3 id="net-67-blazor-webassembly-pagescomponents">.NET 6/7 Blazor WebAssembly Pages/Components</h3>
 <h4 id="wwwrootindex.html">wwwroot/index.html</h4>
-<div id="code-block11" class="monaco-editor-block"></div>
+<div id="code-block11" class="monaco-editor-block" style="height: 23rem;"></div>
 <p>Since Blazor WebAssembly renders in the browser, it must start with pre-rendered html. The call to load the <code>blazor.webassembly.js</code> script is what kicks off all interactivity. The <code>&lt;div id=&quot;app&quot;&gt;</code> is the placeholder where <code>App.razor</code> will be rendered once the WebAssembly code is loaded.</p>
 <h4 id="app.razor-blazor-webassembly">App.razor (Blazor WebAssembly)</h4>
-<div id="code-block12" class="monaco-editor-block"></div>
+<div id="code-block12" class="monaco-editor-block" style="height: 15rem;"></div>
 <p>The <code>App.razor</code> in WebAssembly is identical in structure and function to the one in Blazor Server.</p>
 <h3 id="net-8-blazor-web-app-pagescomponents">.NET 8 Blazor Web App Pages/Components</h3>
 <p>As mentioned above, one of the nice features of Blazor Web Apps is the direct routing to Razor Components. <code>App.razor</code> now takes on the brunt of the html setup.</p>
 <h4 id="app.razor-blazor-web-app">App.razor (Blazor Web App)</h4>
-<div id="code-block13" class="monaco-editor-block"></div>
+<div id="code-block13" class="monaco-editor-block" style="height: 18rem;"></div>
 <p>Two things to note here. First, <code>&commat;rendermode</code>, which is optional, will set the render mode for all child pages and components. See <a href="https://learn.microsoft.com/en-us/aspnet/core/blazor/components/render-modes?view=aspnetcore-8.0">ASP.NET Core Blazor render modes</a> to learn more about these options. If you want the &quot;old&quot; behavior of Blazor Server in a Blazor Web App, you should be able to set  <code>&commat;rendermode=&quot;InteractiveServer&quot;</code>. (I am still testing this to see if it is really a 1-1 comparison). Also note that, <em>by default, if you don't set a render mode, Blazor Web Apps have no interactivity!</em> This means that <code>EventCallbacks</code> and click handlers simply don't work, <em>by default</em> in a Blazor Web App. The new default is completely statically-rendered server pages. In my opinion, this is the biggest failing of Blazor moving into .NET 8, as it undermines the <em>entire point</em> of using Blazor for rich web development.</p>
 <p>The second point of interest is that the bulk of the old <code>App.razor</code> functionality, namely routing, has been moved into a child component named <code>Routes</code>.</p>
 <h4 id="routes.razor">Routes.razor</h4>
-<div id="code-block14" class="monaco-editor-block"></div>
+<div id="code-block14" class="monaco-editor-block" style="height: 9rem;"></div>
 <p><strong>UPDATE: The Blazor Web App <code>.Client</code> project has only the <code>Routes.razor</code> part of the structure described above, when targeting WebAssembly. The rest remains in the main project.</strong></p>
 <h2 id="sharing-components-in-razor-class-libraries">Sharing Components in Razor Class Libraries</h2>
 <p>One of my biggest frustrations with the new Blazor Web App is that it makes it much more difficult to reason about, and even share, Razor Components in a Razor Class Library. Especially with the pattern of defining the <code>&commat;rendermode</code> <em>inside</em> the component. Will Blazor Hybrid in MAUI ignore these declarations? What about a shared Blazor WebAssembly executable? Until I found the explanation above about how to set the render mode at the <code>App.razor</code> level, I wasn't even sure if you <em>could</em> use previously-generated, routable components from a library.</p>
 <p>One other catch. In .NET 6/7, this is how we told Blazor to find components from an RCL, in <code>App.razor</code>:</p>
-<div id="code-block15" class="monaco-editor-block"></div>
+<div id="code-block15" class="monaco-editor-block" style="height: 6rem;"></div>
 <p>This works for Blazor Server, Blazor WebAssembly, and Blazor Hybrid (MAUI). However, in Blazor Web Apps, you need to add the following line to <code>Program.cs</code>:</p>
-<div id="code-block16" class="monaco-editor-block"></div>
+<div id="code-block16" class="monaco-editor-block" style="height: 7rem;"></div>
 <h2 id="looking-forward">Looking Forward</h2>
 <p>I am still a huge fan of Asp.NET Core Blazor, and I think there were a lot of great improvements in .NET 8. While I am <em>very</em> frustrated by the default behavior changing from interactive to static components, I hope that this will be better exposed and highlighted through IDE and compile-time warnings. For example, if I compile a Razor Component with <code>&commat;onclick</code> handlers, and the compiler and/or IDE can tell it is referenced to be rendered statically, this should generate a warning, so I know that my handlers are not going to work.</p>
 <p>I'm also concerned about managing user state in Blazor Web Apps. Rockford Lhotka published an <a href="https://blog.lhotka.net/2023/10/12/Blazor-8-State-Management">excellent blog post</a> about this issue. Given the combination of user state and shared RCL code in most of my business projects, I am likely to stick with top-level <code>rendermode</code> set to <code>InteractiveServer</code> or <code>InteractiveWebAssembly</code> (assuming this works like current Wasm (<strong>UPDATE: It doesn't, see other updates</strong>)) for the foreseeable future, and rarely if ever use the complex mix of rendering modes now available. It will be interesting to see what .NET 9 brings. Hopefully, nothing near this year's complexity of changes!</p>
@@ -643,10 +643,10 @@ I found a few more things I needed to add.</p>
 <p>In addition to the free, open-source <a href="https://docs.geoblazor.com/">GeoBlazor Core</a>, <a href="https://docs.geoblazor.com/pages/pro">GeoBlazor Pro</a> includes additional features and dedicated developer support. Let’s walk through the process of adding geospatial data and maps to your Asp.NET Core Blazor applications. For even faster setup, consider using the pre-configured <a href="https://blog.dymaptic.com/getting-starting-with-geoblazor-templates">GeoBlazor .NET templates</a>.</p>
 <h3 id="step-1-adding-your-arcgis-api-key">Step 1: Adding your ArcGIS API Key</h3>
 <p>First, take the ArcGIS API key mentioned earlier and add it to the <code>appsettings.json</code> file in your Blazor project. (For tips on securing your key in production, check the <a href="http://docs.geoblazor.com/pages/authentication">GeoBlazor authentication guide</a>.)</p>
-<div id="code-block1" class="monaco-editor-block"></div>
+<div id="code-block1" class="monaco-editor-block" style="height: 6rem;"></div>
 <h3 id="step-2-install-geoblazor">Step 2: Install GeoBlazor</h3>
 <p>Next, add a reference to the <code>dymaptic.GeoBlazor.Core</code> or <code>dymaptic.GeoBlazor.Pro</code> NuGet package. You can do this via your IDE's package manager or the command line.</p>
-<div id="code-block2" class="monaco-editor-block"></div>
+<div id="code-block2" class="monaco-editor-block" style="height: 6rem;"></div>
 <blockquote>
 <p>NOTE: GeoBlazor Pro includes a reference to Core, so there's no need to install both.</p>
 </blockquote>
@@ -657,24 +657,24 @@ I found a few more things I needed to add.</p>
 <li><strong>Blazor Server Apps</strong>: Update <code>_Layout.cshtml</code>.</li>
 <li><strong>Blazor WebAssembly Apps</strong>: Update <code>index.html</code>.</li>
 </ul>
-<div id="code-block3" class="monaco-editor-block"></div>
+<div id="code-block3" class="monaco-editor-block" style="height: 13rem;"></div>
 <p>(depending on your project template, you might already have the <code>YourProject.styles.css</code> reference)</p>
 <h3 id="step-4-import-usings-for-geoblazor-components">Step 4: Import Usings for GeoBlazor Components</h3>
 <p>To gain access to GeoBlazor components, add the following <code>using</code> statements to <code>_Imports.razor</code>:</p>
 <blockquote>
 <p>NOTE: In the upcoming GeoBlazor 4 release, some of these namespaces will be changing. The list will be updated at <a href="https://docs.geoblazor.com/pages/gettingStarted.html">https://docs.geoblazor.com/pages/gettingStarted.html</a> when we release version 4.</p>
 </blockquote>
-<div id="code-block4" class="monaco-editor-block"></div>
+<div id="code-block4" class="monaco-editor-block" style="height: 16rem;"></div>
 <p>You can also include these <code>using</code> directives directly in individual pages or components if preferred.</p>
 <h3 id="step-5-configure-startup-code">Step 5: Configure Startup Code</h3>
 <p>Add the GeoBlazor service to your app’s startup configuration in <code>Program.cs</code>:</p>
-<div id="code-block5" class="monaco-editor-block"></div>
+<div id="code-block5" class="monaco-editor-block" style="height: 7rem;"></div>
 <h3 id="step-6-create-your-first-map">Step 6: Create Your First Map</h3>
 <p>Now, define your map within a Blazor page (e.g., <code>Index.razor</code>). Start by adding a <code>MapView</code>, which acts as a container for your map and controls interactivity.</p>
-<div id="code-block6" class="monaco-editor-block"></div>
+<div id="code-block6" class="monaco-editor-block" style="height: 5rem;"></div>
 <p>A <code>MapView</code> alone won't display anything just yet. However, the map view allows you to define a <code>Class</code> or <code>Style</code> parameter to define the boundaries of your map. It will also be used to control many aspects of map interactivity.</p>
 <p>Inside the <code>MapView</code>, let’s add a <code>Map</code> and a <code>Basemap</code>. A <a href="https://developers.arcgis.com/javascript/latest/api-reference/esri-Basemap.html">Basemap</a> is the visual foundation of your map, often including road networks, topographical features, or imagery. There are about 60 ArcGIS and OpenStreetMap basemap styles available by selecting from an enum in GeoBlazor.</p>
-<div id="code-block7" class="monaco-editor-block"></div>
+<div id="code-block7" class="monaco-editor-block" style="height: 10rem;"></div>
 <h3 id="step-7-run-your-application">Step 7: Run Your Application</h3>
 <p>Run the application, and you should see your first GIS map with an <code>ArcGIS Imagery</code> basemap!</p>
 <p><img src="https://23190016.fs1.hubspotusercontent-na1.net/hubfs/23190016/undefined-Nov-29-2024-04-00-46-8220-PM.png" alt="GeoBlazor First Sample" />
@@ -683,7 +683,7 @@ I found a few more things I needed to add.</p>
 <p>Now that we’ve created a basic map, let’s take it further by zooming in, centering it on a specific location, and adding interactive features.</p>
 <h3 id="adjusting-mapview-settings">Adjusting MapView Settings</h3>
 <p>The default map is zoomed out to show the entire globe. To focus on a specific area, we can define the <code>Latitude</code>, <code>Longitude</code>, and <code>Zoom</code> parameters in the <code>&lt;MapView&gt;</code> component. Here’s how to center the map over Chicago, Illinois, with a medium zoom level:</p>
-<div id="code-block8" class="monaco-editor-block"></div>
+<div id="code-block8" class="monaco-editor-block" style="height: 13rem;"></div>
 <p><img src="https://23190016.fs1.hubspotusercontent-na1.net/hubfs/23190016/undefined-Nov-29-2024-04-00-47-0826-PM.png" alt="GeoBlazor Sample with Latitude, Longitude, and Zoom defined" />
 <em>GeoBlazor Sample with Latitude, Longitude, and Zoom defined</em></p>
 <p>This centers the map on Chicago, but the zoom level of 4 still shows a broad view. Let’s change the <code>Zoom</code> parameter to <code>12</code> for a close-up view of the city.</p>
@@ -693,7 +693,7 @@ I found a few more things I needed to add.</p>
 <h3 id="adding-interactive-search">Adding Interactive Search</h3>
 <p>To enhance usability, we can add a <code>SearchWidget</code> to let users find specific locations directly on the map. The widget is straightforward to implement—simply place the <code>&lt;SearchWidget&gt;</code> component inside the <code>&lt;MapView&gt;</code> and specify its <code>Position</code> parameter.</p>
 <p>Here’s an updated example with the search widget positioned at the top-right corner of the map:</p>
-<div id="code-block9" class="monaco-editor-block"></div>
+<div id="code-block9" class="monaco-editor-block" style="height: 14rem;"></div>
 <p><img src="https://23190016.fs1.hubspotusercontent-na1.net/hubfs/23190016/undefined-Nov-29-2024-04-00-47-6201-PM.png" alt="Map with Search Widget" />
 <em>Map with Search Widget</em></p>
 <p>With this addition, users can type destinations directly into the search box. For example, typing &quot;Field Museum&quot; zooms the map to this Chicago landmark. Try it out below.</p>
@@ -712,22 +712,22 @@ I found a few more things I needed to add.</p>
 <p>Download the dataset from <a href="https://www.imls.gov/research-evaluation/data-collection/museum-data-files">IMLS.gov</a> and open the first CSV file. Filter the dataset by <code>ADCITY = CHICAGO</code> to isolate museums located in Chicago. Save the filtered results to a local file that your web app can access.</p>
 <h3 id="step-2-prepare-your-application-to-read-csv-files">Step 2: Prepare Your Application to Read CSV Files</h3>
 <p>To import and process the CSV data in your Blazor application, use the <code>CsvHelper</code> library. Add the library to your project by running the following command in your terminal:</p>
-<div id="code-block10" class="monaco-editor-block"></div>
+<div id="code-block10" class="monaco-editor-block" style="height: 4rem;"></div>
 <p>The CsvHelper library simplifies reading and parsing CSV files, making it easier to convert your dataset into a format suitable for display on your map.</p>
 <h3 id="step-3-load-and-parse-the-data">Step 3: Load and Parse the Data</h3>
 <p>Create a <code>record</code> type to represent the data fields you want from the CSV file. This allows for efficient deserialization and ensures your map only processes the necessary information.</p>
-<div id="code-block11" class="monaco-editor-block"></div>
+<div id="code-block11" class="monaco-editor-block" style="height: 26rem;"></div>
 <p>Define a private <code>List&lt;MuseumRecord&gt;</code> to store the parsed data:</p>
-<div id="code-block12" class="monaco-editor-block"></div>
+<div id="code-block12" class="monaco-editor-block" style="height: 4rem;"></div>
 <p>Now, use CsvHelper in the <code>OnInitialized</code> method of your Blazor page to read and populate the <code>List</code>:</p>
-<div id="code-block13" class="monaco-editor-block"></div>
+<div id="code-block13" class="monaco-editor-block" style="height: 10rem;"></div>
 <p>This loads the data into <code>_records</code>, ready to be used for rendering graphics.
 Next, add a <code>GraphicsLayer</code> to your Map to show the new data:</p>
-<div id="code-block14" class="monaco-editor-block"></div>
-<div id="code-block15" class="monaco-editor-block"></div>
+<div id="code-block14" class="monaco-editor-block" style="height: 6rem;"></div>
+<div id="code-block15" class="monaco-editor-block" style="height: 5rem;"></div>
 <p>Create a method to load the graphics after the map has rendered:</p>
-<div id="code-block16" class="monaco-editor-block"></div>
-<div id="code-block17" class="monaco-editor-block"></div>
+<div id="code-block16" class="monaco-editor-block" style="height: 4rem;"></div>
+<div id="code-block17" class="monaco-editor-block" style="height: 48rem;"></div>
 <p>This method creates a <code>Graphic</code> for each museum with a popup displaying its details, including the name, address, phone number, and website.</p>
 <p>Run your application to see the map with interactive markers for each museum in Chicago! Clicking a marker displays a popup with detailed information.</p>
 <p><img src="https://23190016.fs1.hubspotusercontent-na1.net/hubfs/23190016/image-png-Dec-02-2024-03-48-50-2254-PM.png" alt="Museum Map of Chicago" /></p>
@@ -758,26 +758,26 @@ Next, add a <code>GraphicsLayer</code> to your Map to show the new data:</p>
 <p>Both Next.js and Blazor are fully cross-platform, and can be developed on any Mac, Linux, or Windows machine. I'm going to start with <a href="https://learn.microsoft.com/en-us/windows/package-manager/winget/">WinGet</a> to be able to install easily on my Windows PC, but you can also use any other installation system, or download packages from the web. Below is a comparison of the commands to install and create your first application.</p>
 <h3 id="net-blazor">.NET Blazor</h3>
 <p><em>install</em></p>
-<div id="code-block1" class="monaco-editor-block"></div>
+<div id="code-block1" class="monaco-editor-block" style="height: 4rem;"></div>
 <p><em>list all the available templates</em></p>
-<div id="code-block2" class="monaco-editor-block"></div>
+<div id="code-block2" class="monaco-editor-block" style="height: 4rem;"></div>
 <p><em>list all the options for this template</em></p>
-<div id="code-block3" class="monaco-editor-block"></div>
+<div id="code-block3" class="monaco-editor-block" style="height: 4rem;"></div>
 <p><em>create the application</em></p>
-<div id="code-block4" class="monaco-editor-block"></div>
+<div id="code-block4" class="monaco-editor-block" style="height: 4rem;"></div>
 <p><em>open in VS Code</em></p>
-<div id="code-block5" class="monaco-editor-block"></div>
+<div id="code-block5" class="monaco-editor-block" style="height: 5rem;"></div>
 <p>Installing the <a href="https://dotnet.microsoft.com/en-us/download">.NET SDK</a> will prompt an installation popup. Modern .NET (5+) is not tied to Windows like the classic .NET Framework, and you can install multiple versions side-by-side on the same machine. .NET is on a yearly release cycle, and .NET 9 came out in November 2024.</p>
 <p>Before creating a project, I'm calling <code>list</code> to see all of the available templates. This includes not just web applications, but console, desktop, and cross-platform mobile applications as well! Once I find the command for the <code>blazor</code> template (there are other options which you can read about <a href="https://learn.microsoft.com/en-us/aspnet/core/blazor/tooling?view=aspnetcore-9.0&amp;pivots=cli#blazor-project-templates-and-template-options">here</a>), I similarly use <code>-h</code> to see a list of template options. The <code>-o</code> option lets you name the new project, otherwise it gets a default name.</p>
 <p>I chose <code>-int Auto</code>, which sets the <a href="https://learn.microsoft.com/en-us/aspnet/core/blazor/components/render-modes?view=aspnetcore-9.0#enable-support-for-interactive-render-modes">Interactive Render Mode</a>. Blazor was originally created to move Asp.NET Core from a server-side, non-interactive model to a fully interactive, client-side model that could compete with SPA libraries like React. This is accomplished by running .NET on top of <a href="https://webassembly.org/">WebAssembly</a> in the browser. Blazor <em>also</em> provides a second option for running interactive components on the <em>server</em>, where <a href="https://learn.microsoft.com/en-us/aspnet/signalr/overview/getting-started/introduction-to-signalr">SignalR</a> is used to send events between client and server in real time. <code>Interactive Auto</code> means that the first time you visit a page, it will connect with the SignalR server-rendered components and load the WebAssembly data in the background. Then on repeated visits or refreshes, it will use the WebAssembly version. This is a great way to get the best of both worlds, fast first load times and snappy interactive performance.</p>
 <p>After creating the project, we change directory (<code>cd</code>) into the new folder, and use <code>code .</code> to open that folder in <a href="https://code.visualstudio.com/">Visual Studio Code</a>. Of course, any IDE or even text editor will work for Blazor and Next.js, but I like VS Code for small quick projects due to its fast startup and great extensions.</p>
 <h3 id="next.js-react">Next.js React</h3>
 <p><em>install</em></p>
-<div id="code-block6" class="monaco-editor-block"></div>
+<div id="code-block6" class="monaco-editor-block" style="height: 4rem;"></div>
 <p><em>create the application</em></p>
-<div id="code-block7" class="monaco-editor-block"></div>
+<div id="code-block7" class="monaco-editor-block" style="height: 17rem;"></div>
 <p><em>open in VS Code</em></p>
-<div id="code-block8" class="monaco-editor-block"></div>
+<div id="code-block8" class="monaco-editor-block" style="height: 5rem;"></div>
 <p>I'm using <a href="https://nodejs.org/en">Node.js</a> and the bundled <a href="https://www.npmjs.com/">npm</a> to install and manage my JavaScript ecosystem. I started with the <a href="https://nextjs.org/docs">Next.js Getting Started</a> docs to find the command to create a new project, which is <code>create-next-app&commat;latest</code>. Unlike with the Blazor project, I am prompted here to answer a group of questions which help determine the contents of my template. This is my first React app, but <a href="https://blog.dymaptic.com/using-objectreferences-to-embed-a-javascript-text-editor-in-blazor">I'm no stranger</a> to the JavaScript ecosystem (<a href="https://geoblazor.com">GeoBlazor</a> is a wrapper around a JS library with thousands of TypeScript files). My template choices were:</p>
 <ul>
 <li>Project Name - I first tried a name similar to how I would name a .NET project: <code>Hello.React.World</code>. This gives you an error, <code>Invalid project name: name can no longer contain capital letters</code>. Not sure why that limitation exists, but no big deal, I did the same name with lowercase letters. It seems fine with periods and dashes, which still gives a lot of flexibility for naming.</li>
@@ -912,9 +912,9 @@ Next, add a <code>GraphicsLayer</code> to your Map to show the new data:</p>
 <p>Blazor does also support compiled and scoped CSS, which you can see in files like <code>MainLayout.razor.css</code> and <code>NavMenu.razor.css</code>. Unlike in Next, these are imported and applied automatically by the framework compiler, and don't need to be declared in the Razor component.</p>
 <h2 id="running-the-application">Running the Application</h2>
 <p>Lets get these applications started!</p>
-<div id="code-block9" class="monaco-editor-block"></div>
+<div id="code-block9" class="monaco-editor-block" style="height: 4rem;"></div>
 <p><img src="/images/BlazorScreenShot.png" alt="Screen shot of the Hello World landing page of the running Blazor template, with Home, Counter, and Weather navigation links on the left, and an About link on the top right" /></p>
-<div id="code-block10" class="monaco-editor-block"></div>
+<div id="code-block10" class="monaco-editor-block" style="height: 4rem;"></div>
 <p><img src="/images/NextScreenShot.png" alt="Screen shot of the Next.js template, all black with a centered white Next.js logo and links to documentation" /></p>
 <p>.NET can implicitly find a project file in the current directory to run, and defaults to debug/development mode, so the simple command <code>dotnet run</code> is shorthand for <code>dotnet run HelloBlazorWorld.csproj -c Debug</code>. To switch to production/release you would use <code>-c Release</code>. For Next, the scripts <code>dev</code> and <code>start</code> correspond to development and release environments.</p>
 <p>It was really simple as a new React developer to build and get started with Next.js. I was surprised by how simple the template was compared to Blazor templates, and had to learn to understand the pages and folder navigation, but once I had these basic concepts down, creating a basic application was very simple.</p>
@@ -1038,7 +1038,7 @@ program led by the CDC around the past census, which gives some context on food 
     <div class="loading-progress-text"></div>
 </div>
 <h2 id="source-code">Source Code</h2>
-<div id="code-block1" class="monaco-editor-block"></div>
+<div id="code-block1" class="monaco-editor-block" style="height: 158rem;"></div>
 ]]></content></item><item><link>https://www.timpurdum.dev/post/2025/11/2/map-challenge-lines</link><title>30 Day Map Challenge: Day 2 - Lines</title><description /><pubDate>Sun, 02 Nov 2025 00:00:00 -0500</pubDate><content type="html" xml:base="https://www.timpurdum.dev/post/2025/11/2/map-challenge-lines"><![CDATA[<p>Day 2 of the <a href="https://30daymapchallenge.com/">30 Day Map Challenge</a> is all about lines! Continuing the theme of human struggles, I found the
 <a href="https://gmdac.iom.int/">Global Migration Data Analysis Center</a> from the UN International Organization for Migration, which has
 some fascinating datasets around migration patterns worldwide, and downloaded the <a href="https://www.un.org/development/desa/pd/content/international-migrant-stock">International Migrant Stock</a>
@@ -1060,7 +1060,7 @@ patterns. The dashed red lines represent migration routes, with labels indicatin
     Discover GeoBlazor
     <img src="/images/layer-list-sample.png" alt="GeoBlazor Map Sample" style="margin-top: 1rem; max-width: 100%; height: auto; border: 2px solid white; border-radius: 10px;" />
     <p style="color: white; margin-top: 1rem; font-size: 1.1rem;">
-    Check out GeoBlazor to quickly add powerful interactive maps to your Blazor applications
+    Check out GeoBlazor to quickly add interactive maps to your Blazor applications
     </p>
 </a>
 </div>
@@ -1082,4 +1082,185 @@ patterns. The dashed red lines represent migration routes, with labels indicatin
     🧪 <b>Explore the Code Sample Repository</b>
 </a>
 </div>
+]]></content></item><item><link>https://www.timpurdum.dev/post/2025/12/21/over-the-river</link><title>Over the River and Through the Woods</title><description /><pubDate>Sun, 21 Dec 2025 00:00:00 -0600</pubDate><content type="html" xml:base="https://www.timpurdum.dev/post/2025/12/21/over-the-river"><![CDATA[<h1 id="over-the-river-and-through-the-woods-build-a-navigation-app-with-geoblazor-and-blazor">Over the River and Through the Woods: Build a Navigation App with GeoBlazor and Blazor</h1>
+<p><em>C# Advent Calendar 2025</em></p>
+<p>It's that time of year again. The airports are packed, the highways are jammed, and everyone's trying to get somewhere—whether it's Grandma's house, a cozy cabin in the mountains, or anywhere that isn't the office. And what does every holiday traveler need? A good map.</p>
+<p>In this post, I'll show you how to add interactive maps and GPS tracking to your Blazor applications using <a href="https://www.geoblazor.com/">GeoBlazor</a>—a Blazor component library that wraps the powerful <a href="https://developers.arcgis.com/javascript/latest/api-reference/">ArcGIS JavaScript SDK</a>. We'll build a simple &quot;find your way to Grandma's&quot; navigation app, starting with the free GeoBlazor Core and then showing how <a href="https://docs.geoblazor.com/pages/upgradeToPro.html">GeoBlazor Pro</a> can level up your app with continuous GPS tracking.</p>
+<p>The best part? The same code works on web <em>and</em> mobile (via .NET MAUI Blazor Hybrid). Write once, navigate everywhere.</p>
+<p>Let's pack our bags and hit the road!</p>
+<hr />
+<h2 id="packing-for-the-trip-setting-up-geoblazor">Packing for the Trip: Setting Up GeoBlazor</h2>
+<p>Before any road trip, you need to pack. For our mapping journey, that means setting up a new GeoBlazor project.</p>
+<p>The easiest way to get started is with the <a href="https://www.nuget.org/packages/dymaptic.GeoBlazor.templates">GeoBlazor project templates</a>. Install them via the .NET CLI:</p>
+<div id="code-block1" class="monaco-editor-block" style="height: 4rem;"></div>
+<p>Now create your project:</p>
+<div id="code-block2" class="monaco-editor-block" style="height: 4rem;"></div>
+<p>This scaffolds a Blazor Web App project with GeoBlazor already configured for the <a href="https://learn.microsoft.com/en-us/aspnet/core/blazor/components/render-modes">Interactive Server rendering mode</a>. The template sets up everything you need: package references, service registration, and a sample map page.</p>
+<p>Before you can display maps, you'll need an ArcGIS API key. Head over to the <a href="https://developers.arcgis.com/">ArcGIS Developer Portal</a> and sign up for a free account. Once you have your key, add it to <code>appsettings.json</code>:</p>
+<div id="code-block3" class="monaco-editor-block" style="height: 6rem;"></div>
+<p>If you're using GeoBlazor Pro (more on that later), you'll also need a registration key:</p>
+<div id="code-block4" class="monaco-editor-block" style="height: 9rem;"></div>
+<p>That's it—bags packed, we're ready to go!</p>
+<hr />
+<h2 id="starting-the-journey-your-first-map">Starting the Journey: Your First Map</h2>
+<p>With GeoBlazor, adding a map to your Blazor app is as simple as adding a component. If you're familiar with Blazor's declarative syntax, this will feel right at home.</p>
+<p>Open up a Razor page and add your first map:</p>
+<div id="code-block5" class="monaco-editor-block" style="height: 15rem;"></div>
+<div id="us-map1" class="component-block">
+    <svg class="loading-progress">
+        <circle r="40%" cx="50%" cy="50%" />
+        <circle r="40%" cx="50%" cy="50%" />
+    </svg>
+    <div class="loading-progress-text"></div>
+</div>
+<p>That's a full-screen map of the United States, centered and ready to explore. Let's break down what's happening:</p>
+<ul>
+<li><strong><code>MapView</code></strong> is the main container component. It handles rendering, user interaction, and camera positioning. The <code>Longitude</code>, <code>Latitude</code>, and <code>Zoom</code> properties set the initial view.</li>
+<li><strong><code>Map</code></strong> represents the map's data model—the layers, basemap, and other content.</li>
+<li><strong><code>Basemap</code></strong> provides the background imagery. We're using <code>ArcGISNavigation</code>, which is perfect for turn-by-turn directions with its clean, road-focused design.</li>
+</ul>
+<p>The component hierarchy mirrors how you'd think about a map: you have a <em>view</em> that displays a <em>map</em> that has a <em>basemap</em>. Simple and intuitive.</p>
+<p>Run your app and you should see a beautiful, interactive map. Pan around, zoom in and out—it all just works.</p>
+<blockquote>
+<p><strong>Tip:</strong> GeoBlazor also offers <code>SceneView</code> for 3D maps. If you want to see the terrain as you virtually fly to Grandma's house, just swap <code>MapView</code> for <code>SceneView</code> and add a <code>Tilt</code> property!</p>
+</blockquote>
+<hr />
+<h2 id="finding-your-destination-where-to-grandmas-house">Finding Your Destination: &quot;Where to, Grandma's house?&quot;</h2>
+<p>A map is nice, but we need to actually find where we're going. GeoBlazor includes a <code>SearchWidget</code> that lets users type an address and geocode it to coordinates.</p>
+<p>Add the search widget inside your <code>MapView</code>:</p>
+<div id="code-block6" class="monaco-editor-block" style="height: 32rem;"></div>
+<div id="add-search-widget2" class="component-block">
+    <svg class="loading-progress">
+        <circle r="40%" cx="50%" cy="50%" />
+        <circle r="40%" cx="50%" cy="50%" />
+    </svg>
+    <div class="loading-progress-text"></div>
+</div>
+<p>Type &quot;123 Main Street, Anytown, USA&quot; (or Grandma's actual address) and the widget will geocode it, drop a pin, and zoom the map to that location. The <code>OnSelectResult</code> event gives you access to the result, including the geographic coordinates.</p>
+<p>Notice how GeoBlazor provides strongly-typed events. No need to parse JSON or deal with dynamic objects—you get <code>SearchSelectResultEvent</code> with all the data you need in a clean C# object.</p>
+<hr />
+<h2 id="are-we-there-yet-gps-tracking">Are We There Yet? GPS Tracking</h2>
+<p>Now for the fun part—tracking your location as you make your way to Grandma's house. We'll look at two approaches: manual location updates with GeoBlazor Core (free), and continuous tracking with GeoBlazor Pro.</p>
+<h3 id="manual-location-with-geoblazor-core">Manual Location with GeoBlazor Core</h3>
+<p>GeoBlazor Core includes the <code>LocateWidget</code>, which finds the user's current location on demand. Think of it like pulling over to check the map—it works, but you have to do it manually. Currently, the event returns a JSON string, which you need to parse to get the location.</p>
+<div id="code-block7" class="monaco-editor-block" style="height: 79rem;"></div>
+<div id="add-locate-widget3" class="component-block">
+    <svg class="loading-progress">
+        <circle r="40%" cx="50%" cy="50%" />
+        <circle r="40%" cx="50%" cy="50%" />
+    </svg>
+    <div class="loading-progress-text"></div>
+</div>
+<p>Click the &quot;Where Am I?&quot; button and the map zooms to your current location. Simple, effective, and free with GeoBlazor Core.</p>
+<p>This approach is great for:</p>
+<ul>
+<li>&quot;Check-in&quot; style updates</li>
+<li>Battery-conscious mobile apps</li>
+<li>Simple &quot;where am I?&quot; functionality</li>
+</ul>
+<p>If you wanted to navigate between the two points, you could draw a GeoBlazor <code>Polyline Graphic</code> between them, but that would be a straight line &quot;as the crow flies&quot;. Great for Santa's sleigh, not so much for the SUV. You could also add your own navigational data sets to generate <code>Polylines</code>.</p>
+<div id="code-block8" class="monaco-editor-block" style="height: 90rem;"></div>
+<div id="crow-line4" class="component-block">
+    <svg class="loading-progress">
+        <circle r="40%" cx="50%" cy="50%" />
+        <circle r="40%" cx="50%" cy="50%" />
+    </svg>
+    <div class="loading-progress-text"></div>
+</div>
+<h3 id="continuous-tracking-with-geoblazor-pro">Continuous Tracking with GeoBlazor Pro</h3>
+<p>If you want all that hands-free navigation like your car's GPS out of the box, GeoBlazor Pro adds the <code>TrackWidget</code>, which continuously monitors your location and updates the map as you move—no button pressing required.</p>
+<p>To upgrade, first update your package reference:</p>
+<div id="code-block9" class="monaco-editor-block" style="height: 4rem;"></div>
+<p>Update your service registration in <code>Program.cs</code>:</p>
+<div id="code-block10" class="monaco-editor-block" style="height: 4rem;"></div>
+<p>Add the Pro imports to your <code>_Imports.razor</code>:</p>
+<div id="code-block11" class="monaco-editor-block" style="height: 9rem;"></div>
+<p>Now replace <code>LocateWidget</code> with <code>TrackWidget</code>:</p>
+<div id="code-block12" class="monaco-editor-block" style="height: 44rem;"></div>
+<div id="pro-version5" class="component-block">
+    <svg class="loading-progress">
+        <circle r="40%" cx="50%" cy="50%" />
+        <circle r="40%" cx="50%" cy="50%" />
+    </svg>
+    <div class="loading-progress-text"></div>
+</div>
+<p>Now we're talking! The <code>TrackWidget</code> continuously fires <code>OnTrack</code> events as you move. Enable <code>RotationEnabled</code> and the map even rotates to match your heading—just like a real car GPS.</p>
+<h3 id="which-should-you-choose">Which Should You Choose?</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Feature</th>
+      <th>Core (LocateWidget)</th>
+      <th>Pro (TrackWidget)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>One-time location</td>
+      <td>Yes</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Continuous tracking</td>
+      <td>Manual button</td>
+      <td>Automatic</td>
+    </tr>
+    <tr>
+      <td>Map rotation</td>
+      <td>No</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Heading direction</td>
+      <td>No</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Price</td>
+      <td>Free</td>
+      <td>Licensed</td>
+    </tr>
+    <tr>
+      <td>Best for</td>
+      <td>Simple apps</td>
+      <td>Navigation apps</td>
+    </tr>
+  </tbody>
+</table>
+<p>For a holiday trip tracker, GeoBlazor Pro's continuous tracking makes all the difference. But if you're just building a simple &quot;store locator&quot; or want to keep costs down, GeoBlazor Core has you covered.</p>
+<hr />
+<h2 id="driving-after-dark-dark-mode">Driving After Dark: Dark Mode</h2>
+<p>Long drives often extend into the evening, and a bright map can be blinding at night. GeoBlazor makes it easy to support dark mode:</p>
+<div id="code-block13" class="monaco-editor-block" style="height: 30rem;"></div>
+<div id="night-view6" class="component-block">
+    <svg class="loading-progress">
+        <circle r="40%" cx="50%" cy="50%" />
+        <circle r="40%" cx="50%" cy="50%" />
+    </svg>
+    <div class="loading-progress-text"></div>
+</div>
+<p>The <code>ArcGISNavigationNight</code> basemap uses muted colors that are easier on the eyes in low light. Combined with the <code>Dark</code> theme, your widgets and UI elements adapt automatically.</p>
+<hr />
+<h2 id="arriving-home-conclusion">Arriving Home: Conclusion</h2>
+<p>We've built a holiday navigation app with GeoBlazor! Here's what we covered:</p>
+<ol>
+<li><strong>Setup</strong> — Install the GeoBlazor template and configure your API key</li>
+<li><strong>Maps</strong> — Add an interactive map with just a few lines of declarative Razor markup</li>
+<li><strong>Search</strong> — Let users find addresses with the built-in <code>SearchWidget</code></li>
+<li><strong>GPS</strong> — Track location manually with <code>LocateWidget</code> (Core) or continuously with <code>TrackWidget</code> (Pro)</li>
+<li><strong>Dark Mode</strong> — Easy theme switching for night driving</li>
+</ol>
+<p>The full AutoNav sample application that inspired this post is <a href="https://github.com/dymaptic/GeoBlazor.Samples">available on GitHub</a>. It includes routing, turn-by-turn directions, and cross-platform support for both web and mobile (MAUI Hybrid).</p>
+<h3 id="resources">Resources</h3>
+<ul>
+<li><a href="https://docs.geoblazor.com">GeoBlazor Documentation</a></li>
+<li><a href="https://developers.arcgis.com">ArcGIS Developer Portal</a> — Get your free API key</li>
+<li><a href="https://github.com/dymaptic/GeoBlazor">GeoBlazor GitHub</a></li>
+<li><a href="https://csadvent.christmas">C# Advent Calendar</a></li>
+</ul>
+<p>Whether you're building a full turn-by-turn navigation app or just want to show users where the nearest coffee shop is, GeoBlazor makes it easy to add rich mapping capabilities to your Blazor applications.</p>
+<p>Now go ahead—fire up that app and get everyone home safely for the holidays!</p>
+<p><em>Happy travels and happy coding!</em></p>
+<hr />
+<p><em>This post is part of the <a href="https://csadvent.christmas">C# Advent Calendar 2025</a>. Check out all the other great posts from the community!</em></p>
 ]]></content></item></channel></rss>

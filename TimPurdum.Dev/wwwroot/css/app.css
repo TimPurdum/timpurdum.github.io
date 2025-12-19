@@ -1,3 +1,9 @@
+.noto-color-emoji-regular {
+    font-family: "Noto Color Emoji", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
 .valid.modified:not([type=checkbox]) {
     outline: 1px solid #26b050;
 }
@@ -81,6 +87,7 @@
 
 .map-wrapper {
     padding: 1.5rem 0 0 0;
+    margin: 1rem 0;
 }
 
 .map-view {
@@ -89,8 +96,9 @@
 }
 
 .monaco-editor-block {
-    height: 400px;
+    max-height: 400px;
     width: 100%;
+    margin: 1rem auto;
 }
 
 code {
@@ -242,8 +250,8 @@ a:hover:after {
 }
 
 button {
-    background-color: var(--accent);
-    color: var(--primary);
+    background-color: var(--primary);
+    color: var(--text);
     border: none;
     padding: 10px 20px;
     border-radius: 5px;

@@ -1,0 +1,32 @@
+<MapView Style="height: 100vh; width: 100%;"
+         Theme="@(_isDarkMode ? ArcGISTheme.Dark : ArcGISTheme.Light)"
+         Longitude="-98.5795"
+         Latitude="39.8283"
+         Zoom="4">
+    <Map>
+        <Basemap>
+            <BasemapStyle Name="@(_isDarkMode
+                ? BasemapStyleName.ArcgisNavigationNight
+                : BasemapStyleName.ArcgisNavigation)" />
+        </Basemap>
+    </Map>
+
+    <!-- widgets here -->
+</MapView>
+
+@code {
+    private bool _isDarkMode = false;
+
+    protected override void OnInitialized()
+    {
+        // You could detect system preference via JS interop
+        // or let the user toggle manually
+    }
+}
+
+@code
+{
+    [System.Diagnostics.CodeAnalysis.DynamicDependency(
+        System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.All, typeof(NightView5))]
+    private static void Preserve() { }
+}

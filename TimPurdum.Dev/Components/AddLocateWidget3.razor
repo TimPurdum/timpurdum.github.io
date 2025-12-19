@@ -1,0 +1,83 @@
+<MapView @ref="_mapView" 
+         Style="height: 100vh; width: 100%;"
+         Longitude="-98.5795"
+         Latitude="39.8283"
+         Zoom="4">
+    <Map>
+        <Basemap>
+            <BasemapStyle Name="BasemapStyleName.ArcgisNavigation" />
+        </Basemap>
+    </Map>
+
+    <LocateWidget @ref="_locateWidget"
+                  Position="OverlayPosition.TopLeft"
+                  OnLocate="OnUserLocated" />
+
+    <SearchWidget Position="OverlayPosition.TopRight"
+                  AllPlaceholder="Where to, Grandma's house?"
+                  OnSelectResult="OnDestinationSelected" />
+</MapView>
+
+<button class="update-location-btn" @onclick="UpdateMyLocation">
+    Where Am I?
+</button>
+
+@code
+{
+    private LocateWidget? _locateWidget;
+    private Point? _currentLocation;
+    private Point? _destination;
+
+    private async Task UpdateMyLocation()
+    {
+        if (_locateWidget is not null)
+        {
+            await _locateWidget.Locate();
+        }
+    }
+
+    private async Task OnUserLocated(LocateEvent evt)
+    {
+        if (evt.Position is null)
+        {
+            return;
+        }
+        
+        Position? position = JsonSerializer.Deserialize<Position>(evt.Position,
+            JsonSerializerOptions.Web);
+
+        if (position is null)
+        {
+            return;
+        }
+        _currentLocation = new Point(
+            position.Coords.Longitude,
+            position.Coords.Latitude);
+
+        await _mapView!.GoTo([new Graphic(_currentLocation)]);
+
+        Console.WriteLine($"You are here: {_currentLocation.Latitude}, {_currentLocation.Longitude}");
+
+        // Check how far to Grandma's!
+        if (_destination is not null)
+        {
+            // Calculate distance, update ETA, etc.
+        }
+    }
+
+    private void OnDestinationSelected(SearchSelectResultEvent evt)
+    {
+        _destination = evt.Result?.Feature?.Geometry as Point;
+    }
+    
+    private MapView? _mapView;
+    private record Position(Coordinates Coords);
+    private record Coordinates(double Latitude, double Longitude);
+}
+
+@code
+{
+    [System.Diagnostics.CodeAnalysis.DynamicDependency(
+        System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.All, typeof(AddLocateWidget3))]
+    private static void Preserve() { }
+}

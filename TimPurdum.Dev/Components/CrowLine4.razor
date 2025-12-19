@@ -1,0 +1,111 @@
+<MapView @ref="_mapView" 
+         Style="height: 100vh; width: 100%;"
+         Longitude="-98.5795"
+         Latitude="39.8283"
+         Zoom="4"
+         OnLayerViewCreate="OnLayerViewCreated">
+    <Map>
+        <Basemap>
+            <BasemapStyle Name="BasemapStyleName.ArcgisNavigation" />
+        </Basemap>
+        <GraphicsLayer @ref="_graphicsLayer" />
+    </Map>
+
+    <LocateWidget Position="OverlayPosition.TopLeft"
+                  OnLocate="OnUserLocated" />
+
+    <SearchWidget Position="OverlayPosition.TopRight"
+                  AllPlaceholder="Where to, Grandma's house?"
+                  OnSelectResult="OnDestinationSelected" />
+</MapView>
+
+@code
+{
+    private async Task OnLayerViewCreated(LayerViewCreateEvent createEvent)
+    {
+        if (createEvent.Layer?.Id == _graphicsLayer?.Id)
+        {
+            await DrawGraphics();
+        }
+    }
+
+    private async Task OnUserLocated(LocateEvent evt)
+    {
+        if (evt.Position is null)
+        {
+            return;
+        }
+        
+        Position? position = JsonSerializer.Deserialize<Position>(evt.Position,
+            JsonSerializerOptions.Web);
+
+        if (position is null)
+        {
+            return;
+        }
+        _currentLocation = new Point(
+            position.Coords.Longitude,
+            position.Coords.Latitude);
+
+        await _mapView!.GoTo([new Graphic(_currentLocation)]);
+
+        _startPopup.Title = "Your Location";
+        _startPopup.StringContent = $"You are here: {_currentLocation.Latitude}, {_currentLocation.Longitude}";
+
+        // Check how far to Grandma's!
+        _endPopup.Title = "Grandma's House";
+        _endPopup.StringContent = $"Heading to here: {_destination.Latitude}, {_destination.Longitude}";
+
+        await DrawGraphics();
+    }
+
+    private async Task DrawGraphics()
+    {
+        List<Graphic> graphics = [StartGraphic, EndGraphic, CrowGraphic];
+        await _graphicsLayer!.Add(graphics);
+        await _mapView!.GoTo(graphics);
+        await _mapView!.OpenPopup(new PopupOpenOptions(Features: graphics.Take(2).ToList()));
+    }
+
+    private void OnDestinationSelected(SearchSelectResultEvent evt)
+    {
+        Console.WriteLine($"Destination: {JsonSerializer.Serialize(evt.Result?.Feature?.Geometry)}");
+        _destination = (Point)evt.Result?.Feature?.Geometry!;
+    }
+    
+    private MapView? _mapView;
+    private GraphicsLayer? _graphicsLayer;
+    // The Official Center of the World
+    private Point _currentLocation = new(-114.7654397581329, 32.75036089381637);
+    // North Pole, Alaska
+    private Point _destination = new(-147.3537332080152, 64.75535610138833);
+    private static readonly MapFont _font = new MapFont(24, "Noto Color Emoji");
+    private static readonly TextSymbol _startSymbol = new("🌍", font: _font);
+    private PopupTemplate _startPopup = new("The Official Center of the World",
+        "<p><b>Felicity, California</b></p><p>Felicity is an unincorporated community in Imperial County, California.[1][2] The town was established in 1986 by Jacques-Andre Istel who bought the land in the 1950s and developed it in the 1980s after selling off his parachute business. The town is \"Dedicated to Remembrance\" and named for Istel's wife Felicia.[3] It is 2,600 acres and lies at an elevation of 285 feet (87 m).[1]</p><p>source: en.wikipedia.org/wiki/Felicity,_California</p>");
+
+    private Graphic StartGraphic => new(_currentLocation, _startSymbol, _startPopup);
+    private static readonly TextSymbol _endSymbol = new("💈", font: _font);
+    private PopupTemplate _endPopup = new("North Pole, Alaska",
+        "<p>North Pole is a small city in the Fairbanks North Star Borough, Alaska, United States. Incorporated in 1953, it is part of the Fairbanks metropolitan statistical area. As of the 2020 census, the city had a population of 2,243,[2] up from 2,117 in 2010.[3] Despite its name, the city is about 1,700 miles (2,700 km) south of Earth's geographic North Pole and 125 miles (201 km) south of the Arctic Circle.</p><p>source: en.wikipedia.org/wiki/North_Pole,_Alaska</p>");
+
+    private Graphic EndGraphic => new(_destination, _endSymbol, _endPopup);
+    Polyline CrowLine => new([
+        [
+            [_currentLocation.Longitude!.Value, _currentLocation.Latitude!.Value],
+            [_destination.Longitude!.Value, _destination.Latitude!.Value]
+        ]
+    ], SpatialReference.Wgs84);
+    SimpleLineSymbol _lineSymbol = new(new MapColor("red"),
+        3, SimpleLineSymbolStyle.Dash);
+    Graphic CrowGraphic => new(CrowLine, _lineSymbol);
+    private record Position(Coordinates Coords);
+    private record Coordinates(double Latitude, double Longitude);
+}
+
+@code
+{
+    [System.Diagnostics.CodeAnalysis.DynamicDependency(
+        System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.All, typeof(CrowLine4))]
+    private static void Preserve() { }
+}
