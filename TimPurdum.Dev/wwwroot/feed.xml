@@ -1082,6 +1082,35 @@ patterns. The dashed red lines represent migration routes, with labels indicatin
     🧪 <b>Explore the Code Sample Repository</b>
 </a>
 </div>
+]]></content></item><item><link>https://www.timpurdum.dev/post/2025/11/19/live-360</link><title>Live360 2025 Presentation Links</title><description /><pubDate>Wed, 19 Nov 2025 00:00:00 -0600</pubDate><content type="html" xml:base="https://www.timpurdum.dev/post/2025/11/19/live-360"><![CDATA[<h1 id="live360">Live360</h1>
+<h2 id="thank-you-for-attending-my-sessions-at-live360-2025">Thank you for attending my sessions at Live360 2025!</h2>
+<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 15px; margin: 2rem auto; text-align: center;">
+<a style="font-size: 2rem; font-weight: bold; color: white; text-decoration: none; margin: 0 auto;" href="https://www.geoblazor.com" target="_blank">
+    Discover GeoBlazor
+    <img src="/images/layer-list-sample.png" alt="GeoBlazor Map Sample" style="margin-top: 1rem; max-width: 100%; height: auto; border: 2px solid white; border-radius: 10px;" />
+    <p style="color: white; margin-top: 1rem; font-size: 1.1rem;">
+    Check out GeoBlazor to quickly add interactive maps to your Blazor applications
+    </p>
+</a>
+</div>
+<h3 id="session-1-blazor-for-javascript-developers">Session 1: Blazor for JavaScript Developers</h3>
+<div style="margin: 1.5rem 0; padding: 1.5rem; background: #fff3cd; border-radius: 10px; border-left: 5px solid #ffc107;">
+    <a style="font-size: 1.5rem; font-weight: bold; color: #856404; text-decoration: none;" href="/files/Blazor_for_JavaScript_Developers_Live360_2025.pdf" target="_blank">
+    📊 <b>Download the Slide Deck</b>
+    </a>
+    <a style="font-size: 1.5rem; font-weight: bold; color: #155724; text-decoration: none; display: block; margin-top: 0.5rem;" href="https://dotnet.microsoft.com/en-us/learn/aspnet/blazor-tutorial/intro" target="_blank">
+    🧱 <b>Build your first web app with ASP.NET Core using Blazor</b>
+    </a>
+</div>
+<h3 id="session-2-blazor-state-management">Session 2: Blazor State Management</h3>
+<div style="margin: 1.5rem 0; padding: 1.5rem; background: #d4edda; border-radius: 10px; border-left: 5px solid #28a745;">
+<a style="font-size: 1.5rem; font-weight: bold; color: #856404; text-decoration: none;" href="/files/Blazor_State_Management_Live360_2025.pdf" target="_blank">
+    📊 <b>Download the Slide Deck</b>
+</a>
+<a style="font-size: 1.5rem; font-weight: bold; display:block; color: #155724; text-decoration: none;" href="https://github.com/dymaptic/dy-blazor-statemanagement" target="_blank">
+    🧪 <b>Explore the Code Sample Repository</b>
+</a>
+</div>
 ]]></content></item><item><link>https://www.timpurdum.dev/post/2025/12/21/over-the-river</link><title>Over the River and Through the Woods</title><description /><pubDate>Sun, 21 Dec 2025 00:00:00 -0600</pubDate><content type="html" xml:base="https://www.timpurdum.dev/post/2025/12/21/over-the-river"><![CDATA[<h1 id="over-the-river-and-through-the-woods-build-a-navigation-app-with-geoblazor-and-blazor">Over the River and Through the Woods: Build a Navigation App with GeoBlazor and Blazor</h1>
 <p><em>C# Advent Calendar 2025</em></p>
 <p>It's that time of year again. The airports are packed, the highways are jammed, and everyone's trying to get somewhere—whether it's Grandma's house, a cozy cabin in the mountains, or anywhere that isn't the office. And what does every holiday traveler need? A good map.</p>
@@ -1159,7 +1188,8 @@ patterns. The dashed red lines represent migration routes, with labels indicatin
 <li>Simple &quot;where am I?&quot; functionality</li>
 </ul>
 <p>If you wanted to navigate between the two points, you could draw a GeoBlazor <code>Polyline Graphic</code> between them, but that would be a straight line &quot;as the crow flies&quot;. Great for Santa's sleigh, not so much for the SUV. You could also add your own navigational data sets to generate <code>Polylines</code>.</p>
-<div id="code-block8" class="monaco-editor-block" style="height: 90rem;"></div>
+<p>Here's an example with pre-set start and stop points and a simple line drawn between. You can still update the start and stop points with the widgets.</p>
+<div id="code-block8" class="monaco-editor-block" style="height: 114rem;"></div>
 <div id="crow-line4" class="component-block">
     <svg class="loading-progress">
         <circle r="40%" cx="50%" cy="50%" />
@@ -1185,6 +1215,26 @@ patterns. The dashed red lines represent migration routes, with labels indicatin
     <div class="loading-progress-text"></div>
 </div>
 <p>Now we're talking! The <code>TrackWidget</code> continuously fires <code>OnTrack</code> events as you move. Enable <code>RotationEnabled</code> and the map even rotates to match your heading—just like a real car GPS.</p>
+<h3 id="turn-by-turn-directions-with-routeservice">Turn-by-Turn Directions with RouteService</h3>
+<p>Of course, real navigation needs actual driving directions—not just a straight line. GeoBlazor Pro includes the <code>RouteService</code>, which connects to ArcGIS routing services to calculate real road-based routes between points.</p>
+<p>Here's how to get turn-by-turn directions from your current location to Grandma's house:</p>
+<div id="code-block13" class="monaco-editor-block" style="height: 121rem;"></div>
+<div id="route-service6" class="component-block">
+    <svg class="loading-progress">
+        <circle r="40%" cx="50%" cy="50%" />
+        <circle r="40%" cx="50%" cy="50%" />
+    </svg>
+    <div class="loading-progress-text"></div>
+</div>
+<p>The <code>RouteService.Solve()</code> method takes a routing service URL and parameters, then returns the optimal route along with turn-by-turn directions. The route geometry can be displayed as a <code>Graphic</code> on the map, giving users a clear visual path to follow.</p>
+<p>Key features of <code>RouteService</code>:</p>
+<ul>
+<li><strong>Real road routing</strong> — Follows actual roads, not straight lines</li>
+<li><strong>Turn-by-turn directions</strong> — Get text instructions for each maneuver</li>
+<li><strong>Multiple stops</strong> — Plan routes with waypoints (stop for gas, pick up Aunt Martha)</li>
+<li><strong>Travel modes</strong> — Configure for driving, walking, or trucking</li>
+<li><strong>Traffic awareness</strong> — Factor in current traffic conditions for accurate ETAs</li>
+</ul>
 <h3 id="which-should-you-choose">Which Should You Choose?</h3>
 <table>
   <thead>
@@ -1228,19 +1278,6 @@ patterns. The dashed red lines represent migration routes, with labels indicatin
   </tbody>
 </table>
 <p>For a holiday trip tracker, GeoBlazor Pro's continuous tracking makes all the difference. But if you're just building a simple &quot;store locator&quot; or want to keep costs down, GeoBlazor Core has you covered.</p>
-<hr />
-<h2 id="driving-after-dark-dark-mode">Driving After Dark: Dark Mode</h2>
-<p>Long drives often extend into the evening, and a bright map can be blinding at night. GeoBlazor makes it easy to support dark mode:</p>
-<div id="code-block13" class="monaco-editor-block" style="height: 30rem;"></div>
-<div id="night-view6" class="component-block">
-    <svg class="loading-progress">
-        <circle r="40%" cx="50%" cy="50%" />
-        <circle r="40%" cx="50%" cy="50%" />
-    </svg>
-    <div class="loading-progress-text"></div>
-</div>
-<p>The <code>ArcGISNavigationNight</code> basemap uses muted colors that are easier on the eyes in low light. Combined with the <code>Dark</code> theme, your widgets and UI elements adapt automatically.</p>
-<hr />
 <h2 id="arriving-home-conclusion">Arriving Home: Conclusion</h2>
 <p>We've built a holiday navigation app with GeoBlazor! Here's what we covered:</p>
 <ol>
@@ -1263,4 +1300,5 @@ patterns. The dashed red lines represent migration routes, with labels indicatin
 <p><em>Happy travels and happy coding!</em></p>
 <hr />
 <p><em>This post is part of the <a href="https://csadvent.christmas">C# Advent Calendar 2025</a>. Check out all the other great posts from the community!</em></p>
+<p>North Pole icon Designed by <a href="https://www.wannapik.com/vectors/34723?search%5Btype%5D=Vector">Wannapik</a></p>
 ]]></content></item></channel></rss>

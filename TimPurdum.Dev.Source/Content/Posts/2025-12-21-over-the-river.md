@@ -2,7 +2,7 @@
 layout: post
 title: "Over the River and Through the Woods"
 subTitle: "Build a Navigation App with GeoBlazor and Blazor"
-lastmodified: "2025-12-19 18:21:58"
+lastmodified: "2025-12-19 21:37:44"
 ---
 # Over the River and Through the Woods: Build a Navigation App with GeoBlazor and Blazor
 
@@ -68,7 +68,7 @@ Open up a Razor page and add your first map:
 ```razor
 @page "/navigate"
 
-<MapView Style="height: 100vh; width: 100%;"
+<MapView Class="map-view"
          Longitude="-98.5795"
          Latitude="39.8283"
          Zoom="4">
@@ -81,7 +81,7 @@ Open up a Razor page and add your first map:
 ```
 
 ```blazor-component us-map
-<MapView Style="height: 100vh; width: 100%;"
+<MapView Class="map-view"
          Longitude="-98.5795"
          Latitude="39.8283"
          Zoom="4">
@@ -114,7 +114,7 @@ A map is nice, but we need to actually find where we're going. GeoBlazor include
 Add the search widget inside your `MapView`:
 
 ```razor
-<MapView Style="height: 100vh; width: 100%;"
+<MapView Class="map-view"
          Longitude="-98.5795"
          Latitude="39.8283"
          Zoom="4">
@@ -146,7 +146,7 @@ Add the search widget inside your `MapView`:
 ```
 
 ```blazor-component add-search-widget
-<MapView Style="height: 100vh; width: 100%;"
+<MapView Class="map-view"
          Longitude="-98.5795"
          Latitude="39.8283"
          Zoom="4">
@@ -193,7 +193,7 @@ GeoBlazor Core includes the `LocateWidget`, which finds the user's current locat
 
 ```razor
 <MapView @ref="_mapView" 
-         Style="height: 100vh; width: 100%;"
+         Class="map-view"
          Longitude="-98.5795"
          Latitude="39.8283"
          Zoom="4">
@@ -272,7 +272,7 @@ GeoBlazor Core includes the `LocateWidget`, which finds the user's current locat
 
 ```blazor-component add-locate-widget
 <MapView @ref="_mapView" 
-         Style="height: 100vh; width: 100%;"
+         Class="map-view"
          Longitude="-98.5795"
          Latitude="39.8283"
          Zoom="4">
@@ -363,7 +363,7 @@ Here's an example with pre-set start and stop points and a simple line drawn bet
 
 ```razor
 <MapView @ref="_mapView" 
-         Style="height: 100vh; width: 100%;"
+         Class="map-view"
          Longitude="-98.5795"
          Latitude="39.8283"
          Zoom="4"
@@ -465,19 +465,12 @@ Here's an example with pre-set start and stop points and a simple line drawn bet
     Graphic CrowGraphic => new(CrowLine, _lineSymbol);
     private record Position(Coordinates Coords);
     private record Coordinates(double Latitude, double Longitude);
-}
-
-@code
-{
-    [System.Diagnostics.CodeAnalysis.DynamicDependency(
-        System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.All, typeof(CrowLine4))]
-    private static void Preserve() { }
 }
 ```
 
 ```blazor-component crow-line
 <MapView @ref="_mapView" 
-         Style="height: 100vh; width: 100%;"
+         Class="map-view"
          Longitude="-98.5795"
          Latitude="39.8283"
          Zoom="4"
@@ -579,13 +572,6 @@ Here's an example with pre-set start and stop points and a simple line drawn bet
     Graphic CrowGraphic => new(CrowLine, _lineSymbol);
     private record Position(Coordinates Coords);
     private record Coordinates(double Latitude, double Longitude);
-}
-
-@code
-{
-    [System.Diagnostics.CodeAnalysis.DynamicDependency(
-        System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.All, typeof(CrowLine4))]
-    private static void Preserve() { }
 }
 ```
 
@@ -619,7 +605,7 @@ Add the Pro imports to your `_Imports.razor`:
 Now replace `LocateWidget` with `TrackWidget`:
 
 ```razor
-<MapView Style="height: 100vh; width: 100%;"
+<MapView Class="map-view"
          Longitude="-98.5795"
          Latitude="39.8283"
          Zoom="4">
@@ -663,7 +649,7 @@ Now replace `LocateWidget` with `TrackWidget`:
 ```
 
 ```blazor-component pro-version
-<MapView Style="height: 100vh; width: 100%;"
+<MapView Class="map-view"
          Longitude="-98.5795"
          Latitude="39.8283"
          Zoom="4">
@@ -706,7 +692,272 @@ Now replace `LocateWidget` with `TrackWidget`:
 }
 ```
 
-Now we're talking! The `TrackWidget` continuously fires `OnTrack` events as you move. Enable `RotationEnabled` and the map even rotates to match your heading—just like a real car GPS.
+Click on the Tracking Widget to have it start tracking you. The `TrackWidget` continuously fires `OnTrack` events as you move. Enable `RotationEnabled` and the map even rotates to match your heading—just like a real car GPS.
+
+### Turn-by-Turn Directions with RouteService
+
+Of course, real navigation needs actual driving directions—not just a straight line. GeoBlazor Pro includes the `RouteService`, which connects to ArcGIS routing services to calculate real road-based routes between points.
+
+Here's how to get turn-by-turn directions from your current location to Grandma's house:
+
+```razor
+<MapView @ref="_mapView"
+         Class="map-view"
+         Longitude="-98.5795"
+         Latitude="39.8283"
+         Zoom="4"
+         OnLayerViewCreate="OnLayerViewCreated">
+    <Map>
+        <Basemap>
+            <BasemapStyle Name="BasemapStyleName.ArcgisNavigation" />
+        </Basemap>
+        <GraphicsLayer @ref="_graphicsLayer" />
+    </Map>
+
+    <TrackWidget Position="OverlayPosition.TopLeft"
+                 OnTrack="OnLocationUpdate"
+                 RotationEnabled="true"
+                 Scale="500" />
+
+    <SearchWidget Position="OverlayPosition.TopRight"
+                  AllPlaceholder="Where to, Grandma's house?"
+                  OnSelectResult="OnDestinationSelected" />
+    <CustomOverlay Position="OverlayPosition.BottomLeft">
+        @if (_directions.Any())
+        {
+            <div class="directions-panel">
+                <h3>Directions to Grandma's House</h3>
+                <ol>
+                    @foreach (var step in _directions)
+                    {
+                        <li>@step</li>
+                    }
+                </ol>
+            </div>
+        }
+    </CustomOverlay>
+</MapView>
+
+@code
+{
+    [Inject]
+    public required RouteService RouteService { get; set; }
+    
+    private async Task OnLayerViewCreated(LayerViewCreateEvent createEvent)
+    {
+        if (createEvent.Layer?.Id == _graphicsLayer?.Id &&
+            _currentLocation is not null && _destination is not null)
+        {
+            await GetDirections();
+        }
+    }
+
+    private async Task OnLocationUpdate(TrackEvent evt)
+    {
+        _currentLocation = new Point(
+            evt.Position.Coords.Longitude,
+            evt.Position.Coords.Latitude);
+
+        // Automatically called as you move!
+        Console.WriteLine($"Location update: {_currentLocation.Latitude}, {_currentLocation.Longitude}");
+
+        await GetDirections();
+    }
+
+    private void OnDestinationSelected(SearchSelectResultEvent evt)
+    {
+        _destination = evt.Result?.Feature?.Geometry as Point;
+    }
+
+    private async Task GetDirections()
+    {
+        if (_currentLocation is null || _destination is null) return;
+
+        // Configure route parameters
+        var routeParams = new RouteParameters
+        {
+            FeatureSetStops = new FeatureSet
+            {
+                Features = [StartGraphic, EndGraphic]
+            },
+            ReturnDirections = true
+        };
+
+        // Solve the route
+        RouteSolveResult result = await RouteService.Solve(
+            "https://route-api.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World",
+            routeParams);
+
+        if (result.RouteResults?.FirstOrDefault() is { Route.Geometry: not null } routeResult)
+        {
+            // Draw the route on the map
+            var routeGraphic = new Graphic(
+                routeResult.Route.Geometry,
+                _lineSymbol);
+
+            await _graphicsLayer!.Add(routeGraphic);
+            await _mapView!.GoTo([routeGraphic]);
+
+            // Extract turn-by-turn directions
+            _directions = routeResult.Directions?.Features?
+                .Select(f => f.Attributes["text"]?.ToString() ?? "")
+                .Where(s => !string.IsNullOrEmpty(s))
+                .ToList() ?? [];
+        }
+    }
+
+    private MapView? _mapView;
+    private GraphicsLayer? _graphicsLayer;
+    private Point? _currentLocation;
+    private Point? _destination;
+    private static readonly MapFont _font = new MapFont(24, "Noto Color Emoji");
+    private static readonly TextSymbol _startSymbol = new("🌍", font: _font);
+    private PopupTemplate _startPopup = new("Your Location");
+
+    private Graphic StartGraphic => new(_currentLocation, _startSymbol, _startPopup);
+    private static readonly TextSymbol _endSymbol = new("💈", font: _font);
+    private PopupTemplate _endPopup = new("Grandma's House");
+
+    private Graphic EndGraphic => new(_destination, _endSymbol, _endPopup);
+    SimpleLineSymbol _lineSymbol = new(new MapColor("red"),
+        3, SimpleLineSymbolStyle.Dash);
+    private List<string> _directions = [];
+}
+```
+
+```blazor-component route-service
+<MapView @ref="_mapView"
+         Class="map-view"
+         Longitude="-98.5795"
+         Latitude="39.8283"
+         Zoom="4"
+         OnLayerViewCreate="OnLayerViewCreated">
+    <Map>
+        <Basemap>
+            <BasemapStyle Name="BasemapStyleName.ArcgisNavigation" />
+        </Basemap>
+        <GraphicsLayer @ref="_graphicsLayer" />
+    </Map>
+
+    <TrackWidget Position="OverlayPosition.TopLeft"
+                 OnTrack="OnLocationUpdate"
+                 RotationEnabled="true"
+                 Scale="500" />
+
+    <SearchWidget Position="OverlayPosition.TopRight"
+                  AllPlaceholder="Where to, Grandma's house?"
+                  OnSelectResult="OnDestinationSelected" />
+    <CustomOverlay Position="OverlayPosition.BottomLeft">
+        @if (_directions.Any())
+        {
+            <div class="directions-panel">
+                <h3>Directions to Grandma's House</h3>
+                <ol>
+                    @foreach (var step in _directions)
+                    {
+                        <li>@step</li>
+                    }
+                </ol>
+            </div>
+        }
+    </CustomOverlay>
+</MapView>
+
+@code
+{
+    [Inject]
+    public required RouteService RouteService { get; set; }
+    
+    private async Task OnLayerViewCreated(LayerViewCreateEvent createEvent)
+    {
+        if (createEvent.Layer?.Id == _graphicsLayer?.Id &&
+            _currentLocation is not null && _destination is not null)
+        {
+            await GetDirections();
+        }
+    }
+
+    private async Task OnLocationUpdate(TrackEvent evt)
+    {
+        _currentLocation = new Point(
+            evt.Position.Coords.Longitude,
+            evt.Position.Coords.Latitude);
+
+        // Automatically called as you move!
+        Console.WriteLine($"Location update: {_currentLocation.Latitude}, {_currentLocation.Longitude}");
+
+        await GetDirections();
+    }
+
+    private void OnDestinationSelected(SearchSelectResultEvent evt)
+    {
+        _destination = evt.Result?.Feature?.Geometry as Point;
+    }
+
+    private async Task GetDirections()
+    {
+        if (_currentLocation is null || _destination is null) return;
+
+        // Configure route parameters
+        var routeParams = new RouteParameters
+        {
+            FeatureSetStops = new FeatureSet
+            {
+                Features = [StartGraphic, EndGraphic]
+            },
+            ReturnDirections = true
+        };
+
+        // Solve the route
+        RouteSolveResult result = await RouteService.Solve(
+            "https://route-api.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World",
+            routeParams);
+
+        if (result.RouteResults?.FirstOrDefault() is { Route.Geometry: not null } routeResult)
+        {
+            // Draw the route on the map
+            var routeGraphic = new Graphic(
+                routeResult.Route.Geometry,
+                _lineSymbol);
+
+            await _graphicsLayer!.Add(routeGraphic);
+            await _mapView!.GoTo([routeGraphic]);
+
+            // Extract turn-by-turn directions
+            _directions = routeResult.Directions?.Features?
+                .Select(f => f.Attributes["text"]?.ToString() ?? "")
+                .Where(s => !string.IsNullOrEmpty(s))
+                .ToList() ?? [];
+        }
+    }
+
+    private MapView? _mapView;
+    private GraphicsLayer? _graphicsLayer;
+    private Point? _currentLocation;
+    private Point? _destination;
+    private static readonly MapFont _font = new MapFont(24, "Noto Color Emoji");
+    private static readonly TextSymbol _startSymbol = new("🌍", font: _font);
+    private PopupTemplate _startPopup = new("Your Location");
+
+    private Graphic StartGraphic => new(_currentLocation, _startSymbol, _startPopup);
+    private static readonly TextSymbol _endSymbol = new("💈", font: _font);
+    private PopupTemplate _endPopup = new("Grandma's House");
+
+    private Graphic EndGraphic => new(_destination, _endSymbol, _endPopup);
+    SimpleLineSymbol _lineSymbol = new(new MapColor("red"),
+        3, SimpleLineSymbolStyle.Dash);
+    private List<string> _directions = [];
+}
+```
+
+The `RouteService.Solve()` method takes a routing service URL and parameters, then returns the optimal route along with turn-by-turn directions. The route geometry can be displayed as a `Graphic` on the map, giving users a clear visual path to follow.
+
+Key features of `RouteService`:
+- **Real road routing** — Follows actual roads, not straight lines
+- **Turn-by-turn directions** — Get text instructions for each maneuver
+- **Multiple stops** — Plan routes with waypoints (stop for gas, pick up Aunt Martha)
+- **Travel modes** — Configure for driving, walking, or trucking
+- **Traffic awareness** — Factor in current traffic conditions for accurate ETAs
 
 ### Which Should You Choose?
 
@@ -786,6 +1037,7 @@ Now go ahead—fire up that app and get everyone home safely for the holidays!
 
 
 North Pole icon Designed by [Wannapik](https://www.wannapik.com/vectors/34723?search%5Btype%5D=Vector)
+
 
 
 
