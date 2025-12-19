@@ -702,7 +702,7 @@ Here's how to get turn-by-turn directions from your current location to Grandma'
 
 ```razor
 <MapView @ref="_mapView"
-         Class="map-view"
+         Style="height: 100vh; width: 100%;"
          Longitude="-98.5795"
          Latitude="39.8283"
          Zoom="4"
@@ -764,9 +764,10 @@ Here's how to get turn-by-turn directions from your current location to Grandma'
         await GetDirections();
     }
 
-    private void OnDestinationSelected(SearchSelectResultEvent evt)
+    private async Task OnDestinationSelected(SearchSelectResultEvent evt)
     {
         _destination = evt.Result?.Feature?.Geometry as Point;
+        await GetDirections();
     }
 
     private async Task GetDirections()
@@ -780,7 +781,8 @@ Here's how to get turn-by-turn directions from your current location to Grandma'
             {
                 Features = [StartGraphic, EndGraphic]
             },
-            ReturnDirections = true
+            ReturnDirections = true,
+            OutSpatialReference = SpatialReference.Wgs84
         };
 
         // Solve the route
@@ -810,7 +812,7 @@ Here's how to get turn-by-turn directions from your current location to Grandma'
     private GraphicsLayer? _graphicsLayer;
     private Point? _currentLocation;
     private Point? _destination;
-    private static readonly MapFont _font = new MapFont(24, "Noto Color Emoji");
+    private static readonly MapFont _font = new(24, "Noto Color Emoji");
     private static readonly TextSymbol _startSymbol = new("🌍", font: _font);
     private PopupTemplate _startPopup = new("Your Location");
 
@@ -827,7 +829,7 @@ Here's how to get turn-by-turn directions from your current location to Grandma'
 
 ```blazor-component route-service
 <MapView @ref="_mapView"
-         Class="map-view"
+         Style="height: 100vh; width: 100%;"
          Longitude="-98.5795"
          Latitude="39.8283"
          Zoom="4"
@@ -889,9 +891,10 @@ Here's how to get turn-by-turn directions from your current location to Grandma'
         await GetDirections();
     }
 
-    private void OnDestinationSelected(SearchSelectResultEvent evt)
+    private async Task OnDestinationSelected(SearchSelectResultEvent evt)
     {
         _destination = evt.Result?.Feature?.Geometry as Point;
+        await GetDirections();
     }
 
     private async Task GetDirections()
@@ -905,7 +908,8 @@ Here's how to get turn-by-turn directions from your current location to Grandma'
             {
                 Features = [StartGraphic, EndGraphic]
             },
-            ReturnDirections = true
+            ReturnDirections = true,
+            OutSpatialReference = SpatialReference.Wgs84
         };
 
         // Solve the route
@@ -935,7 +939,7 @@ Here's how to get turn-by-turn directions from your current location to Grandma'
     private GraphicsLayer? _graphicsLayer;
     private Point? _currentLocation;
     private Point? _destination;
-    private static readonly MapFont _font = new MapFont(24, "Noto Color Emoji");
+    private static readonly MapFont _font = new(24, "Noto Color Emoji");
     private static readonly TextSymbol _startSymbol = new("🌍", font: _font);
     private PopupTemplate _startPopup = new("Your Location");
 
