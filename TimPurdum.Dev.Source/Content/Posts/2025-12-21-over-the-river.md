@@ -2,9 +2,9 @@
 layout: post
 title: "Over the River and Through the Woods"
 subTitle: "Build a Navigation App with GeoBlazor and Blazor"
-lastmodified: "2025-12-20 17:06:24"
+lastmodified: "2025-12-20 17:36:32"
 ---
-# Over the River and Through the Woods: Build a Navigation App with GeoBlazor and Blazor
+## Build a Navigation App with GeoBlazor and Blazor
 
 *C# Advent Calendar 2025*
 
@@ -703,8 +703,20 @@ Of course, real navigation needs actual driving directions—not just a straight
 Here's how to get turn-by-turn directions from your current location to Grandma's house:
 
 ```razor
+<style>
+    .directions-panel {
+        background: white;
+        color: black;
+        height: 150px;
+        border: 1px solid black;
+        border-radius: 0.5rem;
+        padding: 0 0.5rem;
+        overflow-y: scroll;
+    }
+</style>
+
 <MapView @ref="_mapView"
-         Style="height: 100vh; width: 100%;"
+         Class="map-view"
          Longitude="-98.5795"
          Latitude="39.8283"
          Zoom="4"
@@ -812,6 +824,7 @@ Here's how to get turn-by-turn directions from your current location to Grandma'
                 .Select(f => f.Attributes["text"]?.ToString() ?? "")
                 .Where(s => !string.IsNullOrEmpty(s))
                 .ToList() ?? [];
+            StateHasChanged();
         }
     }
 
@@ -828,8 +841,20 @@ Here's how to get turn-by-turn directions from your current location to Grandma'
 ```
 
 ```blazor-component route-service
+<style>
+    .directions-panel {
+        background: white;
+        color: black;
+        height: 150px;
+        border: 1px solid black;
+        border-radius: 0.5rem;
+        padding: 0 0.5rem;
+        overflow-y: scroll;
+    }
+</style>
+
 <MapView @ref="_mapView"
-         Style="height: 100vh; width: 100%;"
+         Class="map-view"
          Longitude="-98.5795"
          Latitude="39.8283"
          Zoom="4"
@@ -937,6 +962,7 @@ Here's how to get turn-by-turn directions from your current location to Grandma'
                 .Select(f => f.Attributes["text"]?.ToString() ?? "")
                 .Where(s => !string.IsNullOrEmpty(s))
                 .ToList() ?? [];
+            StateHasChanged();
         }
     }
 
@@ -1071,6 +1097,9 @@ Now go ahead—fire up that app and get everyone home safely for the holidays!
 ---
 
 *This post is part of the [C# Advent Calendar 2025](https://csadvent.christmas). Check out all the other great posts from the community!*
+
+
+
 
 
 

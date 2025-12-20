@@ -1,5 +1,17 @@
+<style>
+    .directions-panel {
+        background: white;
+        color: black;
+        height: 150px;
+        border: 1px solid black;
+        border-radius: 0.5rem;
+        padding: 0 0.5rem;
+        overflow-y: scroll;
+    }
+</style>
+
 <MapView @ref="_mapView"
-         Style="height: 100vh; width: 100%;"
+         Class="map-view"
          Longitude="-98.5795"
          Latitude="39.8283"
          Zoom="4"
@@ -107,6 +119,7 @@
                 .Select(f => f.Attributes["text"]?.ToString() ?? "")
                 .Where(s => !string.IsNullOrEmpty(s))
                 .ToList() ?? [];
+            StateHasChanged();
         }
     }
 

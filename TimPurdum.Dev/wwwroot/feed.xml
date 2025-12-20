@@ -1111,7 +1111,7 @@ patterns. The dashed red lines represent migration routes, with labels indicatin
     🧪 <b>Explore the Code Sample Repository</b>
 </a>
 </div>
-]]></content></item><item><link>https://www.timpurdum.dev/post/2025/12/21/over-the-river</link><title>Over the River and Through the Woods</title><description /><pubDate>Sun, 21 Dec 2025 00:00:00 -0600</pubDate><content type="html" xml:base="https://www.timpurdum.dev/post/2025/12/21/over-the-river"><![CDATA[<h1 id="over-the-river-and-through-the-woods-build-a-navigation-app-with-geoblazor-and-blazor">Over the River and Through the Woods: Build a Navigation App with GeoBlazor and Blazor</h1>
+]]></content></item><item><link>https://www.timpurdum.dev/post/2025/12/21/over-the-river</link><title>Over the River and Through the Woods</title><description /><pubDate>Sun, 21 Dec 2025 00:00:00 -0600</pubDate><content type="html" xml:base="https://www.timpurdum.dev/post/2025/12/21/over-the-river"><![CDATA[<h2 id="build-a-navigation-app-with-geoblazor-and-blazor">Build a Navigation App with GeoBlazor and Blazor</h2>
 <p><em>C# Advent Calendar 2025</em></p>
 <p>It's that time of year again. The airports are packed, the highways are jammed, and everyone's trying to get somewhere—whether it's Grandma's house, a cozy cabin in the mountains, or anywhere that isn't the office. And what does every holiday traveler need? A good map.</p>
 <p>In this post, I'll show you how to add interactive maps and GPS tracking to your Blazor applications using <a href="https://www.geoblazor.com/">GeoBlazor</a>—a Blazor component library that wraps the powerful <a href="https://developers.arcgis.com/javascript/latest/api-reference/">ArcGIS JavaScript SDK</a>. We'll build a simple &quot;find your way to Grandma's&quot; navigation app, starting with the free GeoBlazor Core and then showing how <a href="https://docs.geoblazor.com/pages/upgradeToPro.html">GeoBlazor Pro</a> can level up your app with continuous GPS tracking and turn-by-turn navigation.</p>
@@ -1218,7 +1218,7 @@ patterns. The dashed red lines represent migration routes, with labels indicatin
 <h3 id="turn-by-turn-directions-with-routeservice">Turn-by-Turn Directions with RouteService</h3>
 <p>Of course, real navigation needs actual driving directions—not just a straight line. GeoBlazor Pro includes the <code>RouteService</code>, which connects to ArcGIS routing services to calculate real road-based routes between points.</p>
 <p>Here's how to get turn-by-turn directions from your current location to Grandma's house:</p>
-<div id="code-block13" class="monaco-editor-block" style="height: 125rem;"></div>
+<div id="code-block13" class="monaco-editor-block" style="height: 138rem;"></div>
 <div id="route-service6" class="component-block">
     <svg class="loading-progress">
         <circle r="40%" cx="50%" cy="50%" />
