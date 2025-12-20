@@ -5,6 +5,9 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <AttachWeakETagToCompressedAssetsDuringDevelopment>true</AttachWeakETagToCompressedAssetsDuringDevelopment>
+    </PropertyGroup>
+    
+    <PropertyGroup Condition="'$(RunAOT)' == 'true'">
         <RunAOTCompilation>true</RunAOTCompilation>
         <WasmStripILAfterAOT>true</WasmStripILAfterAOT>
     </PropertyGroup>
