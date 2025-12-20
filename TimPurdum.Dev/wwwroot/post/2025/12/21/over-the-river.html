@@ -32,8 +32,8 @@
             <div class="post-content e-content" itemprop="articleBody"><h1 id="over-the-river-and-through-the-woods-build-a-navigation-app-with-geoblazor-and-blazor">Over the River and Through the Woods: Build a Navigation App with GeoBlazor and Blazor</h1>
 <p><em>C# Advent Calendar 2025</em></p>
 <p>It's that time of year again. The airports are packed, the highways are jammed, and everyone's trying to get somewhere—whether it's Grandma's house, a cozy cabin in the mountains, or anywhere that isn't the office. And what does every holiday traveler need? A good map.</p>
-<p>In this post, I'll show you how to add interactive maps and GPS tracking to your Blazor applications using <a href="https://www.geoblazor.com/">GeoBlazor</a>—a Blazor component library that wraps the powerful <a href="https://developers.arcgis.com/javascript/latest/api-reference/">ArcGIS JavaScript SDK</a>. We'll build a simple &quot;find your way to Grandma's&quot; navigation app, starting with the free GeoBlazor Core and then showing how <a href="https://docs.geoblazor.com/pages/upgradeToPro.html">GeoBlazor Pro</a> can level up your app with continuous GPS tracking.</p>
-<p>The best part? The same code works on web <em>and</em> mobile (via .NET MAUI Blazor Hybrid). Write once, navigate everywhere.</p>
+<p>In this post, I'll show you how to add interactive maps and GPS tracking to your Blazor applications using <a href="https://www.geoblazor.com/">GeoBlazor</a>—a Blazor component library that wraps the powerful <a href="https://developers.arcgis.com/javascript/latest/api-reference/">ArcGIS JavaScript SDK</a>. We'll build a simple &quot;find your way to Grandma's&quot; navigation app, starting with the free GeoBlazor Core and then showing how <a href="https://docs.geoblazor.com/pages/upgradeToPro.html">GeoBlazor Pro</a> can level up your app with continuous GPS tracking and turn-by-turn navigation.</p>
+<p>The best part? The same code works on web <em>and</em> mobile (via .NET MAUI Blazor Hybrid), so you could really use such an app on the go with your phone, like Google or Apple maps but with your own custom features. Write once, navigate everywhere.</p>
 <p>Let's pack our bags and hit the road!</p>
 <hr />
 <h2 id="packing-for-the-trip-setting-up-geoblazor">Packing for the Trip: Setting Up GeoBlazor</h2>
@@ -64,7 +64,7 @@
 <ul>
 <li><strong><code>MapView</code></strong> is the main container component. It handles rendering, user interaction, and camera positioning. The <code>Longitude</code>, <code>Latitude</code>, and <code>Zoom</code> properties set the initial view.</li>
 <li><strong><code>Map</code></strong> represents the map's data model—the layers, basemap, and other content.</li>
-<li><strong><code>Basemap</code></strong> provides the background imagery. We're using <code>ArcGISNavigation</code>, which is perfect for turn-by-turn directions with its clean, road-focused design.</li>
+<li><strong><code>Basemap</code></strong> provides the background imagery. We're using <code>ArcgisNavigation</code>, which is perfect for turn-by-turn directions with its clean, road-focused design.</li>
 </ul>
 <p>The component hierarchy mirrors how you'd think about a map: you have a <em>view</em> that displays a <em>map</em> that has a <em>basemap</em>. Simple and intuitive.</p>
 <p>Run your app and you should see a beautiful, interactive map. Pan around, zoom in and out—it all just works.</p>
@@ -98,7 +98,7 @@
     </svg>
     <div class="loading-progress-text"></div>
 </div>
-<p>Click the &quot;Where Am I?&quot; button and the map zooms to your current location. Simple, effective, and free with GeoBlazor Core.</p>
+<p>Click the &quot;Where Am I?&quot; button or the LocateWidget itself, and the map zooms to your current location. Simple, effective, and free with GeoBlazor Core.</p>
 <p>This approach is great for:</p>
 <ul>
 <li>&quot;Check-in&quot; style updates</li>
@@ -107,7 +107,7 @@
 </ul>
 <p>If you wanted to navigate between the two points, you could draw a GeoBlazor <code>Polyline Graphic</code> between them, but that would be a straight line &quot;as the crow flies&quot;. Great for Santa's sleigh, not so much for the SUV. You could also add your own navigational data sets to generate <code>Polylines</code>.</p>
 <p>Here's an example with pre-set start and stop points and a simple line drawn between. You can still update the start and stop points with the widgets.</p>
-<div id="code-block8" class="monaco-editor-block" style="height: 114rem;"></div>
+<div id="code-block8" class="monaco-editor-block" style="height: 108rem;"></div>
 <div id="crow-line4" class="component-block">
     <svg class="loading-progress">
         <circle r="40%" cx="50%" cy="50%" />
@@ -132,11 +132,11 @@
     </svg>
     <div class="loading-progress-text"></div>
 </div>
-<p>Now we're talking! The <code>TrackWidget</code> continuously fires <code>OnTrack</code> events as you move. Enable <code>RotationEnabled</code> and the map even rotates to match your heading—just like a real car GPS.</p>
+<p>Click on the Tracking Widget to have it start tracking you. The <code>TrackWidget</code> continuously fires <code>OnTrack</code> events as you move. Enable <code>RotationEnabled</code> and the map even rotates to match your heading—just like a real car GPS.</p>
 <h3 id="turn-by-turn-directions-with-routeservice">Turn-by-Turn Directions with RouteService</h3>
 <p>Of course, real navigation needs actual driving directions—not just a straight line. GeoBlazor Pro includes the <code>RouteService</code>, which connects to ArcGIS routing services to calculate real road-based routes between points.</p>
 <p>Here's how to get turn-by-turn directions from your current location to Grandma's house:</p>
-<div id="code-block13" class="monaco-editor-block" style="height: 121rem;"></div>
+<div id="code-block13" class="monaco-editor-block" style="height: 125rem;"></div>
 <div id="route-service6" class="component-block">
     <svg class="loading-progress">
         <circle r="40%" cx="50%" cy="50%" />
@@ -158,15 +158,18 @@
   <thead>
     <tr>
       <th>Feature</th>
-      <th>Core (LocateWidget)</th>
-      <th>Pro (TrackWidget)</th>
+      <th>Core</th>
+      <th>Pro</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>One-time location</td>
-      <td>Yes</td>
-      <td>Yes</td>
+      <td colspan="3"><strong>Location Tracking</strong></td>
+    </tr>
+    <tr>
+      <td>Widget</td>
+      <td>LocateWidget</td>
+      <td>TrackWidget</td>
     </tr>
     <tr>
       <td>Continuous tracking</td>
@@ -184,14 +187,45 @@
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Price</td>
+      <td colspan="3"><strong>Routing</strong></td>
+    </tr>
+    <tr>
+      <td>RouteService</td>
+      <td>No</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Turn-by-turn directions</td>
+      <td>No</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Real road routing</td>
+      <td>No</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Multiple stops</td>
+      <td>No</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Traffic awareness</td>
+      <td>No</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td colspan="3"><strong>Pricing</strong></td>
+    </tr>
+    <tr>
+      <td>Cost</td>
       <td>Free</td>
       <td>Licensed</td>
     </tr>
     <tr>
       <td>Best for</td>
-      <td>Simple apps</td>
-      <td>Navigation apps</td>
+      <td>Simple apps, store locators</td>
+      <td>Full navigation apps</td>
     </tr>
   </tbody>
 </table>
@@ -203,11 +237,12 @@
 <li><strong>Maps</strong> — Add an interactive map with just a few lines of declarative Razor markup</li>
 <li><strong>Search</strong> — Let users find addresses with the built-in <code>SearchWidget</code></li>
 <li><strong>GPS</strong> — Track location manually with <code>LocateWidget</code> (Core) or continuously with <code>TrackWidget</code> (Pro)</li>
-<li><strong>Dark Mode</strong> — Easy theme switching for night driving</li>
+<li><strong>Routing</strong> — Get turn-by-turn directions with <code>RouteService</code> (Pro)</li>
 </ol>
 <p>The full AutoNav sample application that inspired this post is <a href="https://github.com/dymaptic/GeoBlazor.Samples">available on GitHub</a>. It includes routing, turn-by-turn directions, and cross-platform support for both web and mobile (MAUI Hybrid).</p>
 <h3 id="resources">Resources</h3>
 <ul>
+<li><a href="https://geoblazor.com">GeoBlazor Home Page</a></li>
 <li><a href="https://docs.geoblazor.com">GeoBlazor Documentation</a></li>
 <li><a href="https://developers.arcgis.com">ArcGIS Developer Portal</a> — Get your free API key</li>
 <li><a href="https://github.com/dymaptic/GeoBlazor">GeoBlazor GitHub</a></li>
@@ -218,7 +253,6 @@
 <p><em>Happy travels and happy coding!</em></p>
 <hr />
 <p><em>This post is part of the <a href="https://csadvent.christmas">C# Advent Calendar 2025</a>. Check out all the other great posts from the community!</em></p>
-<p>North Pole icon Designed by <a href="https://www.wannapik.com/vectors/34723?search%5Btype%5D=Vector">Wannapik</a></p>
 </div></article></div></main>
 <footer class="site-footer h-card"><div class="wrapper"><ul class="contact-list"><li class="p-name">Tim Purdum</li><li><a class="u-email" href="mailto:tim.purdum@dymaptic.com">tim.purdum@dymaptic.com</a></li></ul>
     <ul class="social-media-list"><li><a href="https://github.com/TimPurdum"><svg width="16" height="16" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8C0 11.54 2.29 14.53 5.47 15.59C5.87 15.66 6.02 15.42 6.02 15.21C6.02 15.02 6.01 14.39 6.01 13.72C4 14.09 3.48 13.23 3.32 12.78C3.23 12.55 2.84 11.84 2.5 11.65C2.22 11.5 1.82 11.13 2.49 11.12C3.12 11.11 3.57 11.7 3.72 11.94C4.44 13.15 5.59 12.81 6.05 12.6C6.12 12.08 6.33 11.73 6.56 11.53C4.78 11.33 2.92 10.64 2.92 7.58C2.92 6.71 3.23 5.99 3.74 5.43C3.66 5.23 3.38 4.41 3.82 3.31C3.82 3.31 4.49 3.1 6.02 4.13C6.66 3.95 7.34 3.86 8.02 3.86C8.7 3.86 9.38 3.95 10.02 4.13C11.55 3.09 12.22 3.31 12.22 3.31C12.66 4.41 12.38 5.23 12.3 5.43C12.81 5.99 13.12 6.7 13.12 7.58C13.12 10.65 11.25 11.33 9.47 11.53C9.76 11.78 10.01 12.26 10.01 13.01C10.01 14.08 10 14.94 10 15.21C10 15.42 10.15 15.67 10.55 15.59C13.71 14.53 16 11.53 16 8C16 3.58 12.42 0 8 0Z" transform="scale(64)" fill="white"></path></svg>
@@ -308,7 +342,7 @@
 	    var editor = monaco.editor.create(document.getElementById('code-block5'), {
 		    value: `@page "/navigate"
 
-<MapView Style="height: 100vh; width: 100%;"
+<MapView Class="map-view"
          Longitude="-98.5795"
          Latitude="39.8283"
          Zoom="4">
@@ -328,7 +362,7 @@
 <script>
    require(['vs/editor/editor.main'], function () {
 	    var editor = monaco.editor.create(document.getElementById('code-block6'), {
-		    value: `<MapView Style="height: 100vh; width: 100%;"
+		    value: `<MapView Class="map-view"
          Longitude="-98.5795"
          Latitude="39.8283"
          Zoom="4">
@@ -368,7 +402,7 @@
    require(['vs/editor/editor.main'], function () {
 	    var editor = monaco.editor.create(document.getElementById('code-block7'), {
 		    value: `<MapView @ref="_mapView" 
-         Style="height: 100vh; width: 100%;"
+         Class="map-view"
          Longitude="-98.5795"
          Latitude="39.8283"
          Zoom="4">
@@ -454,7 +488,7 @@
    require(['vs/editor/editor.main'], function () {
 	    var editor = monaco.editor.create(document.getElementById('code-block8'), {
 		    value: `<MapView @ref="_mapView" 
-         Style="height: 100vh; width: 100%;"
+         Class="map-view"
          Longitude="-98.5795"
          Latitude="39.8283"
          Zoom="4"
@@ -534,13 +568,14 @@
     private Point _currentLocation = new(-114.7654397581329, 32.75036089381637);
     // North Pole, Alaska
     private Point _destination = new(-147.3537332080152, 64.75535610138833);
-    private static readonly MapFont _font = new MapFont(24, "Noto Color Emoji");
-    private static readonly TextSymbol _startSymbol = new("🌍", font: _font);
+    private static readonly PictureMarkerSymbol _startSymbol = new(
+        "/images/earth-globe.svg", 16, 16);
     private PopupTemplate _startPopup = new("The Official Center of the World",
         "<p><b>Felicity, California</b></p><p>Felicity is an unincorporated community in Imperial County, California.[1][2] The town was established in 1986 by Jacques-Andre Istel who bought the land in the 1950s and developed it in the 1980s after selling off his parachute business. The town is \"Dedicated to Remembrance\" and named for Istel's wife Felicia.[3] It is 2,600 acres and lies at an elevation of 285 feet (87 m).[1]</p><p>source: en.wikipedia.org/wiki/Felicity,_California</p>");
 
     private Graphic StartGraphic => new(_currentLocation, _startSymbol, _startPopup);
-    private static readonly TextSymbol _endSymbol = new("💈", font: _font);
+    private static readonly PictureMarkerSymbol _endSymbol = new(
+        "/images/north-pole.svg", 24, 24);
     private PopupTemplate _endPopup = new("North Pole, Alaska",
         "<p>North Pole is a small city in the Fairbanks North Star Borough, Alaska, United States. Incorporated in 1953, it is part of the Fairbanks metropolitan statistical area. As of the 2020 census, the city had a population of 2,243,[2] up from 2,117 in 2010.[3] Despite its name, the city is about 1,700 miles (2,700 km) south of Earth's geographic North Pole and 125 miles (201 km) south of the Arctic Circle.</p><p>source: en.wikipedia.org/wiki/North_Pole,_Alaska</p>");
 
@@ -556,13 +591,6 @@
     Graphic CrowGraphic => new(CrowLine, _lineSymbol);
     private record Position(Coordinates Coords);
     private record Coordinates(double Latitude, double Longitude);
-}
-
-@code
-{
-    [System.Diagnostics.CodeAnalysis.DynamicDependency(
-        System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.All, typeof(CrowLine4))]
-    private static void Preserve() { }
 }
 `,
 	        automaticLayout: true,
@@ -612,7 +640,7 @@
 <script>
    require(['vs/editor/editor.main'], function () {
 	    var editor = monaco.editor.create(document.getElementById('code-block12'), {
-		    value: `<MapView Style="height: 100vh; width: 100%;"
+		    value: `<MapView Class="map-view"
          Longitude="-98.5795"
          Latitude="39.8283"
          Zoom="4">
@@ -640,9 +668,9 @@
 
     private void OnLocationUpdate(TrackEvent evt)
     {
-        _currentLocation = new Point(
-            evt.Position.Coords.Longitude,
-            evt.Position.Coords.Latitude);
+        _currentLocation = new Point(evt.Position.Coords.Longitude, evt.Position.Coords.Latitude,
+            evt.Position.Coords.Longitude, evt.Position.Coords.Latitude,
+            spatialReference: SpatialReference.Wgs84);
 
         // Automatically called as you move!
         Console.WriteLine($"Location update: {_currentLocation.Latitude}, {_currentLocation.Longitude}");
@@ -663,14 +691,12 @@
 <script>
    require(['vs/editor/editor.main'], function () {
 	    var editor = monaco.editor.create(document.getElementById('code-block13'), {
-		    value: `@inject RouteService RouteService
-
-<MapView @ref="_mapView"
+		    value: `<MapView @ref="_mapView"
          Style="height: 100vh; width: 100%;"
          Longitude="-98.5795"
          Latitude="39.8283"
          Zoom="4"
-         OnLayerViewCreate="OnLayerViewCreated">
+         OnViewRendered="OnViewRendered">
     <Map>
         <Basemap>
             <BasemapStyle Name="BasemapStyleName.ArcgisNavigation" />
@@ -678,108 +704,114 @@
         <GraphicsLayer @ref="_graphicsLayer" />
     </Map>
 
-    <LocateWidget Position="OverlayPosition.TopLeft"
-                  OnLocate="OnUserLocated" />
+    <TrackWidget Position="OverlayPosition.TopLeft"
+                 OnTrack="OnLocationUpdate"
+                 RotationEnabled="true"
+                 Scale="500" />
 
     <SearchWidget Position="OverlayPosition.TopRight"
                   AllPlaceholder="Where to, Grandma's house?"
                   OnSelectResult="OnDestinationSelected" />
+    <CustomOverlay Position="OverlayPosition.BottomLeft">
+        @if (_directions.Any())
+        {
+            <div class="directions-panel">
+                <h3>Directions to Grandma's House</h3>
+                <ol>
+                    @foreach (var step in _directions)
+                    {
+                        <li>@step</li>
+                    }
+                </ol>
+            </div>
+        }
+    </CustomOverlay>
 </MapView>
-
-<button style="margin: 1rem 0" @onclick="GetDirections" disabled="@(_currentLocation is null || _destination is null)">
-    Get Directions
-</button>
-
-@if (_directions.Any())
-{
-    <div class="directions-panel">
-        <h3>Directions to Grandma's House</h3>
-        <ol>
-            @foreach (var step in _directions)
-            {
-                <li>@step</li>
-            }
-        </ol>
-    </div>
-}
 
 @code
 {
-    private MapView? _mapView;
-    private GraphicsLayer? _graphicsLayer;
-    private Point? _currentLocation;
-    private Point? _destination;
-    private List<string> _directions = [];
-
-    private async Task OnLayerViewCreated(LayerViewCreateEvent createEvent)
+    [Inject]
+    public required RouteService RouteService { get; set; }
+    
+    [Inject]
+    public required ProjectionEngine ProjectionEngine { get; set; }
+    
+    private async Task OnViewRendered()
     {
-        if (createEvent.Layer?.Id == _graphicsLayer?.Id &&
-            _currentLocation is not null && _destination is not null)
-        {
-            await GetDirections();
-        }
+        _spatialReference = await _mapView!.GetSpatialReference();
     }
 
-    private async Task OnUserLocated(LocateEvent evt)
+    private async Task OnLocationUpdate(TrackEvent evt)
     {
-        if (evt.Position is null) return;
+        _currentLocation = new Point(evt.Position.Coords.Longitude, evt.Position.Coords.Latitude,
+            evt.Position.Coords.Longitude, evt.Position.Coords.Latitude,
+            spatialReference: SpatialReference.Wgs84);
 
-        var position = JsonSerializer.Deserialize<Position>(evt.Position,
-            JsonSerializerOptions.Web);
+        // Automatically called as you move!
+        Console.WriteLine($"Location update: {_currentLocation.Latitude}, {_currentLocation.Longitude}");
 
-        if (position is null) return;
-
-        _currentLocation = new Point(
-            position.Coords.Longitude,
-            position.Coords.Latitude);
+        await GetDirections();
     }
 
-    private void OnDestinationSelected(SearchSelectResultEvent evt)
+    private async Task OnDestinationSelected(SearchSelectResultEvent evt)
     {
         _destination = evt.Result?.Feature?.Geometry as Point;
+        await GetDirections();
     }
 
     private async Task GetDirections()
     {
         if (_currentLocation is null || _destination is null) return;
 
-        // Create stops for the route
-        Stop startStop = new(_currentLocation) { Name = "Your Location" };
-        Stop endStop = new(_destination) { Name = "Grandma's House" };
+        // Configure route parameters - use simple graphics with just geometry for stops
+        var stopGraphics = new List<Graphic>
+        {
+            new(await ProjectionEngine.Project(_currentLocation, _spatialReference!)),
+            new(await ProjectionEngine.Project(_destination, _spatialReference!))
+        };
 
-        // Configure route parameters
         var routeParams = new RouteParameters
         {
-            Stops = new FeatureSet([startStop, endStop]),
+            FeatureSetStops = new FeatureSet
+            {
+                Features = stopGraphics
+            },
             ReturnDirections = true,
-            DirectionsLanguage = "en"
+            OutSpatialReference = SpatialReference.WebMercator
         };
 
         // Solve the route
-        RouteResult? result = await RouteService.Solve(
+        RouteSolveResult result = await RouteService.Solve(
             "https://route-api.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World",
             routeParams);
 
-        if (result?.RouteResults?.FirstOrDefault() is { } routeResult)
+        if (result.RouteResults?.FirstOrDefault() is { Route.Geometry: not null } routeResult)
         {
             // Draw the route on the map
             var routeGraphic = new Graphic(
                 routeResult.Route.Geometry,
-                new SimpleLineSymbol(new MapColor("#007AC2"), 4));
+                _lineSymbol);
 
             await _graphicsLayer!.Add(routeGraphic);
-            await _mapView!.GoTo(routeGraphic);
+            await _mapView!.GoTo([routeGraphic]);
 
             // Extract turn-by-turn directions
             _directions = routeResult.Directions?.Features?
-                .Select(f => f.Attributes?["text"]?.ToString() ?? "")
+                .Select(f => f.Attributes["text"]?.ToString() ?? "")
                 .Where(s => !string.IsNullOrEmpty(s))
                 .ToList() ?? [];
         }
     }
 
-    private record Position(Coordinates Coords);
-    private record Coordinates(double Latitude, double Longitude);
+    private MapView? _mapView;
+    private GraphicsLayer? _graphicsLayer;
+    private Point? _currentLocation;
+    private Point? _destination;
+
+    readonly SimpleLineSymbol _lineSymbol = new(new MapColor("red"),
+        3, SimpleLineSymbolStyle.Dash);
+    private List<string> _directions = [];
+    private SpatialReference? _spatialReference;
 }
 `,
 	        automaticLayout: true,

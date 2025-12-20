@@ -3,7 +3,7 @@
          Longitude="-98.5795"
          Latitude="39.8283"
          Zoom="4"
-         OnLayerViewCreate="OnLayerViewCreated">
+         OnViewRendered="OnViewRendered">
     <Map>
         <Basemap>
             <BasemapStyle Name="BasemapStyleName.ArcgisNavigation" />
@@ -40,20 +40,19 @@
     [Inject]
     public required RouteService RouteService { get; set; }
     
-    private async Task OnLayerViewCreated(LayerViewCreateEvent createEvent)
+    [Inject]
+    public required ProjectionEngine ProjectionEngine { get; set; }
+    
+    private async Task OnViewRendered()
     {
-        if (createEvent.Layer?.Id == _graphicsLayer?.Id &&
-            _currentLocation is not null && _destination is not null)
-        {
-            await GetDirections();
-        }
+        _spatialReference = await _mapView!.GetSpatialReference();
     }
 
     private async Task OnLocationUpdate(TrackEvent evt)
     {
-        _currentLocation = new Point(
-            evt.Position.Coords.Longitude,
-            evt.Position.Coords.Latitude);
+        _currentLocation = new Point(evt.Position.Coords.Longitude, evt.Position.Coords.Latitude,
+            evt.Position.Coords.Longitude, evt.Position.Coords.Latitude,
+            spatialReference: SpatialReference.Wgs84);
 
         // Automatically called as you move!
         Console.WriteLine($"Location update: {_currentLocation.Latitude}, {_currentLocation.Longitude}");
@@ -71,15 +70,21 @@
     {
         if (_currentLocation is null || _destination is null) return;
 
-        // Configure route parameters
+        // Configure route parameters - use simple graphics with just geometry for stops
+        var stopGraphics = new List<Graphic>
+        {
+            new(await ProjectionEngine.Project(_currentLocation, _spatialReference!)),
+            new(await ProjectionEngine.Project(_destination, _spatialReference!))
+        };
+
         var routeParams = new RouteParameters
         {
             FeatureSetStops = new FeatureSet
             {
-                Features = [StartGraphic, EndGraphic]
+                Features = stopGraphics
             },
             ReturnDirections = true,
-            OutSpatialReference = SpatialReference.Wgs84
+            OutSpatialReference = SpatialReference.WebMercator
         };
 
         // Solve the route
@@ -109,18 +114,11 @@
     private GraphicsLayer? _graphicsLayer;
     private Point? _currentLocation;
     private Point? _destination;
-    private static readonly MapFont _font = new(24, "Noto Color Emoji");
-    private static readonly TextSymbol _startSymbol = new("🌍", font: _font);
-    private PopupTemplate _startPopup = new("Your Location");
 
-    private Graphic StartGraphic => new(_currentLocation, _startSymbol, _startPopup);
-    private static readonly TextSymbol _endSymbol = new("💈", font: _font);
-    private PopupTemplate _endPopup = new("Grandma's House");
-
-    private Graphic EndGraphic => new(_destination, _endSymbol, _endPopup);
-    SimpleLineSymbol _lineSymbol = new(new MapColor("red"),
+    readonly SimpleLineSymbol _lineSymbol = new(new MapColor("red"),
         3, SimpleLineSymbolStyle.Dash);
     private List<string> _directions = [];
+    private SpatialReference? _spatialReference;
 }
 
 @code

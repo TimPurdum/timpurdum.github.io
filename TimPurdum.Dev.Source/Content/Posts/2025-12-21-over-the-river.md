@@ -2,7 +2,7 @@
 layout: post
 title: "Over the River and Through the Woods"
 subTitle: "Build a Navigation App with GeoBlazor and Blazor"
-lastmodified: "2025-12-19 21:37:44"
+lastmodified: "2025-12-20 17:06:24"
 ---
 # Over the River and Through the Woods: Build a Navigation App with GeoBlazor and Blazor
 
@@ -10,9 +10,9 @@ lastmodified: "2025-12-19 21:37:44"
 
 It's that time of year again. The airports are packed, the highways are jammed, and everyone's trying to get somewhere—whether it's Grandma's house, a cozy cabin in the mountains, or anywhere that isn't the office. And what does every holiday traveler need? A good map.
 
-In this post, I'll show you how to add interactive maps and GPS tracking to your Blazor applications using [GeoBlazor](https://www.geoblazor.com/)—a Blazor component library that wraps the powerful [ArcGIS JavaScript SDK](https://developers.arcgis.com/javascript/latest/api-reference/). We'll build a simple "find your way to Grandma's" navigation app, starting with the free GeoBlazor Core and then showing how [GeoBlazor Pro](https://docs.geoblazor.com/pages/upgradeToPro.html) can level up your app with continuous GPS tracking.
+In this post, I'll show you how to add interactive maps and GPS tracking to your Blazor applications using [GeoBlazor](https://www.geoblazor.com/)—a Blazor component library that wraps the powerful [ArcGIS JavaScript SDK](https://developers.arcgis.com/javascript/latest/api-reference/). We'll build a simple "find your way to Grandma's" navigation app, starting with the free GeoBlazor Core and then showing how [GeoBlazor Pro](https://docs.geoblazor.com/pages/upgradeToPro.html) can level up your app with continuous GPS tracking and turn-by-turn navigation.
 
-The best part? The same code works on web *and* mobile (via .NET MAUI Blazor Hybrid). Write once, navigate everywhere.
+The best part? The same code works on web *and* mobile (via .NET MAUI Blazor Hybrid), so you could really use such an app on the go with your phone, like Google or Apple maps but with your own custom features. Write once, navigate everywhere.
 
 Let's pack our bags and hit the road!
 
@@ -97,7 +97,7 @@ That's a full-screen map of the United States, centered and ready to explore. Le
 
 - **`MapView`** is the main container component. It handles rendering, user interaction, and camera positioning. The `Longitude`, `Latitude`, and `Zoom` properties set the initial view.
 - **`Map`** represents the map's data model—the layers, basemap, and other content.
-- **`Basemap`** provides the background imagery. We're using `ArcGISNavigation`, which is perfect for turn-by-turn directions with its clean, road-focused design.
+- **`Basemap`** provides the background imagery. We're using `ArcgisNavigation`, which is perfect for turn-by-turn directions with its clean, road-focused design.
 
 The component hierarchy mirrors how you'd think about a map: you have a *view* that displays a *map* that has a *basemap*. Simple and intuitive.
 
@@ -350,7 +350,7 @@ GeoBlazor Core includes the `LocateWidget`, which finds the user's current locat
 ```
 
 
-Click the "Where Am I?" button and the map zooms to your current location. Simple, effective, and free with GeoBlazor Core.
+Click the "Where Am I?" button or the LocateWidget itself, and the map zooms to your current location. Simple, effective, and free with GeoBlazor Core.
 
 This approach is great for:
 - "Check-in" style updates
@@ -443,13 +443,14 @@ Here's an example with pre-set start and stop points and a simple line drawn bet
     private Point _currentLocation = new(-114.7654397581329, 32.75036089381637);
     // North Pole, Alaska
     private Point _destination = new(-147.3537332080152, 64.75535610138833);
-    private static readonly MapFont _font = new MapFont(24, "Noto Color Emoji");
-    private static readonly TextSymbol _startSymbol = new("🌍", font: _font);
+    private static readonly PictureMarkerSymbol _startSymbol = new(
+        "/images/earth-globe.svg", 16, 16);
     private PopupTemplate _startPopup = new("The Official Center of the World",
         "<p><b>Felicity, California</b></p><p>Felicity is an unincorporated community in Imperial County, California.[1][2] The town was established in 1986 by Jacques-Andre Istel who bought the land in the 1950s and developed it in the 1980s after selling off his parachute business. The town is \"Dedicated to Remembrance\" and named for Istel's wife Felicia.[3] It is 2,600 acres and lies at an elevation of 285 feet (87 m).[1]</p><p>source: en.wikipedia.org/wiki/Felicity,_California</p>");
 
     private Graphic StartGraphic => new(_currentLocation, _startSymbol, _startPopup);
-    private static readonly TextSymbol _endSymbol = new("💈", font: _font);
+    private static readonly PictureMarkerSymbol _endSymbol = new(
+        "/images/north-pole.svg", 24, 24);
     private PopupTemplate _endPopup = new("North Pole, Alaska",
         "<p>North Pole is a small city in the Fairbanks North Star Borough, Alaska, United States. Incorporated in 1953, it is part of the Fairbanks metropolitan statistical area. As of the 2020 census, the city had a population of 2,243,[2] up from 2,117 in 2010.[3] Despite its name, the city is about 1,700 miles (2,700 km) south of Earth's geographic North Pole and 125 miles (201 km) south of the Arctic Circle.</p><p>source: en.wikipedia.org/wiki/North_Pole,_Alaska</p>");
 
@@ -550,13 +551,14 @@ Here's an example with pre-set start and stop points and a simple line drawn bet
     private Point _currentLocation = new(-114.7654397581329, 32.75036089381637);
     // North Pole, Alaska
     private Point _destination = new(-147.3537332080152, 64.75535610138833);
-    private static readonly MapFont _font = new MapFont(24, "Noto Color Emoji");
-    private static readonly TextSymbol _startSymbol = new("🌍", font: _font);
+    private static readonly PictureMarkerSymbol _startSymbol = new(
+        "/images/earth-globe.svg", 16, 16);
     private PopupTemplate _startPopup = new("The Official Center of the World",
         "<p><b>Felicity, California</b></p><p>Felicity is an unincorporated community in Imperial County, California.[1][2] The town was established in 1986 by Jacques-Andre Istel who bought the land in the 1950s and developed it in the 1980s after selling off his parachute business. The town is \"Dedicated to Remembrance\" and named for Istel's wife Felicia.[3] It is 2,600 acres and lies at an elevation of 285 feet (87 m).[1]</p><p>source: en.wikipedia.org/wiki/Felicity,_California</p>");
 
     private Graphic StartGraphic => new(_currentLocation, _startSymbol, _startPopup);
-    private static readonly TextSymbol _endSymbol = new("💈", font: _font);
+    private static readonly PictureMarkerSymbol _endSymbol = new(
+        "/images/north-pole.svg", 24, 24);
     private PopupTemplate _endPopup = new("North Pole, Alaska",
         "<p>North Pole is a small city in the Fairbanks North Star Borough, Alaska, United States. Incorporated in 1953, it is part of the Fairbanks metropolitan statistical area. As of the 2020 census, the city had a population of 2,243,[2] up from 2,117 in 2010.[3] Despite its name, the city is about 1,700 miles (2,700 km) south of Earth's geographic North Pole and 125 miles (201 km) south of the Arctic Circle.</p><p>source: en.wikipedia.org/wiki/North_Pole,_Alaska</p>");
 
@@ -633,9 +635,9 @@ Now replace `LocateWidget` with `TrackWidget`:
 
     private void OnLocationUpdate(TrackEvent evt)
     {
-        _currentLocation = new Point(
-            evt.Position.Coords.Longitude,
-            evt.Position.Coords.Latitude);
+        _currentLocation = new Point(evt.Position.Coords.Longitude, evt.Position.Coords.Latitude,
+            evt.Position.Coords.Longitude, evt.Position.Coords.Latitude,
+            spatialReference: SpatialReference.Wgs84);
 
         // Automatically called as you move!
         Console.WriteLine($"Location update: {_currentLocation.Latitude}, {_currentLocation.Longitude}");
@@ -677,9 +679,9 @@ Now replace `LocateWidget` with `TrackWidget`:
 
     private void OnLocationUpdate(TrackEvent evt)
     {
-        _currentLocation = new Point(
-            evt.Position.Coords.Longitude,
-            evt.Position.Coords.Latitude);
+        _currentLocation = new Point(evt.Position.Coords.Longitude, evt.Position.Coords.Latitude,
+            evt.Position.Coords.Longitude, evt.Position.Coords.Latitude,
+            spatialReference: SpatialReference.Wgs84);
 
         // Automatically called as you move!
         Console.WriteLine($"Location update: {_currentLocation.Latitude}, {_currentLocation.Longitude}");
@@ -706,7 +708,7 @@ Here's how to get turn-by-turn directions from your current location to Grandma'
          Longitude="-98.5795"
          Latitude="39.8283"
          Zoom="4"
-         OnLayerViewCreate="OnLayerViewCreated">
+         OnViewRendered="OnViewRendered">
     <Map>
         <Basemap>
             <BasemapStyle Name="BasemapStyleName.ArcgisNavigation" />
@@ -743,20 +745,19 @@ Here's how to get turn-by-turn directions from your current location to Grandma'
     [Inject]
     public required RouteService RouteService { get; set; }
     
-    private async Task OnLayerViewCreated(LayerViewCreateEvent createEvent)
+    [Inject]
+    public required ProjectionEngine ProjectionEngine { get; set; }
+    
+    private async Task OnViewRendered()
     {
-        if (createEvent.Layer?.Id == _graphicsLayer?.Id &&
-            _currentLocation is not null && _destination is not null)
-        {
-            await GetDirections();
-        }
+        _spatialReference = await _mapView!.GetSpatialReference();
     }
 
     private async Task OnLocationUpdate(TrackEvent evt)
     {
-        _currentLocation = new Point(
-            evt.Position.Coords.Longitude,
-            evt.Position.Coords.Latitude);
+        _currentLocation = new Point(evt.Position.Coords.Longitude, evt.Position.Coords.Latitude,
+            evt.Position.Coords.Longitude, evt.Position.Coords.Latitude,
+            spatialReference: SpatialReference.Wgs84);
 
         // Automatically called as you move!
         Console.WriteLine($"Location update: {_currentLocation.Latitude}, {_currentLocation.Longitude}");
@@ -774,15 +775,21 @@ Here's how to get turn-by-turn directions from your current location to Grandma'
     {
         if (_currentLocation is null || _destination is null) return;
 
-        // Configure route parameters
+        // Configure route parameters - use simple graphics with just geometry for stops
+        var stopGraphics = new List<Graphic>
+        {
+            new(await ProjectionEngine.Project(_currentLocation, _spatialReference!)),
+            new(await ProjectionEngine.Project(_destination, _spatialReference!))
+        };
+
         var routeParams = new RouteParameters
         {
             FeatureSetStops = new FeatureSet
             {
-                Features = [StartGraphic, EndGraphic]
+                Features = stopGraphics
             },
             ReturnDirections = true,
-            OutSpatialReference = SpatialReference.Wgs84
+            OutSpatialReference = SpatialReference.WebMercator
         };
 
         // Solve the route
@@ -812,18 +819,11 @@ Here's how to get turn-by-turn directions from your current location to Grandma'
     private GraphicsLayer? _graphicsLayer;
     private Point? _currentLocation;
     private Point? _destination;
-    private static readonly MapFont _font = new(24, "Noto Color Emoji");
-    private static readonly TextSymbol _startSymbol = new("🌍", font: _font);
-    private PopupTemplate _startPopup = new("Your Location");
 
-    private Graphic StartGraphic => new(_currentLocation, _startSymbol, _startPopup);
-    private static readonly TextSymbol _endSymbol = new("💈", font: _font);
-    private PopupTemplate _endPopup = new("Grandma's House");
-
-    private Graphic EndGraphic => new(_destination, _endSymbol, _endPopup);
-    SimpleLineSymbol _lineSymbol = new(new MapColor("red"),
+    readonly SimpleLineSymbol _lineSymbol = new(new MapColor("red"),
         3, SimpleLineSymbolStyle.Dash);
     private List<string> _directions = [];
+    private SpatialReference? _spatialReference;
 }
 ```
 
@@ -833,7 +833,7 @@ Here's how to get turn-by-turn directions from your current location to Grandma'
          Longitude="-98.5795"
          Latitude="39.8283"
          Zoom="4"
-         OnLayerViewCreate="OnLayerViewCreated">
+         OnViewRendered="OnViewRendered">
     <Map>
         <Basemap>
             <BasemapStyle Name="BasemapStyleName.ArcgisNavigation" />
@@ -870,20 +870,19 @@ Here's how to get turn-by-turn directions from your current location to Grandma'
     [Inject]
     public required RouteService RouteService { get; set; }
     
-    private async Task OnLayerViewCreated(LayerViewCreateEvent createEvent)
+    [Inject]
+    public required ProjectionEngine ProjectionEngine { get; set; }
+    
+    private async Task OnViewRendered()
     {
-        if (createEvent.Layer?.Id == _graphicsLayer?.Id &&
-            _currentLocation is not null && _destination is not null)
-        {
-            await GetDirections();
-        }
+        _spatialReference = await _mapView!.GetSpatialReference();
     }
 
     private async Task OnLocationUpdate(TrackEvent evt)
     {
-        _currentLocation = new Point(
-            evt.Position.Coords.Longitude,
-            evt.Position.Coords.Latitude);
+        _currentLocation = new Point(evt.Position.Coords.Longitude, evt.Position.Coords.Latitude,
+            evt.Position.Coords.Longitude, evt.Position.Coords.Latitude,
+            spatialReference: SpatialReference.Wgs84);
 
         // Automatically called as you move!
         Console.WriteLine($"Location update: {_currentLocation.Latitude}, {_currentLocation.Longitude}");
@@ -901,15 +900,21 @@ Here's how to get turn-by-turn directions from your current location to Grandma'
     {
         if (_currentLocation is null || _destination is null) return;
 
-        // Configure route parameters
+        // Configure route parameters - use simple graphics with just geometry for stops
+        var stopGraphics = new List<Graphic>
+        {
+            new(await ProjectionEngine.Project(_currentLocation, _spatialReference!)),
+            new(await ProjectionEngine.Project(_destination, _spatialReference!))
+        };
+
         var routeParams = new RouteParameters
         {
             FeatureSetStops = new FeatureSet
             {
-                Features = [StartGraphic, EndGraphic]
+                Features = stopGraphics
             },
             ReturnDirections = true,
-            OutSpatialReference = SpatialReference.Wgs84
+            OutSpatialReference = SpatialReference.WebMercator
         };
 
         // Solve the route
@@ -939,18 +944,11 @@ Here's how to get turn-by-turn directions from your current location to Grandma'
     private GraphicsLayer? _graphicsLayer;
     private Point? _currentLocation;
     private Point? _destination;
-    private static readonly MapFont _font = new(24, "Noto Color Emoji");
-    private static readonly TextSymbol _startSymbol = new("🌍", font: _font);
-    private PopupTemplate _startPopup = new("Your Location");
 
-    private Graphic StartGraphic => new(_currentLocation, _startSymbol, _startPopup);
-    private static readonly TextSymbol _endSymbol = new("💈", font: _font);
-    private PopupTemplate _endPopup = new("Grandma's House");
-
-    private Graphic EndGraphic => new(_destination, _endSymbol, _endPopup);
-    SimpleLineSymbol _lineSymbol = new(new MapColor("red"),
+    readonly SimpleLineSymbol _lineSymbol = new(new MapColor("red"),
         3, SimpleLineSymbolStyle.Dash);
     private List<string> _directions = [];
+    private SpatialReference? _spatialReference;
 }
 ```
 
@@ -969,15 +967,18 @@ Key features of `RouteService`:
   <thead>
     <tr>
       <th>Feature</th>
-      <th>Core (LocateWidget)</th>
-      <th>Pro (TrackWidget)</th>
+      <th>Core</th>
+      <th>Pro</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>One-time location</td>
-      <td>Yes</td>
-      <td>Yes</td>
+      <td colspan="3"><strong>Location Tracking</strong></td>
+    </tr>
+    <tr>
+      <td>Widget</td>
+      <td>LocateWidget</td>
+      <td>TrackWidget</td>
     </tr>
     <tr>
       <td>Continuous tracking</td>
@@ -995,14 +996,45 @@ Key features of `RouteService`:
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Price</td>
+      <td colspan="3"><strong>Routing</strong></td>
+    </tr>
+    <tr>
+      <td>RouteService</td>
+      <td>No</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Turn-by-turn directions</td>
+      <td>No</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Real road routing</td>
+      <td>No</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Multiple stops</td>
+      <td>No</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Traffic awareness</td>
+      <td>No</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td colspan="3"><strong>Pricing</strong></td>
+    </tr>
+    <tr>
+      <td>Cost</td>
       <td>Free</td>
       <td>Licensed</td>
     </tr>
     <tr>
       <td>Best for</td>
-      <td>Simple apps</td>
-      <td>Navigation apps</td>
+      <td>Simple apps, store locators</td>
+      <td>Full navigation apps</td>
     </tr>
   </tbody>
 </table>
@@ -1018,12 +1050,13 @@ We've built a holiday navigation app with GeoBlazor! Here's what we covered:
 2. **Maps** — Add an interactive map with just a few lines of declarative Razor markup
 3. **Search** — Let users find addresses with the built-in `SearchWidget`
 4. **GPS** — Track location manually with `LocateWidget` (Core) or continuously with `TrackWidget` (Pro)
-5. **Dark Mode** — Easy theme switching for night driving
+5. **Routing** — Get turn-by-turn directions with `RouteService` (Pro)
 
 The full AutoNav sample application that inspired this post is [available on GitHub](https://github.com/dymaptic/GeoBlazor.Samples). It includes routing, turn-by-turn directions, and cross-platform support for both web and mobile (MAUI Hybrid).
 
 ### Resources
 
+- [GeoBlazor Home Page](https://geoblazor.com)
 - [GeoBlazor Documentation](https://docs.geoblazor.com)
 - [ArcGIS Developer Portal](https://developers.arcgis.com) — Get your free API key
 - [GeoBlazor GitHub](https://github.com/dymaptic/GeoBlazor)
@@ -1040,7 +1073,10 @@ Now go ahead—fire up that app and get everyone home safely for the holidays!
 *This post is part of the [C# Advent Calendar 2025](https://csadvent.christmas). Check out all the other great posts from the community!*
 
 
-North Pole icon Designed by [Wannapik](https://www.wannapik.com/vectors/34723?search%5Btype%5D=Vector)
+
+
+
+
 
 
 

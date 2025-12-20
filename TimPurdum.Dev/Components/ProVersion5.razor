@@ -1,4 +1,4 @@
-<MapView Style="height: 100vh; width: 100%;"
+<MapView Class="map-view"
          Longitude="-98.5795"
          Latitude="39.8283"
          Zoom="4">
@@ -26,9 +26,9 @@
 
     private void OnLocationUpdate(TrackEvent evt)
     {
-        _currentLocation = new Point(
-            evt.Position.Coords.Longitude,
-            evt.Position.Coords.Latitude);
+        _currentLocation = new Point(evt.Position.Coords.Longitude, evt.Position.Coords.Latitude,
+            evt.Position.Coords.Longitude, evt.Position.Coords.Latitude,
+            spatialReference: SpatialReference.Wgs84);
 
         // Automatically called as you move!
         Console.WriteLine($"Location update: {_currentLocation.Latitude}, {_currentLocation.Longitude}");

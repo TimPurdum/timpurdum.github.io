@@ -1114,8 +1114,8 @@ patterns. The dashed red lines represent migration routes, with labels indicatin
 ]]></content></item><item><link>https://www.timpurdum.dev/post/2025/12/21/over-the-river</link><title>Over the River and Through the Woods</title><description /><pubDate>Sun, 21 Dec 2025 00:00:00 -0600</pubDate><content type="html" xml:base="https://www.timpurdum.dev/post/2025/12/21/over-the-river"><![CDATA[<h1 id="over-the-river-and-through-the-woods-build-a-navigation-app-with-geoblazor-and-blazor">Over the River and Through the Woods: Build a Navigation App with GeoBlazor and Blazor</h1>
 <p><em>C# Advent Calendar 2025</em></p>
 <p>It's that time of year again. The airports are packed, the highways are jammed, and everyone's trying to get somewhere—whether it's Grandma's house, a cozy cabin in the mountains, or anywhere that isn't the office. And what does every holiday traveler need? A good map.</p>
-<p>In this post, I'll show you how to add interactive maps and GPS tracking to your Blazor applications using <a href="https://www.geoblazor.com/">GeoBlazor</a>—a Blazor component library that wraps the powerful <a href="https://developers.arcgis.com/javascript/latest/api-reference/">ArcGIS JavaScript SDK</a>. We'll build a simple &quot;find your way to Grandma's&quot; navigation app, starting with the free GeoBlazor Core and then showing how <a href="https://docs.geoblazor.com/pages/upgradeToPro.html">GeoBlazor Pro</a> can level up your app with continuous GPS tracking.</p>
-<p>The best part? The same code works on web <em>and</em> mobile (via .NET MAUI Blazor Hybrid). Write once, navigate everywhere.</p>
+<p>In this post, I'll show you how to add interactive maps and GPS tracking to your Blazor applications using <a href="https://www.geoblazor.com/">GeoBlazor</a>—a Blazor component library that wraps the powerful <a href="https://developers.arcgis.com/javascript/latest/api-reference/">ArcGIS JavaScript SDK</a>. We'll build a simple &quot;find your way to Grandma's&quot; navigation app, starting with the free GeoBlazor Core and then showing how <a href="https://docs.geoblazor.com/pages/upgradeToPro.html">GeoBlazor Pro</a> can level up your app with continuous GPS tracking and turn-by-turn navigation.</p>
+<p>The best part? The same code works on web <em>and</em> mobile (via .NET MAUI Blazor Hybrid), so you could really use such an app on the go with your phone, like Google or Apple maps but with your own custom features. Write once, navigate everywhere.</p>
 <p>Let's pack our bags and hit the road!</p>
 <hr />
 <h2 id="packing-for-the-trip-setting-up-geoblazor">Packing for the Trip: Setting Up GeoBlazor</h2>
@@ -1146,7 +1146,7 @@ patterns. The dashed red lines represent migration routes, with labels indicatin
 <ul>
 <li><strong><code>MapView</code></strong> is the main container component. It handles rendering, user interaction, and camera positioning. The <code>Longitude</code>, <code>Latitude</code>, and <code>Zoom</code> properties set the initial view.</li>
 <li><strong><code>Map</code></strong> represents the map's data model—the layers, basemap, and other content.</li>
-<li><strong><code>Basemap</code></strong> provides the background imagery. We're using <code>ArcGISNavigation</code>, which is perfect for turn-by-turn directions with its clean, road-focused design.</li>
+<li><strong><code>Basemap</code></strong> provides the background imagery. We're using <code>ArcgisNavigation</code>, which is perfect for turn-by-turn directions with its clean, road-focused design.</li>
 </ul>
 <p>The component hierarchy mirrors how you'd think about a map: you have a <em>view</em> that displays a <em>map</em> that has a <em>basemap</em>. Simple and intuitive.</p>
 <p>Run your app and you should see a beautiful, interactive map. Pan around, zoom in and out—it all just works.</p>
@@ -1180,7 +1180,7 @@ patterns. The dashed red lines represent migration routes, with labels indicatin
     </svg>
     <div class="loading-progress-text"></div>
 </div>
-<p>Click the &quot;Where Am I?&quot; button and the map zooms to your current location. Simple, effective, and free with GeoBlazor Core.</p>
+<p>Click the &quot;Where Am I?&quot; button or the LocateWidget itself, and the map zooms to your current location. Simple, effective, and free with GeoBlazor Core.</p>
 <p>This approach is great for:</p>
 <ul>
 <li>&quot;Check-in&quot; style updates</li>
@@ -1189,7 +1189,7 @@ patterns. The dashed red lines represent migration routes, with labels indicatin
 </ul>
 <p>If you wanted to navigate between the two points, you could draw a GeoBlazor <code>Polyline Graphic</code> between them, but that would be a straight line &quot;as the crow flies&quot;. Great for Santa's sleigh, not so much for the SUV. You could also add your own navigational data sets to generate <code>Polylines</code>.</p>
 <p>Here's an example with pre-set start and stop points and a simple line drawn between. You can still update the start and stop points with the widgets.</p>
-<div id="code-block8" class="monaco-editor-block" style="height: 114rem;"></div>
+<div id="code-block8" class="monaco-editor-block" style="height: 108rem;"></div>
 <div id="crow-line4" class="component-block">
     <svg class="loading-progress">
         <circle r="40%" cx="50%" cy="50%" />
@@ -1214,11 +1214,11 @@ patterns. The dashed red lines represent migration routes, with labels indicatin
     </svg>
     <div class="loading-progress-text"></div>
 </div>
-<p>Now we're talking! The <code>TrackWidget</code> continuously fires <code>OnTrack</code> events as you move. Enable <code>RotationEnabled</code> and the map even rotates to match your heading—just like a real car GPS.</p>
+<p>Click on the Tracking Widget to have it start tracking you. The <code>TrackWidget</code> continuously fires <code>OnTrack</code> events as you move. Enable <code>RotationEnabled</code> and the map even rotates to match your heading—just like a real car GPS.</p>
 <h3 id="turn-by-turn-directions-with-routeservice">Turn-by-Turn Directions with RouteService</h3>
 <p>Of course, real navigation needs actual driving directions—not just a straight line. GeoBlazor Pro includes the <code>RouteService</code>, which connects to ArcGIS routing services to calculate real road-based routes between points.</p>
 <p>Here's how to get turn-by-turn directions from your current location to Grandma's house:</p>
-<div id="code-block13" class="monaco-editor-block" style="height: 121rem;"></div>
+<div id="code-block13" class="monaco-editor-block" style="height: 125rem;"></div>
 <div id="route-service6" class="component-block">
     <svg class="loading-progress">
         <circle r="40%" cx="50%" cy="50%" />
@@ -1240,15 +1240,18 @@ patterns. The dashed red lines represent migration routes, with labels indicatin
   <thead>
     <tr>
       <th>Feature</th>
-      <th>Core (LocateWidget)</th>
-      <th>Pro (TrackWidget)</th>
+      <th>Core</th>
+      <th>Pro</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>One-time location</td>
-      <td>Yes</td>
-      <td>Yes</td>
+      <td colspan="3"><strong>Location Tracking</strong></td>
+    </tr>
+    <tr>
+      <td>Widget</td>
+      <td>LocateWidget</td>
+      <td>TrackWidget</td>
     </tr>
     <tr>
       <td>Continuous tracking</td>
@@ -1266,14 +1269,45 @@ patterns. The dashed red lines represent migration routes, with labels indicatin
       <td>Yes</td>
     </tr>
     <tr>
-      <td>Price</td>
+      <td colspan="3"><strong>Routing</strong></td>
+    </tr>
+    <tr>
+      <td>RouteService</td>
+      <td>No</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Turn-by-turn directions</td>
+      <td>No</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Real road routing</td>
+      <td>No</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Multiple stops</td>
+      <td>No</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Traffic awareness</td>
+      <td>No</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td colspan="3"><strong>Pricing</strong></td>
+    </tr>
+    <tr>
+      <td>Cost</td>
       <td>Free</td>
       <td>Licensed</td>
     </tr>
     <tr>
       <td>Best for</td>
-      <td>Simple apps</td>
-      <td>Navigation apps</td>
+      <td>Simple apps, store locators</td>
+      <td>Full navigation apps</td>
     </tr>
   </tbody>
 </table>
@@ -1285,11 +1319,12 @@ patterns. The dashed red lines represent migration routes, with labels indicatin
 <li><strong>Maps</strong> — Add an interactive map with just a few lines of declarative Razor markup</li>
 <li><strong>Search</strong> — Let users find addresses with the built-in <code>SearchWidget</code></li>
 <li><strong>GPS</strong> — Track location manually with <code>LocateWidget</code> (Core) or continuously with <code>TrackWidget</code> (Pro)</li>
-<li><strong>Dark Mode</strong> — Easy theme switching for night driving</li>
+<li><strong>Routing</strong> — Get turn-by-turn directions with <code>RouteService</code> (Pro)</li>
 </ol>
 <p>The full AutoNav sample application that inspired this post is <a href="https://github.com/dymaptic/GeoBlazor.Samples">available on GitHub</a>. It includes routing, turn-by-turn directions, and cross-platform support for both web and mobile (MAUI Hybrid).</p>
 <h3 id="resources">Resources</h3>
 <ul>
+<li><a href="https://geoblazor.com">GeoBlazor Home Page</a></li>
 <li><a href="https://docs.geoblazor.com">GeoBlazor Documentation</a></li>
 <li><a href="https://developers.arcgis.com">ArcGIS Developer Portal</a> — Get your free API key</li>
 <li><a href="https://github.com/dymaptic/GeoBlazor">GeoBlazor GitHub</a></li>
@@ -1300,5 +1335,4 @@ patterns. The dashed red lines represent migration routes, with labels indicatin
 <p><em>Happy travels and happy coding!</em></p>
 <hr />
 <p><em>This post is part of the <a href="https://csadvent.christmas">C# Advent Calendar 2025</a>. Check out all the other great posts from the community!</em></p>
-<p>North Pole icon Designed by <a href="https://www.wannapik.com/vectors/34723?search%5Btype%5D=Vector">Wannapik</a></p>
 ]]></content></item></channel></rss>
