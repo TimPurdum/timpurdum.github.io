@@ -1218,7 +1218,7 @@ patterns. The dashed red lines represent migration routes, with labels indicatin
 <h3 id="turn-by-turn-directions-with-routeservice">Turn-by-Turn Directions with RouteService</h3>
 <p>Of course, real navigation needs actual driving directions—not just a straight line. GeoBlazor Pro includes the <code>RouteService</code>, which connects to ArcGIS routing services to calculate real road-based routes between points.</p>
 <p>Here's how to get turn-by-turn directions from your current location to Grandma's house:</p>
-<div id="code-block13" class="monaco-editor-block" style="height: 138rem;"></div>
+<div id="code-block13" class="monaco-editor-block" style="height: 157rem;"></div>
 <div id="route-service6" class="component-block">
     <svg class="loading-progress">
         <circle r="40%" cx="50%" cy="50%" />

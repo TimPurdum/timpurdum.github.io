@@ -2,7 +2,7 @@
 layout: post
 title: "Over the River and Through the Woods"
 subTitle: "Build a Navigation App with GeoBlazor and Blazor"
-lastmodified: "2025-12-20 17:36:32"
+lastmodified: "2025-12-20 18:21:35"
 ---
 ## Build a Navigation App with GeoBlazor and Blazor
 
@@ -763,10 +763,15 @@ Here's how to get turn-by-turn directions from your current location to Grandma'
     private async Task OnViewRendered()
     {
         _spatialReference = await _mapView!.GetSpatialReference();
+        await _graphicsLayer!.Add([StartGraphic, EndGraphic]);
+        await GetDirections();
     }
 
     private async Task OnLocationUpdate(TrackEvent evt)
     {
+        await _graphicsLayer!.Clear();
+        _startPopup = new PopupTemplate("Your Location");
+        await _graphicsLayer!.Add([StartGraphic, EndGraphic]);
         _currentLocation = new Point(evt.Position.Coords.Longitude, evt.Position.Coords.Latitude,
             evt.Position.Coords.Longitude, evt.Position.Coords.Latitude,
             spatialReference: SpatialReference.Wgs84);
@@ -779,6 +784,9 @@ Here's how to get turn-by-turn directions from your current location to Grandma'
 
     private async Task OnDestinationSelected(SearchSelectResultEvent evt)
     {
+        await _graphicsLayer!.Clear();
+        _endPopup = new PopupTemplate("Grandma's House");
+        await _graphicsLayer!.Add([StartGraphic, EndGraphic]);
         _destination = evt.Result?.Feature?.Geometry as Point;
         await GetDirections();
     }
@@ -830,11 +838,22 @@ Here's how to get turn-by-turn directions from your current location to Grandma'
 
     private MapView? _mapView;
     private GraphicsLayer? _graphicsLayer;
-    private Point? _currentLocation;
-    private Point? _destination;
-
+    // The Official Center of the World
+    private Point? _currentLocation = new(-114.7654397581329, 32.75036089381637);
+    // North Pole, Alaska
+    private Point? _destination = new(-147.3537332080152, 64.75535610138833);
+    private static readonly PictureMarkerSymbol _startSymbol = new(
+        "/images/earth-globe.svg", 16, 16);
+    private PopupTemplate _startPopup = new("The Official Center of the World",
+        "<p><b>Felicity, California</b></p><p>Felicity is an unincorporated community in Imperial County, California.[1][2] The town was established in 1986 by Jacques-Andre Istel who bought the land in the 1950s and developed it in the 1980s after selling off his parachute business. The town is \"Dedicated to Remembrance\" and named for Istel's wife Felicia.[3] It is 2,600 acres and lies at an elevation of 285 feet (87 m).[1]</p><p>source: en.wikipedia.org/wiki/Felicity,_California</p>");
+    private static readonly PictureMarkerSymbol _endSymbol = new(
+        "/images/north-pole.svg", 24, 24);
+    private PopupTemplate _endPopup = new("North Pole, Alaska",
+        "<p>North Pole is a small city in the Fairbanks North Star Borough, Alaska, United States. Incorporated in 1953, it is part of the Fairbanks metropolitan statistical area. As of the 2020 census, the city had a population of 2,243,[2] up from 2,117 in 2010.[3] Despite its name, the city is about 1,700 miles (2,700 km) south of Earth's geographic North Pole and 125 miles (201 km) south of the Arctic Circle.</p><p>source: en.wikipedia.org/wiki/North_Pole,_Alaska</p>");
     readonly SimpleLineSymbol _lineSymbol = new(new MapColor("red"),
         3, SimpleLineSymbolStyle.Dash);
+        private Graphic StartGraphic => new(_currentLocation, _startSymbol, _startPopup);
+        private Graphic EndGraphic => new(_destination, _endSymbol, _endPopup);
     private List<string> _directions = [];
     private SpatialReference? _spatialReference;
 }
@@ -901,10 +920,15 @@ Here's how to get turn-by-turn directions from your current location to Grandma'
     private async Task OnViewRendered()
     {
         _spatialReference = await _mapView!.GetSpatialReference();
+        await _graphicsLayer!.Add([StartGraphic, EndGraphic]);
+        await GetDirections();
     }
 
     private async Task OnLocationUpdate(TrackEvent evt)
     {
+        await _graphicsLayer!.Clear();
+        _startPopup = new PopupTemplate("Your Location");
+        await _graphicsLayer!.Add([StartGraphic, EndGraphic]);
         _currentLocation = new Point(evt.Position.Coords.Longitude, evt.Position.Coords.Latitude,
             evt.Position.Coords.Longitude, evt.Position.Coords.Latitude,
             spatialReference: SpatialReference.Wgs84);
@@ -917,6 +941,9 @@ Here's how to get turn-by-turn directions from your current location to Grandma'
 
     private async Task OnDestinationSelected(SearchSelectResultEvent evt)
     {
+        await _graphicsLayer!.Clear();
+        _endPopup = new PopupTemplate("Grandma's House");
+        await _graphicsLayer!.Add([StartGraphic, EndGraphic]);
         _destination = evt.Result?.Feature?.Geometry as Point;
         await GetDirections();
     }
@@ -968,11 +995,22 @@ Here's how to get turn-by-turn directions from your current location to Grandma'
 
     private MapView? _mapView;
     private GraphicsLayer? _graphicsLayer;
-    private Point? _currentLocation;
-    private Point? _destination;
-
+    // The Official Center of the World
+    private Point? _currentLocation = new(-114.7654397581329, 32.75036089381637);
+    // North Pole, Alaska
+    private Point? _destination = new(-147.3537332080152, 64.75535610138833);
+    private static readonly PictureMarkerSymbol _startSymbol = new(
+        "/images/earth-globe.svg", 16, 16);
+    private PopupTemplate _startPopup = new("The Official Center of the World",
+        "<p><b>Felicity, California</b></p><p>Felicity is an unincorporated community in Imperial County, California.[1][2] The town was established in 1986 by Jacques-Andre Istel who bought the land in the 1950s and developed it in the 1980s after selling off his parachute business. The town is \"Dedicated to Remembrance\" and named for Istel's wife Felicia.[3] It is 2,600 acres and lies at an elevation of 285 feet (87 m).[1]</p><p>source: en.wikipedia.org/wiki/Felicity,_California</p>");
+    private static readonly PictureMarkerSymbol _endSymbol = new(
+        "/images/north-pole.svg", 24, 24);
+    private PopupTemplate _endPopup = new("North Pole, Alaska",
+        "<p>North Pole is a small city in the Fairbanks North Star Borough, Alaska, United States. Incorporated in 1953, it is part of the Fairbanks metropolitan statistical area. As of the 2020 census, the city had a population of 2,243,[2] up from 2,117 in 2010.[3] Despite its name, the city is about 1,700 miles (2,700 km) south of Earth's geographic North Pole and 125 miles (201 km) south of the Arctic Circle.</p><p>source: en.wikipedia.org/wiki/North_Pole,_Alaska</p>");
     readonly SimpleLineSymbol _lineSymbol = new(new MapColor("red"),
         3, SimpleLineSymbolStyle.Dash);
+        private Graphic StartGraphic => new(_currentLocation, _startSymbol, _startPopup);
+        private Graphic EndGraphic => new(_destination, _endSymbol, _endPopup);
     private List<string> _directions = [];
     private SpatialReference? _spatialReference;
 }
@@ -1097,6 +1135,8 @@ Now go ahead—fire up that app and get everyone home safely for the holidays!
 ---
 
 *This post is part of the [C# Advent Calendar 2025](https://csadvent.christmas). Check out all the other great posts from the community!*
+
+
 
 
 
