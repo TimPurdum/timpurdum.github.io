@@ -49,12 +49,12 @@
 
         await _mapView!.GoTo([new Graphic(_currentLocation)]);
 
-        _startPopup.Title = "Your Location";
-        _startPopup.StringContent = $"You are here: {_currentLocation.Latitude}, {_currentLocation.Longitude}";
+        _startPopup = new PopupTemplate("Your Location",
+            $"You are here: {_currentLocation.Latitude}, {_currentLocation.Longitude}");
 
         // Check how far to Grandma's!
-        _endPopup.Title = "Grandma's House";
-        _endPopup.StringContent = $"Heading to here: {_destination.Latitude}, {_destination.Longitude}";
+        _endPopup = new PopupTemplate("Grandma's House",
+            $"Heading to here: {_destination.Latitude}, {_destination.Longitude}");
 
         await DrawGraphics();
     }

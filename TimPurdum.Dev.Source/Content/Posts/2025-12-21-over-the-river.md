@@ -2,7 +2,7 @@
 layout: post
 title: "Over the River and Through the Woods"
 subTitle: "Build a Navigation App with GeoBlazor and Blazor"
-lastmodified: "2025-12-20 18:21:35"
+lastmodified: "2025-12-20 19:12:43"
 ---
 ## Build a Navigation App with GeoBlazor and Blazor
 
@@ -413,12 +413,12 @@ Here's an example with pre-set start and stop points and a simple line drawn bet
 
         await _mapView!.GoTo([new Graphic(_currentLocation)]);
 
-        _startPopup.Title = "Your Location";
-        _startPopup.StringContent = $"You are here: {_currentLocation.Latitude}, {_currentLocation.Longitude}";
+        _startPopup = new PopupTemplate("Your Location",
+            $"You are here: {_currentLocation.Latitude}, {_currentLocation.Longitude}");
 
         // Check how far to Grandma's!
-        _endPopup.Title = "Grandma's House";
-        _endPopup.StringContent = $"Heading to here: {_destination.Latitude}, {_destination.Longitude}";
+        _endPopup = new PopupTemplate("Grandma's House",
+            $"Heading to here: {_destination.Latitude}, {_destination.Longitude}");
 
         await DrawGraphics();
     }
@@ -521,12 +521,12 @@ Here's an example with pre-set start and stop points and a simple line drawn bet
 
         await _mapView!.GoTo([new Graphic(_currentLocation)]);
 
-        _startPopup.Title = "Your Location";
-        _startPopup.StringContent = $"You are here: {_currentLocation.Latitude}, {_currentLocation.Longitude}";
+        _startPopup = new PopupTemplate("Your Location",
+            $"You are here: {_currentLocation.Latitude}, {_currentLocation.Longitude}");
 
         // Check how far to Grandma's!
-        _endPopup.Title = "Grandma's House";
-        _endPopup.StringContent = $"Heading to here: {_destination.Latitude}, {_destination.Longitude}";
+        _endPopup = new PopupTemplate("Grandma's House",
+            $"Heading to here: {_destination.Latitude}, {_destination.Longitude}");
 
         await DrawGraphics();
     }
@@ -708,10 +708,15 @@ Here's how to get turn-by-turn directions from your current location to Grandma'
         background: white;
         color: black;
         height: 150px;
+        width: 50%;
         border: 1px solid black;
         border-radius: 0.5rem;
         padding: 0 0.5rem;
         overflow-y: scroll;
+    }
+    
+    .directions-panel h3 {
+        font-size: 20px;
     }
 </style>
 
@@ -762,19 +767,26 @@ Here's how to get turn-by-turn directions from your current location to Grandma'
     
     private async Task OnViewRendered()
     {
-        _spatialReference = await _mapView!.GetSpatialReference();
-        await _graphicsLayer!.Add([StartGraphic, EndGraphic]);
-        await GetDirections();
+        if (_firstRender)
+        {
+            _firstRender = false;
+            _spatialReference = await _mapView!.GetSpatialReference();
+            await _graphicsLayer!.Add([StartGraphic, EndGraphic]);
+            await GetDirections();
+        }
     }
 
     private async Task OnLocationUpdate(TrackEvent evt)
     {
         await _graphicsLayer!.Clear();
-        _startPopup = new PopupTemplate("Your Location");
-        await _graphicsLayer!.Add([StartGraphic, EndGraphic]);
+        
         _currentLocation = new Point(evt.Position.Coords.Longitude, evt.Position.Coords.Latitude,
             evt.Position.Coords.Longitude, evt.Position.Coords.Latitude,
             spatialReference: SpatialReference.Wgs84);
+            
+        _startPopup = new PopupTemplate("Your Location",
+            $"You are here: {_currentLocation.Latitude}, {_currentLocation.Longitude}");
+        await _graphicsLayer!.Add([StartGraphic, EndGraphic]);
 
         // Automatically called as you move!
         Console.WriteLine($"Location update: {_currentLocation.Latitude}, {_currentLocation.Longitude}");
@@ -785,9 +797,10 @@ Here's how to get turn-by-turn directions from your current location to Grandma'
     private async Task OnDestinationSelected(SearchSelectResultEvent evt)
     {
         await _graphicsLayer!.Clear();
-        _endPopup = new PopupTemplate("Grandma's House");
-        await _graphicsLayer!.Add([StartGraphic, EndGraphic]);
         _destination = evt.Result?.Feature?.Geometry as Point;
+        _endPopup = new PopupTemplate("Grandma's House",
+            $"Heading to here: {_destination.Latitude}, {_destination.Longitude}");
+        await _graphicsLayer!.Add([StartGraphic, EndGraphic]);
         await GetDirections();
     }
 
@@ -856,6 +869,7 @@ Here's how to get turn-by-turn directions from your current location to Grandma'
         private Graphic EndGraphic => new(_destination, _endSymbol, _endPopup);
     private List<string> _directions = [];
     private SpatialReference? _spatialReference;
+    private bool _firstRender = true;
 }
 ```
 
@@ -865,10 +879,15 @@ Here's how to get turn-by-turn directions from your current location to Grandma'
         background: white;
         color: black;
         height: 150px;
+        width: 50%;
         border: 1px solid black;
         border-radius: 0.5rem;
         padding: 0 0.5rem;
         overflow-y: scroll;
+    }
+    
+    .directions-panel h3 {
+        font-size: 20px;
     }
 </style>
 
@@ -919,19 +938,26 @@ Here's how to get turn-by-turn directions from your current location to Grandma'
     
     private async Task OnViewRendered()
     {
-        _spatialReference = await _mapView!.GetSpatialReference();
-        await _graphicsLayer!.Add([StartGraphic, EndGraphic]);
-        await GetDirections();
+        if (_firstRender)
+        {
+            _firstRender = false;
+            _spatialReference = await _mapView!.GetSpatialReference();
+            await _graphicsLayer!.Add([StartGraphic, EndGraphic]);
+            await GetDirections();
+        }
     }
 
     private async Task OnLocationUpdate(TrackEvent evt)
     {
         await _graphicsLayer!.Clear();
-        _startPopup = new PopupTemplate("Your Location");
-        await _graphicsLayer!.Add([StartGraphic, EndGraphic]);
+        
         _currentLocation = new Point(evt.Position.Coords.Longitude, evt.Position.Coords.Latitude,
             evt.Position.Coords.Longitude, evt.Position.Coords.Latitude,
             spatialReference: SpatialReference.Wgs84);
+            
+        _startPopup = new PopupTemplate("Your Location",
+            $"You are here: {_currentLocation.Latitude}, {_currentLocation.Longitude}");
+        await _graphicsLayer!.Add([StartGraphic, EndGraphic]);
 
         // Automatically called as you move!
         Console.WriteLine($"Location update: {_currentLocation.Latitude}, {_currentLocation.Longitude}");
@@ -942,9 +968,10 @@ Here's how to get turn-by-turn directions from your current location to Grandma'
     private async Task OnDestinationSelected(SearchSelectResultEvent evt)
     {
         await _graphicsLayer!.Clear();
-        _endPopup = new PopupTemplate("Grandma's House");
-        await _graphicsLayer!.Add([StartGraphic, EndGraphic]);
         _destination = evt.Result?.Feature?.Geometry as Point;
+        _endPopup = new PopupTemplate("Grandma's House",
+            $"Heading to here: {_destination.Latitude}, {_destination.Longitude}");
+        await _graphicsLayer!.Add([StartGraphic, EndGraphic]);
         await GetDirections();
     }
 
@@ -1013,6 +1040,7 @@ Here's how to get turn-by-turn directions from your current location to Grandma'
         private Graphic EndGraphic => new(_destination, _endSymbol, _endPopup);
     private List<string> _directions = [];
     private SpatialReference? _spatialReference;
+    private bool _firstRender = true;
 }
 ```
 
@@ -1135,6 +1163,8 @@ Now go ahead—fire up that app and get everyone home safely for the holidays!
 ---
 
 *This post is part of the [C# Advent Calendar 2025](https://csadvent.christmas). Check out all the other great posts from the community!*
+
+
 
 
 

@@ -3,6 +3,9 @@
 
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 
+# Install Python (required for WASM AOT compilation in .NET 10)
+RUN apt-get update && apt-get install -y python3 && ln -s /usr/bin/python3 /usr/bin/python && rm -rf /var/lib/apt/lists/*
+
 # Install wasm-tools workload required for AOT compilation
 RUN dotnet workload install wasm-tools
 
@@ -10,12 +13,11 @@ RUN dotnet workload install wasm-tools
 WORKDIR /src
 
 # Copy solution and project files for restore
-COPY TimPurdum.Dev/* ./
+COPY . ./
 
 # Restore all projects
-RUN dotnet restore TimPurdum.Dev.csproj
-RUN dotnet build -c Release --no-restore TimPurdum.Dev.csproj
-RUN dotnet publish -c Release --no-build -o /app/publish
+RUN dotnet restore TimPurdum.Dev/TimPurdum.Dev.csproj
+RUN dotnet publish -c Release TimPurdum.Dev/TimPurdum.Dev.csproj /p:RunAOT=true -o /app/publish
 
 # Final stage - lightweight image to serve static files
 FROM nginx:alpine AS final
