@@ -23,11 +23,8 @@ RUN dotnet publish -c Release TimPurdum.Dev/TimPurdum.Dev.csproj /p:RunAOT=true 
 FROM nginx:alpine AS final
 
 # Copy the published wwwroot to nginx
-COPY --from=build /app/publish/wwwroot /usr/share/nginx/html
+COPY --from=build /app/publish/wwwroot /var/www/web
 
-# Copy custom nginx config for SPA routing and compression
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]

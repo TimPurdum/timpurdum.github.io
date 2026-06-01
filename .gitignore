@@ -7,3 +7,4 @@ riderModule.iml
 TimPurdum.Dev/wwwroot/appsettings.*
 TimPurdum.Dev.sln.DotSettings.user
 *.nupkg
+node_modules/

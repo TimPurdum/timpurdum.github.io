@@ -1,0 +1,120 @@
+@inject NavigationManager Nav
+@inject HttpClient Http
+
+@* Mounted by 404.html (via Program.cs) when the GitHub Pages 404 fallback is served.
+   The inline script in 404.html already handles the cheap leading-zero fix without
+   booting WASM, so by the time this runs that case is exhausted. Here we attempt a
+   richer repair: match the requested slug against the sitemap and redirect to the real
+   page even when the whole date is wrong. *@
+
+<header class="page-heading">
+    <h1 class="page-title">Page Not Found</h1>
+</header>
+<div class="page-content">
+    @if (_checking)
+    {
+        <p>Looking for a matching page&hellip;</p>
+    }
+    else
+    {
+        <p>Sorry, that page doesn't exist. Head back to the <a href="/">home page</a>.</p>
+    }
+</div>
+
+@code {
+    private bool _checking = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        string path = new Uri(Nav.Uri).AbsolutePath;
+
+        // 1. Leading-zero fix (self-contained safety net; the inline script normally
+        //    handles this first). Posts are generated from DateTime.Month/.Day, so they
+        //    carry no zero-padding — strip it from numeric segments and try that URL.
+        string normalized = Regex.Replace(path, @"/0+(\d+)(?=/)", "/$1");
+        if (normalized != path && await RedirectIfExistsAsync(normalized))
+        {
+            return;
+        }
+
+        // 2. Slug fix: the date may be wrong entirely. Match the trailing slug against
+        //    the sitemap and redirect when exactly one post matches.
+        string? match = await FindBySlugAsync(path);
+        if (match is not null)
+        {
+            Nav.NavigateTo(match, forceLoad: true);
+            return;
+        }
+
+        _checking = false;
+    }
+
+    private async Task<bool> RedirectIfExistsAsync(string candidate)
+    {
+        if (!await PageExistsAsync(candidate))
+        {
+            return false;
+        }
+
+        // Full-page navigation: the target is a pre-rendered static file, not a Blazor
+        // client route, so forceLoad is required.
+        Nav.NavigateTo(candidate, forceLoad: true);
+        return true;
+    }
+
+    private async Task<string?> FindBySlugAsync(string path)
+    {
+        string slug = path.TrimEnd('/');
+        int lastSlash = slug.LastIndexOf('/');
+        if (lastSlash < 0)
+        {
+            return null;
+        }
+
+        slug = slug[(lastSlash + 1)..];
+        if (slug.EndsWith(".html", StringComparison.OrdinalIgnoreCase))
+        {
+            slug = slug[..^5];
+        }
+
+        if (slug.Length == 0)
+        {
+            return null;
+        }
+
+        try
+        {
+            string xml = await Http.GetStringAsync("sitemap.xml");
+
+            // Sitemap <loc> values are extensionless canonical URLs; the files on disk
+            // add .html. Collect post URLs whose final segment equals the requested slug.
+            List<string> matches = Regex.Matches(xml, @"<loc>(?<url>[^<]+)</loc>")
+                .Select(m => new Uri(m.Groups["url"].Value).AbsolutePath.TrimEnd('/'))
+                .Where(p => p.StartsWith("/post/", StringComparison.OrdinalIgnoreCase)
+                    && p[(p.LastIndexOf('/') + 1)..].Equals(slug, StringComparison.OrdinalIgnoreCase))
+                .Distinct()
+                .ToList();
+
+            // Only auto-redirect on an unambiguous single match.
+            return matches.Count == 1 ? $"{matches[0]}.html" : null;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private async Task<bool> PageExistsAsync(string path)
+    {
+        try
+        {
+            using HttpRequestMessage request = new(HttpMethod.Head, path);
+            using HttpResponseMessage response = await Http.SendAsync(request);
+            return response.IsSuccessStatusCode;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+}

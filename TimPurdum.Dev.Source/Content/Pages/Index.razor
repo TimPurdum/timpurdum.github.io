@@ -17,7 +17,7 @@
                         <span class="post-meta">@link.PublishedDate.ToLongDateString()</span>
                         <h3>
                             <a class="post-link" href="@(link.Url).html">
-                                @link.Title.KebabCaseToTitleCase()
+                                @link.Title
                                 @if (!string.IsNullOrWhiteSpace(link.SubTitle))
                                 {
                                     <div style="font-size: 1rem">@link.SubTitle</div>

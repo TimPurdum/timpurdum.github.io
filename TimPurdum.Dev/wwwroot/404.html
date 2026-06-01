@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Page Not Found - Tim Purdum's Blog</title>
+    <meta name="robots" content="noindex" />
+    <base href="/" />
+    <link rel="stylesheet" href="css/app.css" />
+    <link href="TimPurdum.Dev.styles.css" rel="stylesheet" />
+</head>
+
+<body>
+    <main class="page-content" aria-label="content">
+        <div class="wrapper">
+            <article class="page">
+                <!--
+                    GitHub Pages serves this file for any unmatched path. Booting Blazor
+                    WASM lets the NotFoundRedirect component normalize the URL (e.g. strip
+                    zero-padded month/day segments: /post/2026/06/02/... -> /post/2026/6/2/...)
+                    and redirect when the corrected page actually exists. The markup below is
+                    shown until the runtime hydrates, and remains if no corrected page is found.
+                -->
+                <div id="not-found-redirect">
+                    <header class="page-heading">
+                        <h1 class="page-title">Page Not Found</h1>
+                    </header>
+                    <div class="page-content">
+                        <p>Sorry, that page doesn't exist. Head back to the <a href="/">home page</a>.</p>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </main>
+    <script>
+        // Fast path (no WASM download): the common breakage is zero-padded month/day
+        // segments (/post/2026/06/02/... vs the generated /post/2026/6/2/...). Normalize,
+        // confirm the corrected page exists, then redirect — before the Blazor runtime
+        // would even load. Only if that can't resolve do we boot Blazor, letting the
+        // NotFoundRedirect component attempt a richer repair (slug match) or show the message.
+        (function () {
+            var path = location.pathname;
+            var normalized = path.replace(/\/0+(\d+)(?=\/)/g, "/$1");
+
+            function bootBlazor() {
+                var s = document.createElement("script");
+                s.src = "_framework/blazor.webassembly.js";
+                document.body.appendChild(s);
+            }
+
+            if (normalized === path) {
+                bootBlazor();
+                return;
+            }
+
+            fetch(normalized, { method: "HEAD" })
+                .then(function (r) {
+                    if (r.ok) {
+                        location.replace(normalized + location.search + location.hash);
+                    } else {
+                        bootBlazor();
+                    }
+                })
+                .catch(bootBlazor);
+        })();
+    </script>
+</body>
+
+</html>
