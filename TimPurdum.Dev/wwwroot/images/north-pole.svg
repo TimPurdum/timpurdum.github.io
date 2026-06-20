@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Snow ground -->
+  <ellipse cx="32" cy="58" rx="20" ry="4" fill="#E8F4F8"/>
+
+  <!-- Pole -->
+  <rect x="30" y="12" width="4" height="46" fill="#C0392B"/>
+
+  <!-- Pole stripes (candy cane style) -->
+  <rect x="30" y="12" width="4" height="6" fill="white"/>
+  <rect x="30" y="24" width="4" height="6" fill="white"/>
+  <rect x="30" y="36" width="4" height="6" fill="white"/>
+  <rect x="30" y="48" width="4" height="6" fill="white"/>
+
+  <!-- Sign board -->
+  <rect x="12" y="14" width="40" height="20" rx="2" fill="#8B4513"/>
+  <rect x="14" y="16" width="36" height="16" rx="1" fill="#DEB887"/>
+
+  <!-- "NORTH POLE" text -->
+  <text x="32" y="23" font-family="Arial, sans-serif" font-size="6" font-weight="bold" fill="#C0392B" text-anchor="middle">NORTH</text>
+  <text x="32" y="30" font-family="Arial, sans-serif" font-size="6" font-weight="bold" fill="#C0392B" text-anchor="middle">POLE</text>
+
+  <!-- Pole cap/finial -->
+  <circle cx="32" cy="10" r="4" fill="#C0392B"/>
+  <circle cx="32" cy="10" r="2" fill="#E74C3C"/>
+
+  <!-- Snow on sign -->
+  <path d="M10 14 Q14 12 18 14 Q22 11 26 14 Q30 12 34 14 Q38 11 42 14 Q46 12 50 14 Q52 14 54 15 L54 16 L10 16 Z" fill="white"/>
+
+  <!-- Snowflakes -->
+  <text x="8" y="40" font-size="6" fill="#87CEEB">*</text>
+  <text x="52" y="28" font-size="5" fill="#87CEEB">*</text>
+  <text x="56" y="45" font-size="4" fill="#87CEEB">*</text>
+  <text x="6" y="52" font-size="5" fill="#87CEEB">*</text>
+</svg>

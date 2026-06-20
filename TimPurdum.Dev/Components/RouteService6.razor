@@ -1,0 +1,175 @@
+<style>
+    .directions-panel {
+        background: white;
+        color: black;
+        height: 150px;
+        width: 50%;
+        border: 1px solid black;
+        border-radius: 0.5rem;
+        padding: 0 0.5rem;
+        overflow-y: scroll;
+    }
+    
+    .directions-panel h3 {
+        font-size: 20px;
+    }
+</style>
+
+<MapView @ref="_mapView"
+         Class="map-view"
+         Longitude="-98.5795"
+         Latitude="39.8283"
+         Zoom="4"
+         OnViewRendered="OnViewRendered">
+    <Map>
+        <Basemap>
+            <BasemapStyle Name="BasemapStyleName.ArcgisNavigation" />
+        </Basemap>
+        <GraphicsLayer @ref="_graphicsLayer" />
+    </Map>
+
+    <TrackWidget Position="OverlayPosition.TopLeft"
+                 OnTrack="OnLocationUpdate"
+                 RotationEnabled="true"
+                 Scale="500" />
+
+    <SearchWidget Position="OverlayPosition.TopRight"
+                  AllPlaceholder="Where to, Grandma's house?"
+                  OnSelectResult="OnDestinationSelected" />
+    <CustomOverlay Position="OverlayPosition.BottomLeft">
+        @if (_directions.Any())
+        {
+            <div class="directions-panel">
+                <h3>Directions to Grandma's House</h3>
+                <ol>
+                    @foreach (var step in _directions)
+                    {
+                        <li>@step</li>
+                    }
+                </ol>
+            </div>
+        }
+    </CustomOverlay>
+</MapView>
+
+@code
+{
+    [Inject]
+    public required RouteService RouteService { get; set; }
+    
+    [Inject]
+    public required ProjectionEngine ProjectionEngine { get; set; }
+    
+    private async Task OnViewRendered()
+    {
+        if (_firstRender)
+        {
+            _firstRender = false;
+            _spatialReference = await _mapView!.GetSpatialReference();
+            await _graphicsLayer!.Add([StartGraphic, EndGraphic]);
+            await GetDirections();
+        }
+    }
+
+    private async Task OnLocationUpdate(TrackEvent evt)
+    {
+        await _graphicsLayer!.Clear();
+        
+        _currentLocation = new Point(evt.Position.Coords.Longitude, evt.Position.Coords.Latitude,
+            evt.Position.Coords.Longitude, evt.Position.Coords.Latitude,
+            spatialReference: SpatialReference.Wgs84);
+            
+        _startPopup = new PopupTemplate("Your Location",
+            $"You are here: {_currentLocation.Latitude}, {_currentLocation.Longitude}");
+        await _graphicsLayer!.Add([StartGraphic, EndGraphic]);
+
+        // Automatically called as you move!
+        Console.WriteLine($"Location update: {_currentLocation.Latitude}, {_currentLocation.Longitude}");
+
+        await GetDirections();
+    }
+
+    private async Task OnDestinationSelected(SearchSelectResultEvent evt)
+    {
+        await _graphicsLayer!.Clear();
+        _destination = evt.Result?.Feature?.Geometry as Point;
+        _endPopup = new PopupTemplate("Grandma's House",
+            $"Heading to here: {_destination.Latitude}, {_destination.Longitude}");
+        await _graphicsLayer!.Add([StartGraphic, EndGraphic]);
+        await GetDirections();
+    }
+
+    private async Task GetDirections()
+    {
+        if (_currentLocation is null || _destination is null) return;
+
+        // Configure route parameters - use simple graphics with just geometry for stops
+        var stopGraphics = new List<Graphic>
+        {
+            new(await ProjectionEngine.Project(_currentLocation, _spatialReference!)),
+            new(await ProjectionEngine.Project(_destination, _spatialReference!))
+        };
+
+        var routeParams = new RouteParameters
+        {
+            FeatureSetStops = new FeatureSet
+            {
+                Features = stopGraphics
+            },
+            ReturnDirections = true,
+            OutSpatialReference = SpatialReference.WebMercator
+        };
+
+        // Solve the route
+        RouteSolveResult result = await RouteService.Solve(
+            "https://route-api.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World",
+            routeParams);
+
+        if (result.RouteResults?.FirstOrDefault() is { Route.Geometry: not null } routeResult)
+        {
+            // Draw the route on the map
+            var routeGraphic = new Graphic(
+                routeResult.Route.Geometry,
+                _lineSymbol);
+
+            await _graphicsLayer!.Add(routeGraphic);
+            await _mapView!.GoTo([routeGraphic]);
+
+            // Extract turn-by-turn directions
+            _directions = routeResult.Directions?.Features?
+                .Select(f => f.Attributes["text"]?.ToString() ?? "")
+                .Where(s => !string.IsNullOrEmpty(s))
+                .ToList() ?? [];
+            StateHasChanged();
+        }
+    }
+
+    private MapView? _mapView;
+    private GraphicsLayer? _graphicsLayer;
+    // The Official Center of the World
+    private Point? _currentLocation = new(-114.7654397581329, 32.75036089381637);
+    // North Pole, Alaska
+    private Point? _destination = new(-147.3537332080152, 64.75535610138833);
+    private static readonly PictureMarkerSymbol _startSymbol = new(
+        "/images/earth-globe.svg", 16, 16);
+    private PopupTemplate _startPopup = new("The Official Center of the World",
+        "<p><b>Felicity, California</b></p><p>Felicity is an unincorporated community in Imperial County, California.[1][2] The town was established in 1986 by Jacques-Andre Istel who bought the land in the 1950s and developed it in the 1980s after selling off his parachute business. The town is \"Dedicated to Remembrance\" and named for Istel's wife Felicia.[3] It is 2,600 acres and lies at an elevation of 285 feet (87 m).[1]</p><p>source: en.wikipedia.org/wiki/Felicity,_California</p>");
+    private static readonly PictureMarkerSymbol _endSymbol = new(
+        "/images/north-pole.svg", 24, 24);
+    private PopupTemplate _endPopup = new("North Pole, Alaska",
+        "<p>North Pole is a small city in the Fairbanks North Star Borough, Alaska, United States. Incorporated in 1953, it is part of the Fairbanks metropolitan statistical area. As of the 2020 census, the city had a population of 2,243,[2] up from 2,117 in 2010.[3] Despite its name, the city is about 1,700 miles (2,700 km) south of Earth's geographic North Pole and 125 miles (201 km) south of the Arctic Circle.</p><p>source: en.wikipedia.org/wiki/North_Pole,_Alaska</p>");
+    readonly SimpleLineSymbol _lineSymbol = new(new MapColor("red"),
+        3, SimpleLineSymbolStyle.Dash);
+        private Graphic StartGraphic => new(_currentLocation, _startSymbol, _startPopup);
+        private Graphic EndGraphic => new(_destination, _endSymbol, _endPopup);
+    private List<string> _directions = [];
+    private SpatialReference? _spatialReference;
+    private bool _firstRender = true;
+}
+
+@code
+{
+    [System.Diagnostics.CodeAnalysis.DynamicDependency(
+        System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.All, typeof(RouteService6))]
+    private static void Preserve() { }
+}
