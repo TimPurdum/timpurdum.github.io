@@ -1,8 +1,9 @@
 ---
 layout: post
-title: "BlazorDay 2025: Render Modes"
-lastmodified: "2025-11-02 17:43:38"
+title: 'BlazorDay 2025: Render Modes'
+lastmodified: 2026-07-26 20:12:45
 ---
+
 # 🎉 Welcome BlazorDay 2025 Participants! 
 
 ## Thank you for joining my session on Blazor Render Modes!
