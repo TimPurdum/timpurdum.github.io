@@ -65,7 +65,34 @@ jobs:
         run: |
           cd TimPurdum.Dev
           dotnet publish -c Release
-        
+
+      # The admin portal is a separate Blazor WASM app that ships alongside the public site under
+      # /admin/. Its output only changes when the shell or the BlogGenerator.Admin RCL does — every
+      # content-only commit (a new post, an edited page) leaves it untouched — so cache the publish
+      # output and skip a full second WASM publish (~30-60s on a cold runner) on those pushes.
+      #
+      # The key covers both halves of what the bundle is built from: the shell AND the RCL source in
+      # the submodule. Hashing only the shell would serve a stale admin whenever the RCL changes but
+      # the shell doesn't, which is the common case while the RCL is still moving.
+      - name: Cache admin publish output
+        id: admin-cache
+        uses: actions/cache@v4
+        with:
+          path: admin-publish/wwwroot
+          key: admin-publish-${{ runner.os }}-dotnet-10.x-${{ hashFiles('TimPurdum.Dev.Admin/**', '!TimPurdum.Dev.Admin/bin/**', '!TimPurdum.Dev.Admin/obj/**', 'BlogGenerator/TimPurdum.Dev.BlogGenerator.Admin/**', '!BlogGenerator/TimPurdum.Dev.BlogGenerator.Admin/bin/**', '!BlogGenerator/TimPurdum.Dev.BlogGenerator.Admin/obj/**', '**/NuGet.Config') }}
+
+      - name: Publish admin portal
+        if: steps.admin-cache.outputs.cache-hit != 'true'
+        run: dotnet publish TimPurdum.Dev.Admin/TimPurdum.Dev.Admin.csproj -c Release -o admin-publish
+
+      # Staged after the public publish so it lands inside the artifact directory that gets uploaded.
+      # index.html uses <base href="/admin/">, which is what makes the relative _framework/ and
+      # _content/ URLs resolve against this subfolder rather than the site root.
+      - name: Stage admin under /admin
+        run: |
+          mkdir -p ${{ env.PUBLISH_DIR }}/admin
+          cp -r admin-publish/wwwroot/. ${{ env.PUBLISH_DIR }}/admin/
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
