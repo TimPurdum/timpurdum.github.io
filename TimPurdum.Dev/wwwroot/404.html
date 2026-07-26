@@ -7,6 +7,34 @@
     <title>Page Not Found - Tim Purdum's Blog</title>
     <meta name="robots" content="noindex" />
     <base href="/" />
+    <script>
+        // Admin deep links, handled before anything else. GitHub Pages serves this file for ANY
+        // unmatched path on the site, including /admin/* — and the admin is a separate Blazor WASM
+        // app staged under /admin/, so its routes are never real files. Stash the requested path
+        // and bounce to /admin/, where admin-interop.js restores it via history.replaceState
+        // before the admin's router boots. Contract documented in the BlogGenerator.Admin ReadMe
+        // ("Hosting under a sub-path"); the storage key must stay in sync with it.
+        //
+        // This runs in <head>, ahead of the public-site redirect logic at the bottom of <body>,
+        // so the navigation aborts this document load before any markup paints or the public
+        // Blazor app boots.
+        (function () {
+            var MOUNT = "/admin/";
+            var path = window.location.pathname || "/";
+            // Deeper than the mount point, or the bare "/admin" that just needs a trailing slash.
+            // Reaching exactly "/admin/" here means the admin app isn't deployed (its index.html
+            // would have been served instead) — bouncing would redirect to itself forever, so fall
+            // through to the public 404 below. That keeps this safe to ship before the CI workflow
+            // starts staging the admin, and turns a missing admin into a 404 rather than a hang.
+            if (path === MOUNT) { return; }
+            if (path.indexOf(MOUNT) !== 0 && path !== "/admin") { return; }
+            try {
+                sessionStorage.setItem("admin.spa.redirect",
+                    path + window.location.search + window.location.hash);
+            } catch (e) { /* private mode: the bounce still lands on the dashboard */ }
+            window.location.replace("/admin/");
+        })();
+    </script>
     <link rel="stylesheet" href="css/app.css" />
     <link href="TimPurdum.Dev.styles.css" rel="stylesheet" />
 </head>

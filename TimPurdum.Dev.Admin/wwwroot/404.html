@@ -4,12 +4,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex,nofollow" />
-    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate" />
-    <meta http-equiv="Pragma" content="no-cache" />
     <title>Admin — Tim Purdum</title>
-    <!-- Must match the subfolder the CI workflow stages this app into. Every asset URL below is
-         relative to it. With "/" here, a page served from /admin/ would resolve _framework/ to the
-         site root and boot the public site's Blazor app instead of the admin. -->
+    <!-- Fallback for hosts that resolve a nested 404 (and for local `dotnet run`). GitHub Pages
+         does not — it serves the site-level /404.html, which stashes the path and bounces to
+         /admin/. Same <base href> as index.html so assets resolve identically either way. -->
     <base href="/admin/" />
     <link rel="stylesheet" href="_content/TimPurdum.Dev.BlogGenerator.Admin/css/toastui-editor.min.css" />
     <link rel="stylesheet" href="_content/TimPurdum.Dev.BlogGenerator.Admin/css/admin.css" />
