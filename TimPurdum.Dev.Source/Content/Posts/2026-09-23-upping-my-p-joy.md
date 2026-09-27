@@ -4,7 +4,7 @@ title: Upping My P(Joy)
 subtitle: How I Learned to Find Joy in the AI Software Revolution
 author: Tim Purdum
 draft: true
-lastmodified: 2026-09-27 20:28:45
+lastmodified: 2026-09-27 20:30:36
 ---
 
 I became a software engineer in my early 40s, as a midlife shift from the burnout I experienced as an educator to focus on something that was always my passion: tinkering with computers and building fun things. The year was 2017, and I had been a self-taught evening and weekend coder for over a decade.
@@ -15,4 +15,6 @@ Looking for a "better way" to support multiple platforms led me to Xamarin and C
 
 Since I wasn't cutting it as an entrepreneur (my marketing skills are quite limited), I landed my first full-time employment as a software developer in 2018, maintaining and building windows applications for an established record-keeping software that spanned many generations of Microsoft technology, from VB6 to VB.NET WinForms to C# WPF. Here I got my first taste of enterprise software structure and what working for a software organization meant.
 
-Eventually I made my way to dymaptic, my current employer, where I have had the privilege to use all those .NET/C# skills in addition to learning about the GIS location-based data field. I built multiple web and mobile applications for various customers, as well as leading a team of other software engineers.
+Eventually I made my way to dymaptic, my current employer, where I have had the privilege to use all those .NET/C# skills in addition to learning about the GIS location-based data field. I built multiple web and mobile applications for various customers, as well as leading a team of other software engineers. It has been a fantastic experience, and I am very grateful to my CEO & CTO for the trust and support they have provided.
+
+Things really started to change 
