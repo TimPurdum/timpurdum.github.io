@@ -2,7 +2,7 @@ namespace TimPurdum.Dev.Samples.FleetDashboard;
 
 
 /// <summary>
-/// Pipeline modes selected by query string, with <c>ready</c> as the default.
+/// Pipeline modes chosen from the dashboard's preview controls, with <c>ready</c> as the default.
 /// The mode chooses the client render pipeline; it does not change the telemetry contract.
 /// </summary>
 public enum DemoMode

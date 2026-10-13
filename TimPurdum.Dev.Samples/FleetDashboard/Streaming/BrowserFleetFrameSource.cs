@@ -7,7 +7,7 @@ namespace TimPurdum.Dev.Samples.FleetDashboard.Streaming;
 /// per-vehicle sequences, so <see cref="State.FleetDashboardState"/> sees the same data. It has no
 /// background loop: each <see cref="GetFrameAsync"/> call runs whichever simulator and frame ticks have
 /// come due on the supplied clock, which keeps it testable with a fake <see cref="TimeProvider"/>. The
-/// scenario commands mirror <c>FleetHub</c>. Viewport filtering is server-side and keyed by connection,
+/// scenario commands mirror the original sample's SignalR hub. Viewport filtering is server-side and keyed by connection,
 /// so this source does not offer it, and there is no connection to report on.</summary>
 public sealed class BrowserFleetFrameSource : IFleetFrameSource, IFleetScenarioControls
 {
@@ -69,7 +69,7 @@ public sealed class BrowserFleetFrameSource : IFleetFrameSource, IFleetScenarioC
     {
         lock (_sync)
         {
-            // Same order as FleetHub.Reset: the simulator first, so no frame pairs the new run ID with
+            // Same order as the original sample's SignalR hub Reset method: the simulator first, so no frame pairs the new run ID with
             // the old run's high sequences. The new run's first frame is built here rather than on the
             // next tick, because the page rebuilds its state and reads a frame right after resetting.
             _simulator.Reset();

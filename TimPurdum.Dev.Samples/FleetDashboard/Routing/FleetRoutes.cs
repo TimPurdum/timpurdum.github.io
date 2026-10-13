@@ -96,7 +96,7 @@ public sealed class FleetRoute
 
 /// <summary>
 /// The single source of truth for fleet paths. Loaded once from the GeoJSON embedded in this
-/// assembly, so the WebAssembly client and the ASP.NET Core simulator read identical geometry.
+/// assembly, so the in-browser simulator reads the file.
 /// </summary>
 public static class FleetRoutes
 {

@@ -12,6 +12,7 @@
 
     <ItemGroup>
         <PackageReference Include="dymaptic.GeoBlazor.Pro" Version="4.6.1" />
+        <!-- Core is pinned to 4.6.2 because the FleetDashboard code copied from GeoBlazor-Samples targets it; Pro 4.6.1 accepts Core 4.6.1 or later. Keep both projects on the same versions. -->
         <PackageReference Include="dymaptic.GeoBlazor.Core" Version="4.6.2" />
     </ItemGroup>
 
