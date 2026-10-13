@@ -1,0 +1,2008 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Real-Time Data Visualization in Blazor · TechBash 2026</title>
+<!-- Self-hosted fonts only: the deck must run from file:// with no network. -->
+<!--
+  Design: the GeoBlazor design system (Dymaptic / GeoBlazor handoff, colors_and_type.css).
+  Dark #121212 surfaces, the purple-to-orange "torchy" gradient, Aller display type, Roboto
+  body, and the GeoBlazor signature logo. Assets vendored under slides/assets/geoblazor/.
+
+  Assets are wired into the slides. No placeholder slots remain.
+    feedback-qr.png   slide 19  Sessionize feedback QR code from the accepted session
+    sample-url.txt    slide 19  published write-up location; slide 19 shows the same URL
+  Find them with: grep -n 'data-asset' slides/index.html
+
+  Wired assets (under slides/assets/):
+    title-map.png               slide 01  clean crop of the finished fleet map, attribution visible
+    dashboard.png/.mp4          slide 03  finished dashboard still and screen recording (poster)
+    pipeline-editor.png         slide 07  FleetBroadcaster.cs producer loop and awaited hub send
+    map-feature.png             slide 08  truck 007 selected and zoomed
+    update-vehicle.mp4          slide 09  marker moving in `pipeline` after ApplyEdits updates
+    selection.png               slide 10  vehicle 7 selected: list row, route, sampled speed chart
+    baseline.png / performance.mp4  slide 13  baseline under stress through the safety stop
+    comparison.png                  slide 15  measured six-bar chart
+    stale.png                   slide 17  stale vehicle 7 in `resilient`: marker, list row, chart gap
+    reconnect.mp4                   slide 17  connection break, reconnect, snapshot merge
+    readme.png                  A1        validated prerequisites plus one launch command
+    measurement-environment.txt A3        browser, machine, build configuration, workload
+
+  comparison.png is the headed six-bar stress run from the presentation machine (#1-#4, plus #5 zoomed and region). See
+  demo/measurements/PROTOCOL.md for the environment, and for the finding that a software-WebGL
+  rerun of the `batched` mode landed inside run-to-run spread at the same window. Re-capture any
+  asset with demo/measurements/capture-deck-assets.mjs against a running server.
+-->
+<style>
+  /* GeoBlazor design system: see the Dymaptic / GeoBlazor design handoff
+     (colors_and_type.css). Dark surfaces, purple-to-orange "torchy" accents,
+     Aller display type, Roboto body, and the topo background motifs. */
+  @font-face {
+    font-family: "Aller";
+    src: url("assets/geoblazor/fonts/Aller_Std_Rg.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Roboto";
+    src: url("assets/geoblazor/fonts/roboto-latin.woff2") format("woff2");
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+  @font-face {
+    font-family: "Roboto";
+    src: url("assets/geoblazor/fonts/roboto-latin-ext.woff2") format("woff2");
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  }
+  :root {
+    color-scheme: light;
+    /* Light surfaces from geoblazor.com's light theme (wwwroot/css/variables.css). The text-role
+       accents are darkened versions of the brand colors: the originals were tuned for a near-black
+       slide and drop below 4.5:1 on white. */
+    --fog: #FFFFFF;
+    --paper: #F5F5F5;
+    --paper-2: #EEEEEE;
+    --ink: #121212;
+    --text: #2B2830;
+    --teal: #E76439;          /* GeoBlazor accent (orange), for fills and display-size text */
+    --teal-soft: #B8441D;     /* the accent at text size */
+    --primary: #693CB2;
+    --primary-hover: #7845CC;
+    --purple: #7A35D9;
+    --secondary: #928AC1;
+    --card: #693CB2;          /* card accent: GeoBlazor primary, replacing the orange that read as brown */
+    --card-tint: rgba(105, 60, 178, .1);
+    --amber: #E3A008;         /* fills and borders only; amber text is ink on an amber tint */
+    --code-bg: #FBFAFD;
+    --red: #C8283B;
+    --green: #15803D;
+    --rule: #DCD8E3;
+    --line: #B9B2C4;
+    --muted: #46414C;
+    --muted-dim: #6E6878;
+    --rail: 16rem;
+    --torchy: linear-gradient(90deg, #9747FF, #554C8B, #E76439);
+    --gb-gradient: linear-gradient(90deg, #693CB2, #E76439);
+    --torchy-text: linear-gradient(0deg, #E76439, #693CB2);
+    --font-head: "Aller", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    --font-body: "Roboto", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: Consolas, Monaco, "Courier New", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: var(--paper-2); color: var(--text); font-family: var(--font-body); }
+  button { font: inherit; }
+  button:focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; }
+  .gradient {
+    background: var(--torchy-text);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; color: transparent;
+  }
+
+  /* ---------- deck shell ---------- */
+  #deck-shell { width: 100%; height: 100%; display: grid; grid-template-columns: var(--rail) minmax(0, 1fr); transition: grid-template-columns 180ms ease; }
+  #deck-shell.rail-hidden { grid-template-columns: 0 minmax(0, 1fr); }
+  #deck-rail { min-width: 0; overflow: auto; border-right: 1px solid var(--rule); background: var(--paper); transition: opacity 150ms ease; }
+  .rail-hidden #deck-rail { opacity: 0; pointer-events: none; }
+  #deck-thumbnails { display: grid; gap: .7rem; margin: 0; padding: 4.5rem .8rem 1.5rem; list-style: none; }
+  .thumbnail { width: 100%; padding: .3rem; border: 1px solid var(--rule); border-radius: .6rem; background: var(--paper); color: var(--ink); cursor: pointer; text-align: left; }
+  .thumbnail[aria-current="true"] { border-color: var(--card); box-shadow: 0 0 0 2px var(--card-tint); }
+  .thumbnail-preview { position: relative; display: block; aspect-ratio: 16/9; overflow: hidden; border-radius: .3rem; background: var(--fog); container-type: size; }
+  .thumbnail-preview .slide { display: flex !important; position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .thumbnail-label { display: block; padding: .4rem .25rem .1rem; overflow: hidden; color: var(--muted); font-family: var(--font-mono); font-size: .7rem; text-overflow: ellipsis; white-space: nowrap; }
+  #deck-stage { position: relative; min-width: 0; height: 100%; display: grid; place-items: center; overflow: hidden; }
+  #slide-frame { position: relative; width: min(100%, calc(100vh * 16 / 9)); aspect-ratio: 16/9; overflow: hidden; background: var(--fog); box-shadow: 0 .8rem 3rem rgba(24, 39, 36, .18); }
+
+  /* ---------- slide frame ---------- */
+  .slide {
+    display: none; position: absolute; inset: 0; container-type: size;
+    flex-direction: column; gap: 2cqw; padding: 3% 3.6% 4.4%;
+    background: var(--fog); color: var(--text); overflow: hidden;
+    font-family: var(--font-body); font-weight: 300; font-size: 1.6cqw; line-height: 1.42;
+  }
+  /* A flat white surface with a faint purple grid, after the SpatialData deck's slides.
+     The purple and orange glows this replaced read as a gradient wash behind every slide. */
+  .slide::before {
+    content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(105, 60, 178, .07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(105, 60, 178, .07) 1px, transparent 1px);
+    background-size: 4.5cqw 4.5cqw;
+  }
+  .slide[data-screen-label="01"]::before,
+  .slide[data-screen-label="19"]::before,
+  .slide[data-screen-label="20"]::before {
+    background: url("assets/geoblazor/backgrounds/topo-shapes-dark.jpg") center/cover no-repeat;
+    /* Only the dark variant is vendored. Inverting it and rotating the hue back gives white paper
+       with dark contour lines and pale red and teal shapes. */
+    filter: invert(1) hue-rotate(180deg);
+    opacity: .45;
+  }
+  .slide::after {
+    content: ""; position: absolute; left: 3.6%; bottom: 1.8%; z-index: 2;
+    width: 11cqw; height: 1.8cqw; opacity: .8;
+    background: url("assets/geoblazor/logos/geoblazor-black.svg") left center/contain no-repeat;
+  }
+  .slide > * { position: relative; z-index: 1; }
+  .slide[data-deck-active] { display: flex; }
+  .slide[data-screen-label="01"]::after { content: none; }
+  .tape { display: flex; align-items: baseline; justify-content: space-between; gap: 2cqw; padding-bottom: 1.2cqw; border-bottom: 1px solid var(--rule); font-family: var(--font-body); font-size: 1.05cqw; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
+  .tape-mark { color: var(--teal-soft); font-weight: 700; }
+  .slide-body { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; gap: 2cqw; }
+  .slide-body > * { max-height: 100%; }
+  .shot-figure, .stack, .split { min-height: 0; }
+  .route-band { display: block; padding-right: 12cqw; }
+  .route-track { position: relative; display: block; height: .32cqw; border-radius: 99px; background: var(--rule); }
+  .route-fill { position: absolute; inset: 0 auto 0 0; width: var(--deck-progress, 0%); border-radius: 99px; background: var(--torchy); }
+
+  /* ---------- typography ---------- */
+  h1, h2, h3 { font-family: var(--font-head); font-weight: 500; color: var(--ink); }
+  .slide h1 { margin: 0; font-size: 3.8cqw; line-height: 1.06; letter-spacing: -.02em; }
+  .slide h1.hero { font-size: 5.4cqw; max-width: 22ch; }
+  .slide h2 { margin: 0; font-size: 2.3cqw; line-height: 1.1; }
+  .slide h3 { margin: 0; font-size: 1.5cqw; }
+  .kicker { margin: 0; font-family: var(--font-body); font-size: 1.15cqw; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--teal-soft); }
+  .screen { margin: 0; font-family: var(--font-head); font-size: 2.5cqw; line-height: 1.22; color: var(--ink); }
+  .screen.small { font-size: 1.9cqw; }
+  .body { margin: 0; font-size: 1.5cqw; color: var(--muted); }
+  .caption { margin: 0; font-size: 1.15cqw; color: var(--muted-dim); }
+  .mono { font-family: var(--font-mono); }
+  code { font-family: var(--font-mono); font-size: .92em; font-weight: 500; color: var(--card); background: var(--card-tint); border-radius: .25em; padding: 0 .3em; }
+
+  /* ---------- layout helpers ---------- */
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 2.4cqw; align-items: stretch; }
+  .split.wide-left { grid-template-columns: 1.4fr .95fr; }
+  .stack { display: flex; flex-direction: column; gap: 1.4cqw; min-width: 0; }
+  .row { display: flex; align-items: center; gap: 1.2cqw; flex-wrap: wrap; }
+  .panel { min-width: 0; padding: 1.6cqw; border: 1px solid var(--rule); border-radius: .5cqw; background: var(--paper); }
+  .panel.teal-top { border-top: .35cqw solid var(--card); }
+  .panel.amber-top { border-top: .35cqw solid var(--amber); }
+  .panel-title { margin: 0 0 .9cqw; font-family: var(--font-body); font-weight: 700; font-size: 1.05cqw; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
+
+  .tag { display: inline-flex; align-items: center; gap: .5cqw; padding: .35cqw .9cqw; border-radius: 99px; font-family: var(--font-mono); font-size: 1.05cqw; letter-spacing: .1em; text-transform: uppercase; }
+  .tag.live { background: rgba(231, 100, 57, .1); color: var(--teal-soft); border: 1px solid rgba(231, 100, 57, .5); }
+  .tag.stale { background: rgba(242, 193, 78, .35); color: var(--ink); border: 1px solid var(--amber); }
+  .tag.fail { background: rgba(200, 40, 59, .08); color: var(--red); border: 1px solid rgba(200, 40, 59, .45); }
+  .tag.plain { background: var(--paper); color: var(--muted); border: 1px solid var(--line); }
+
+  .shot-figure { display: flex; flex-direction: column; gap: .7cqw; min-height: 0; margin: 0; }
+  .shot-figure img { flex: 1; min-width: 0; min-height: 0; width: 100%; object-fit: contain; object-position: center; border: 1px solid var(--line); border-radius: .5cqw; background: var(--paper); }
+  .shot-figure figcaption { font-size: 1.02cqw; color: var(--muted); }
+  /* A QR code needs light contrast and a quiet zone, so it opts out of the dark image panel. */
+  .shot-figure.qr img { flex: 0 0 auto; width: auto; max-width: 100%; max-height: 29cqw; margin: 0 auto; padding: 1.1cqw; background: #fff; }
+  .shot-figure.qr figcaption { text-align: center; }
+  .url-figure { margin: 0; padding: 1.4cqw 1.6cqw; border: 1px solid var(--line); border-top: .3cqw solid var(--card); border-radius: .5cqw; background: var(--paper); }
+  .url-figure .panel-title { margin: 0 0 .6cqw; }
+  .url-figure code { display: block; font-family: var(--font-mono); font-size: 1.45cqw; color: var(--teal-soft); word-break: break-all; }
+  .url-figure figcaption { margin-top: .7cqw; font-size: 1.02cqw; color: var(--muted); }
+  .shot-video { display: block; flex: 1; min-height: 0; width: 100%; object-fit: contain; border: 1px solid var(--line); border-radius: .5cqw; background: var(--paper); }
+  .shot-video.compact { flex: 0 0 auto; width: auto; max-width: 100%; max-height: 24cqw; margin: 0 auto; }
+  .slot-inline { display: block; margin-top: .3cqw; font-family: var(--font-mono); font-size: 1cqw; color: var(--teal-soft); }  /* ---------- code ---------- */
+  pre.code { margin: 0; padding: 1.4cqw 1.6cqw; overflow: hidden; border: 2px solid transparent; border-radius: .5cqw; background-image: linear-gradient(var(--code-bg), var(--code-bg)), var(--gb-gradient); background-origin: border-box; background-clip: padding-box, border-box; font-family: var(--font-mono); font-size: 1.3cqw; line-height: 1.6; color: var(--ink); white-space: pre; }
+  pre.code .c { color: var(--muted-dim); font-style: italic; }
+  pre.code .k { color: var(--purple); font-weight: 700; }
+  .code-label { font-family: var(--font-body); font-weight: 700; font-size: 1cqw; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+
+  /* ---------- diagrams ---------- */
+  .pipeline { display: grid; grid-template-columns: 1fr 1.08fr; gap: 0; }
+  .zone { padding: 0 1.6cqw; }
+  .zone:first-of-type { padding-left: 0; }
+  .zone.boundary { border-left: .22cqw dashed var(--teal); padding-left: 2cqw; }
+  .zone-label { display: block; margin-bottom: .9cqw; font-family: var(--font-body); font-weight: 700; font-size: 1cqw; letter-spacing: .2em; text-transform: uppercase; color: var(--teal-soft); }
+  .zone-body { display: flex; align-items: center; gap: 1cqw; }
+  .node { flex: 1 1 0; min-width: 0; padding: 1.1cqw 1.2cqw; border: 1px solid var(--line); border-left: .3cqw solid var(--card); border-radius: .5cqw; background: var(--paper); }
+  .node strong { display: block; font-family: var(--font-head); font-size: 1.5cqw; font-weight: 600; color: var(--ink); }
+  .node span { display: block; margin-top: .3cqw; font-family: var(--font-mono); font-size: 1cqw; color: var(--muted); }
+  .arrow { flex: 0 0 auto; font-size: 1.6cqw; color: var(--teal); }
+  /* Slide 6 lays both hosting models on one grid, so each job sits in the same column in both rows
+     and only the dashed network line moves: before the C# fleet state for WebAssembly, after it for
+     Server. Browser-side nodes carry the purple tint, so the state node visibly changes sides. */
+  .hosting { position: relative; display: grid; grid-template-columns: 1fr 13cqw 1fr 13cqw 1.3fr; align-items: stretch; row-gap: .9cqw; }
+  .hosting .node { display: flex; flex-direction: column; justify-content: center; border-left-color: var(--muted-dim); }
+  .hosting .node.in-browser { border-left-color: var(--card); background: var(--card-tint); }
+  .hosting .node .node-where { order: -1; margin: 0 0 .3cqw; font-family: var(--font-body); font-weight: 700; font-size: .95cqw; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
+  .hosting .node.in-browser .node-where { color: var(--card); }
+  .row-label { grid-column: 1 / -1; margin: 0; font-family: var(--font-head); font-size: 1.4cqw; font-weight: 400; color: var(--text); }
+  .row-label b { font-weight: 600; color: var(--ink); }
+  .row-label ~ .row-label { margin-top: 1.4cqw; }
+  .hop { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .2cqw; padding: 0 .6cqw; text-align: center; }
+  .hop > span { position: relative; z-index: 1; }
+  .hop-how { font-family: var(--font-body); font-size: 1.05cqw; line-height: 1.25; color: var(--muted); }
+  .hop-arrow { font-size: 1.8cqw; line-height: 1; color: var(--muted-dim); }
+  .hop-cost { padding: .15cqw .6cqw; border-radius: 99px; background: #F9EAC9; font-family: var(--font-mono); font-size: 1cqw; font-weight: 700; color: var(--ink); }
+  .hop-free { font-family: var(--font-mono); font-size: 1cqw; color: var(--muted-dim); }
+  /* The crossing hop is the network: the dashed line runs behind its labels, which sit on the slide color. */
+  .hop.crosses::before { content: ""; position: absolute; top: -.4cqw; bottom: -.4cqw; left: 50%; border-left: .22cqw dashed var(--teal); }
+  .hop.crosses .hop-how { padding: 0 .3cqw; background: var(--fog); color: var(--teal-soft); font-weight: 700; }
+  .hop.crosses .hop-arrow { color: var(--teal); }
+  /* The disconnect beat: a cut on each network hop, a disabled Server map under its reconnect modal,
+     and a WebAssembly map that keeps working. The finished slide holds this state. */
+  .hop-cut { position: absolute; left: 50%; top: 50%; width: 1.9cqw; height: 1.9cqw; margin: -.95cqw 0 0 -.95cqw; display: grid; place-items: center; border-radius: 50%; background: var(--red); font-family: var(--font-body); font-size: 1.1cqw; font-weight: 700; color: var(--fog); }
+  .hosting .node { position: relative; }
+  .node-veil { position: absolute; inset: 0; border-radius: inherit; background: rgba(255, 255, 255, .62); backdrop-filter: grayscale(1); }
+  .node-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: flex-end; padding-right: 1.2cqw; pointer-events: none; }
+  .reconnect-card, .alive-card { display: flex; align-items: center; gap: .6cqw; padding: .7cqw 1.1cqw; border: 1px solid var(--line); border-radius: .5cqw; background: var(--fog); box-shadow: 0 .4cqw 1.2cqw rgba(18, 18, 18, .16); }
+  .alive-card { flex-direction: column; align-items: flex-start; gap: .15cqw; border-left: .3cqw solid var(--green); }
+  .hosting .node .reconnect-title, .hosting .node .alive-title { margin: 0; font-family: var(--font-body); font-size: 1.15cqw; font-weight: 700; color: var(--ink); }
+  .hosting .node .alive-title { color: var(--green); }
+  .hosting .node .alive-note { margin: 0; font-size: .95cqw; }
+  .hosting .node .reconnect-spinner { margin: 0; width: 1.3cqw; height: 1.3cqw; border: .22cqw solid var(--rule); border-top-color: var(--card); border-radius: 50%; }
+  .deck-live .slide[data-deck-active] .reconnect-spinner { animation: spin 1s linear infinite; }
+  @keyframes spin { to { rotate: 360deg; } }
+  .travel { margin: 0; padding: .9cqw 1.2cqw; border-radius: .5cqw; background: var(--paper-2); color: var(--text); font-family: var(--font-mono); font-size: 1.15cqw; }
+  .travel b { color: var(--teal-soft); font-weight: 600; }
+
+  .state { display: flex; flex-direction: column; gap: 1cqw; }
+  .state dl { margin: 0; display: grid; grid-template-columns: 8.5cqw 1fr; gap: .5cqw 1.2cqw; font-family: var(--font-mono); font-size: 1.25cqw; }
+  .state dt { color: var(--muted); text-transform: uppercase; letter-spacing: .1em; font-size: 1.02cqw; }
+  .state dd { margin: 0; color: var(--ink); }
+
+  /* ---------- tables ---------- */
+  table.data { width: 100%; border-collapse: collapse; font-size: 1.25cqw; }
+  table.data th, table.data td { padding: .85cqw 1cqw; text-align: left; vertical-align: top; border-bottom: 1px solid var(--rule); color: var(--text); }
+  table.data th { font-family: var(--font-body); font-weight: 700; font-size: 1cqw; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--line); }
+  table.data td:first-child { font-family: var(--font-mono); color: var(--teal-soft); white-space: nowrap; }
+  table.data tr:last-child td { border-bottom: 0; }
+
+  /* ---------- arithmetic ---------- */
+  .arith { display: flex; align-items: baseline; gap: 2cqw; font-family: var(--font-mono); color: var(--ink); }
+  .arith .num { font-size: 7cqw; line-height: 1; font-weight: 600; }
+  .arith .op { font-size: 4cqw; color: var(--muted); }
+  .arith .result { color: var(--teal); }
+  .arith-unit { margin: 0; font-family: var(--font-mono); font-size: 1.6cqw; letter-spacing: .05em; color: var(--muted); }
+  .arith-second { display: inline-flex; align-items: baseline; gap: 1.2cqw; padding: 1.1cqw 1.6cqw; border: 1px solid var(--line); border-left: .35cqw solid var(--card); border-radius: .5cqw; background: var(--paper); font-family: var(--font-mono); font-size: 2.2cqw; }
+
+  /* ---------- metrics strip ---------- */
+  .metrics { display: flex; gap: 1cqw; flex-wrap: wrap; }
+  .metric { flex: 1 1 0; min-width: 0; padding: 1cqw 1.2cqw; border: 1px solid var(--rule); border-radius: .5cqw; background: var(--paper); }
+  .metric-label { display: block; font-family: var(--font-body); font-weight: 700; font-size: .95cqw; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+  .metric-value { display: block; margin-top: .25cqw; font-family: var(--font-mono); font-size: 2.1cqw; font-weight: 600; color: var(--ink); }
+  .metric-value.danger { color: var(--red); }
+  .metric-note { display: block; margin-top: .2cqw; font-size: 1cqw; color: var(--muted); }
+
+  /* ---------- cadence ---------- */
+  .cadence { display: flex; flex-direction: column; gap: 1.6cqw; }
+  .cadence-row { display: grid; grid-template-columns: 12cqw 1fr 14cqw; align-items: center; gap: 1.4cqw; }
+  .cadence-name { font-family: var(--font-mono); font-size: 1.25cqw; letter-spacing: .1em; text-transform: uppercase; color: var(--ink); }
+  .cadence-track { position: relative; height: 1.55cqw; border: 1px solid var(--line); border-radius: .3cqw; background: var(--paper); }
+  .cadence-track.fast { background-image: repeating-linear-gradient(to right, var(--teal) 0 .22cqw, transparent .22cqw 25%); }
+  .cadence-track.slow { background-image: repeating-linear-gradient(to right, var(--teal) 0 .35cqw, transparent .35cqw 100%); }
+  .cadence-track.medium { background-image: repeating-linear-gradient(to right, var(--ink) 0 .26cqw, transparent .26cqw 10%); }
+  .cadence-value { font-family: var(--font-mono); font-size: 1.2cqw; color: var(--muted); }
+
+  /* ---------- mini charts ---------- */
+  .mini { width: 100%; height: auto; display: block; }
+  .example-flag { display: inline-block; padding: .3cqw .8cqw; border-radius: 99px; background: rgba(242, 193, 78, .35); border: 1px solid var(--amber); color: var(--ink); font-family: var(--font-mono); font-size: .95cqw; letter-spacing: .12em; text-transform: uppercase; }
+
+  .list { margin: 0; padding-left: 1.6cqw; font-size: 1.4cqw; color: var(--text); }
+  .list li { margin-bottom: .7cqw; }
+  .list li::marker { color: var(--teal); }
+
+  /* ---------- deck controls ---------- */
+  .deck-control { position: fixed; z-index: 20; display: grid; place-items: center; min-width: 2.6rem; min-height: 2.6rem; border: 1px solid var(--line); border-radius: 999px; background: var(--paper); color: var(--ink); cursor: pointer; box-shadow: 0 .15rem .6rem rgba(24, 39, 36, .12); }
+  #deck-rail-toggle { top: 1rem; left: 1rem; }
+  #deck-fullscreen { top: 1rem; right: 1rem; }
+  #deck-controls { position: fixed; z-index: 20; right: 1rem; bottom: 1rem; display: flex; align-items: center; gap: .6rem; }
+  #deck-controls button { position: static; }
+  #deck-counter { min-width: 5rem; color: var(--muted); font-family: var(--font-mono); font-size: .85rem; text-align: center; }
+  #deck-message { position: fixed; z-index: 40; left: 50%; bottom: 5rem; translate: -50%; padding: .75rem 1rem; border-radius: .6rem; background: var(--amber); color: #2E1A03; font-weight: 700; }
+  #presenter-notes-panel { position: fixed; z-index: 30; inset: 7% 9%; overflow: auto; padding: 2rem; border: 1px solid var(--line); border-top: .4rem solid var(--card); border-radius: .8rem; background: var(--paper); color: var(--ink); box-shadow: 0 2rem 6rem rgba(24, 39, 36, .32); }
+  #presenter-notes-panel[hidden] { display: none; }
+  #presenter-notes-panel h2 { margin: 0 3rem 1rem 0; font-size: 1.8rem; }
+  #presenter-notes-content { margin: 0; font-size: 1.25rem; line-height: 1.6; white-space: pre-wrap; }
+  .presenter-notes-close { position: absolute; top: 1rem; right: 1rem; border: 0; background: transparent; color: var(--ink); font-size: 1.75rem; cursor: pointer; }
+  body.preview-mode #deck-rail, body.preview-mode #deck-rail-toggle, body.preview-mode #deck-fullscreen, body.preview-mode #deck-controls { display: none; }
+  body.preview-mode #deck-shell { display: block; }
+  body.preview-mode #deck-stage, body.preview-mode #slide-frame { width: 100%; height: 100%; }
+  @media (max-width: 860px) { :root { --rail: 10rem; } }
+  @media print {
+    html, body { width: auto; height: auto; overflow: visible; background: #fff; }
+    #deck-rail, #deck-rail-toggle, #deck-fullscreen, #deck-controls, #presenter-notes-panel { display: none !important; }
+    #deck-shell, #deck-stage, #slide-frame { display: block; width: auto; height: auto; overflow: visible; box-shadow: none; }
+    .slide { display: flex !important; position: relative; width: 13.333in; height: 7.5in; break-after: page; print-color-adjust: exact; }
+  }
+  /* ---------- in-slide builds ---------- */
+  /* A build is a stage device, not part of the slide. The authored markup always holds the
+     finished state, so print, a no-script load, the thumbnail rail, the presenter window and the
+     video renderer (which loads each slide with deckPreview=1) all capture the complete slide.
+     Only the active slide hides a step, and leaving the slide restores the authored markup. */
+  .slide-body.is-building .build-step { opacity: 0; transform: translateY(1.2cqw); }
+  .slide-body.is-building .build-step.build-shown { opacity: 1; transform: none; }
+  .scene svg { display: block; width: 100%; height: auto; }
+  .scene [data-part="marker"], .scene [data-part="tick-flash"] { transform-box: fill-box; transform-origin: center; }
+  .slide-body[data-scene] .pipeline, .slide-body[data-scene] .node, .scene-frames { position: relative; }
+  .scene-token { position: absolute; top: -1.6cqw; right: .8cqw; }
+  .scene-token > span { display: inline-flex; align-items: center; gap: .4cqw; padding: .2cqw .7cqw; border-radius: 99px; background: var(--teal); color: #FFFFFF; font: 600 .95cqw var(--font-mono); white-space: nowrap; }
+  .scene-token svg { width: 1.5cqw; height: auto; fill: currentColor; }
+  .scene-pulse { position: absolute; top: 0; left: 0; z-index: 1; width: 1.1cqw; height: 1.1cqw; border-radius: 50%; background: var(--teal); box-shadow: 0 0 .8cqw var(--teal-soft); opacity: 0; pointer-events: none; }
+  [data-scene="06-contract"] [data-part^="f-"] { border-radius: .2cqw; background: rgba(242, 193, 78, .14); }
+  .scene-envelopes { display: flex; gap: .8cqw; }
+  .scene-envelopes > span { display: block; }
+  .scene-envelopes svg { display: block; width: 2.4cqw; height: auto; }
+  .scene-line { display: block; border-radius: .2cqw; }
+  .scene-flip { display: inline-grid; }
+  .scene-flip > * { grid-area: 1 / 1; }
+  [data-part="r18-old"], [data-part="frame-drop"] { opacity: 0; }
+  [data-part="frame-drop"] { position: absolute; top: 0; left: 0; white-space: nowrap; }
+  .scene-overlay { position: absolute; inset: -1px; height: auto; opacity: 0; }
+  .scene-playhead { position: absolute; top: -35%; bottom: -35%; left: 0; width: .3cqw; border-radius: .15cqw; background: var(--ink); box-shadow: 0 0 .6cqw var(--teal-soft); opacity: 0; }
+  [data-scene="21-transfer"] [data-part^="bar-"] { transform-box: fill-box; transform-origin: 50% 100%; }
+  /* 300 ms matches REVEAL_MS in scripts/video/animate-page.mjs, which captures only that long a window. */
+  .build-step { transition: opacity 300ms ease, transform 300ms cubic-bezier(.2, .7, .2, 1); }
+
+  /* ---------- reorganized deck (2026-10-09 plan) ---------- */
+  .impl { display: block; margin-bottom: .4cqw; font-family: var(--font-body); font-size: 1.15cqw; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--teal-soft); }
+  .learn { text-align: right; }
+  .learn a { color: var(--teal-soft); text-decoration: none; border-bottom: 1px solid rgba(184, 68, 29, .4); }
+  .problem-head { display: flex; align-items: center; justify-content: space-between; gap: 2cqw; }
+  .agent { display: flex; align-items: center; gap: 1.2cqw; }
+  .agent-iris { display: grid; place-items: center; width: 5.6cqw; height: 5.6cqw; border: .25cqw solid var(--teal); border-radius: 50%; background: radial-gradient(circle, var(--fog), var(--paper-2)); box-shadow: 0 0 1.4cqw var(--teal-soft); }
+  .agent-iris svg { width: 3cqw; fill: var(--teal-soft); }
+  .agent-caption { display: flex; flex-direction: column; font-family: var(--font-mono); font-size: 1.1cqw; color: var(--muted); }
+  .agent-caption b { color: var(--ink); font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
+  .agent-caption i { color: var(--teal-soft); font-style: italic; }
+  .arith-block { display: flex; flex-direction: column; align-items: flex-start; gap: 1cqw; }
+  .arith.compact { gap: 1.1cqw; flex-wrap: wrap; }
+  .arith.compact .num { font-size: 4.2cqw; }
+  .arith.compact .op { font-size: 2.6cqw; }
+  .arith.compact .unit { font-family: var(--font-mono); font-size: 1.15cqw; color: var(--muted); margin-right: .6cqw; }
+  .brand-logo { width: 16cqw; height: auto; }
+  /* Slide 2 gun-barrel pre-roll (assets/scenes/02-iris.js). The overlay is authored invisible, so every path that never plays the scene shows the finished slide. */
+  .slide-body[data-scene="02-iris"] { position: relative; }
+  .gun-barrel { position: absolute; inset: -2cqw -3cqw; z-index: 5; display: grid; place-items: center; overflow: hidden; background: #000; opacity: 0; pointer-events: none; }
+  .gun-barrel > * { grid-area: 1 / 1; }
+  .gb-disc { width: 9cqw; height: 9cqw; border-radius: 50%; background: #fff; box-shadow: 0 0 0 .5cqw #000, 0 0 0 .8cqw #fff, 0 0 0 1.3cqw #000, 0 0 0 1.5cqw #fff, 0 0 3cqw rgba(255, 255, 255, .6); }
+  .gb-reveal { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .6cqw; background: radial-gradient(circle at 50% 50%, #123a38, #000 70%); }
+  .gb-reveal svg { width: 15cqw; fill: var(--teal-soft); }
+  .gb-reveal svg text { fill: #000; font: 700 8px var(--font-mono); }
+  .gb-reveal b { font: 600 1.4cqw var(--font-mono); letter-spacing: .3em; color: var(--ink); }
+  .gb-reveal i { font: italic 2.2cqw var(--font-head); color: var(--teal-soft); }
+  /* Slide 7 funnel: ghost copies of each report chip fly into the frame (assets/scenes/06-contract.js). */
+  .funnel { position: relative; }
+  .chip-flyer { position: absolute; z-index: 2; margin: 0; opacity: 0; pointer-events: none; background: var(--teal); border-color: var(--teal); color: #fff; }
+  /* Slide 17 stale figure: amber marker, radar sweep and typed caption (assets/scenes/20-reconnect.js). */
+  .dark-stage { flex: 1; min-height: 0; container-type: size; display: grid; place-items: center; }
+  .dark-frame { position: relative; display: flex; width: min(100cqw, 160cqh); height: min(100cqh, 62.5cqw); }
+  .dark-tint { position: absolute; left: 33%; top: 60.4%; width: 8%; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; background: radial-gradient(circle, var(--amber) 0 45%, rgba(231, 160, 40, .35) 46% 100%); box-shadow: 0 0 20px var(--amber); pointer-events: none; }
+  .dark-radar { position: absolute; left: 33%; top: 60.4%; width: 56%; aspect-ratio: 1; transform: translate(-50%, -50%); pointer-events: none; overflow: visible; }
+  .dark-radar circle { fill: none; stroke: var(--amber); stroke-width: 1; }
+  .dark-radar path { fill: rgba(231, 160, 40, .35); transform-box: view-box; transform-origin: 50% 50%; }
+  .dark-radar text { fill: var(--amber); font: 700 5px var(--font-mono); text-anchor: middle; letter-spacing: .15em; paint-order: stroke; stroke: #000; stroke-width: 1.2px; }
+  .dark-radar { opacity: 0; }
+  .links { display: flex; flex-direction: column; gap: 1.4cqw; }
+  .link-row { margin: 0; display: flex; flex-direction: column; gap: .3cqw; color: var(--muted); font-size: 1.1cqw; }
+  .link-row code { align-self: flex-start; font-size: 1.5cqw; }
+  .picks { gap: 1.4cqw; }
+  .picks .panel { padding: 1cqw 1.4cqw; }
+  .picks .panel-title { margin-bottom: .4cqw; }
+  .picks .body { font-size: 1.25cqw; }
+  .funnel { display: flex; align-items: center; gap: 1.4cqw; }
+  .funnel-reports { display: flex; flex-wrap: wrap; gap: .6cqw; }
+  .chip { padding: .35cqw .8cqw; border: 1px solid var(--line); border-radius: 99px; background: var(--paper); font-family: var(--font-mono); font-size: 1cqw; color: var(--text); }
+  .chip.dim { color: var(--muted); }
+  .funnel-frame { display: flex; flex-direction: column; padding: .7cqw 1.4cqw; border: 1px solid var(--line); border-left: .3cqw solid var(--card); border-radius: .5cqw; background: var(--paper); }
+  .funnel-frame b { font-family: var(--font-head); font-size: 1.5cqw; color: var(--ink); font-weight: 600; }
+  .funnel-frame i { font-family: var(--font-mono); font-style: normal; font-size: 1cqw; color: var(--muted); }
+  .funnel-store { display: flex; flex-direction: column; gap: .6cqw; }
+  .funnel .funnel-label { display: flex; align-items: center; gap: .5cqw; margin-bottom: .3cqw; font-family: var(--font-body); font-style: normal; font-size: 1.05cqw; color: var(--muted); }
+  .funnel .funnel-label b { display: grid; place-items: center; width: 1.7cqw; height: 1.7cqw; border-radius: 50%; background: var(--card); color: #FFFFFF; font: 700 1.05cqw var(--font-body); }
+  .funnel .funnel-label .tag { padding: .15cqw .5cqw; font-size: .85cqw; letter-spacing: .06em; }
+  .funnel .arrow { font: 1.25cqw var(--font-mono); }
+  [data-scene="06-contract"] .problem-head h1 { font-size: 3.2cqw; }
+  .chip.slot-7 { display: inline-flex; align-items: center; gap: .5cqw; }
+  .chan { display: flex; align-items: stretch; gap: 1cqw; }
+  .chan-node { flex: 1 1 0; display: flex; flex-direction: column; gap: .4cqw; padding: 1cqw 1.1cqw; border: 1px solid var(--line); border-left: .3cqw solid var(--card); border-radius: .5cqw; background: var(--paper); }
+  .chan-node b { font-family: var(--font-head); font-size: 1.4cqw; color: var(--ink); font-weight: 600; }
+  .chan-node span { font-family: var(--font-mono); font-size: .95cqw; color: var(--muted); }
+  .chan-pipe { flex: 1.1 1 0; display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: .5cqw; padding: .8cqw; border-top: .3cqw solid var(--card); border-bottom: .3cqw solid var(--card); }
+  .chan-slot { flex: 1 1 0; padding: .6cqw; border: 1px solid var(--card); border-radius: .3cqw; background: var(--card-tint); font-family: var(--font-mono); font-size: .95cqw; color: var(--ink); text-align: center; }
+  .chan-pipe i { flex-basis: 100%; font-style: normal; font-family: var(--font-mono); font-size: .9cqw; color: var(--muted); text-align: center; }
+  .chan { position: relative; z-index: 2; }
+  .chan-node { position: relative; }
+  .chan-node div { font-family: var(--font-mono); font-size: .95cqw; color: var(--muted); }
+  .chan-node .chan-sim { align-self: flex-start; padding: .2cqw .6cqw; border: 1px dashed var(--teal-soft); border-radius: .3cqw; color: var(--ink); }
+  .chan-slot { position: relative; min-height: 2.8cqw; padding: 0; border-style: dashed; background: transparent; }
+  .chan-card { position: absolute; inset: -1px; display: grid; }
+  .chan-card.gone { opacity: 0; }
+  .chan-frame { display: grid; place-items: center; border: 1px solid var(--card); border-radius: .3cqw; background: var(--card-tint); font-family: var(--font-mono); font-size: .9cqw; color: var(--ink); }
+  .chan-pipe em { flex-basis: 100%; font-style: normal; font-family: var(--font-mono); font-size: .95cqw; color: var(--red); text-align: center; }
+  .chan-pipe em b { display: inline-block; font-weight: 700; }
+  .chan-browsers { display: flex; gap: .5cqw; margin-top: auto; padding-top: .5cqw; }
+  .chan-browsers .chan-browser { width: 2cqw; height: 1.5cqw; border: 1px solid var(--muted); border-top-width: .35cqw; border-radius: .2cqw; }
+  .chan-node .chan-wait { display: flex; align-items: center; gap: .4cqw; color: var(--red); }
+  .chan-node .chan-late { color: var(--red); }
+  .chan-out { flex-basis: 100%; position: relative; min-height: 3cqw; margin-top: .4cqw; }
+  .chan-out .chan-frame { font-size: 1.1cqw; }
+  .chan-ring { width: .9cqw; height: .9cqw; border: .2cqw solid var(--red); border-top-color: transparent; border-radius: 50%; }
+  .chan-node .chan-pkt { position: absolute; left: 1.4cqw; top: 4.2cqw; width: .7cqw; height: .7cqw; border-radius: 50%; background: var(--teal-soft); opacity: 0; }
+  .q-lane { position: relative; display: flex; align-items: center; gap: 1cqw; margin-bottom: 2.6cqw; }
+  .q-worker { flex: 0 0 auto; padding: .5cqw .8cqw; border: 1px solid var(--line); border-left: .3cqw solid var(--card); border-radius: .4cqw; background: var(--paper); font-family: var(--font-mono); font-size: .9cqw; color: var(--muted); line-height: 1.3; }
+  .q-worker b { display: block; color: var(--ink); font-weight: 600; }
+  .q-row { position: relative; display: flex; align-items: center; gap: .3cqw; }
+  .q-row i { flex: 0 0 1.2cqw; height: 1.4cqw; border-radius: .25cqw; background: var(--muted-dim); }
+  .q-row i.empty { background: transparent; box-shadow: inset 0 0 0 1px var(--line); }
+  .q-row i.hot { background: var(--red); }
+  .q-row i.hot.empty { background: transparent; }
+  .q-stop { text-decoration: none; position: relative; align-self: stretch; height: 3cqw; margin-left: .5cqw; border-left: .2cqw dashed var(--red); }
+  .q-stop b { position: absolute; top: 100%; right: -.2cqw; margin-top: .2cqw; font-family: var(--font-mono); font-size: 1cqw; font-weight: 600; color: var(--red); white-space: nowrap; }
+  .q-arrivals { flex: 0 0 auto; font-family: var(--font-mono); font-size: .95cqw; color: var(--muted); white-space: nowrap; }
+  .q-chip { position: absolute; top: 50%; width: 1.2cqw; height: 1.2cqw; margin-top: -.6cqw; border-radius: .25cqw; background: var(--teal-soft); opacity: 0; }
+  .q-chip.in { right: 0; }
+  .q-chip.out { left: 9.6cqw; }
+  .q-banner { margin-bottom: .6cqw; padding: .6cqw 1cqw; border: 1px solid var(--red); border-radius: .4cqw; background: rgba(200, 40, 59, .08); font-family: var(--font-mono); font-size: 1.15cqw; font-weight: 700; color: var(--red); text-align: center; }
+  .q-behind { display: flex; align-items: center; gap: .3cqw; margin-bottom: .8cqw; font-family: var(--font-mono); font-size: .95cqw; color: var(--muted); }
+  .q-behind > span { display: inline-block; color: var(--teal-soft); }
+  .q-behind b { margin-left: .5cqw; font-weight: 500; }
+  .batch .b-row { display: flex; align-items: center; gap: 1.2cqw; margin-bottom: .8cqw; font-family: var(--font-mono); font-size: 1.1cqw; color: var(--ink); }
+  .batch .b-row b { font-weight: 500; }
+  .b-many { flex: 0 0 14cqw; height: 1.2cqw; border-radius: .3cqw; background: repeating-linear-gradient(to right, var(--muted-dim) 0 .12cqw, transparent .12cqw .28cqw); }
+  .b-one { flex: 0 0 14cqw; height: 1.2cqw; border-radius: .3cqw; background: var(--teal); }
+  .b-chunk { flex: 0 0 14cqw; display: flex; gap: .3cqw; }
+  .b-chunk i { height: 1.2cqw; border-radius: .3cqw; background: var(--teal-soft); font-style: normal; font-size: .8cqw; line-height: 1.2cqw; text-align: center; color: #fff; }
+  .b-chunk i:nth-child(1), .b-chunk i:nth-child(2) { flex: 2; }
+  .b-chunk i:nth-child(3) { flex: 1; }
+  .viewmap { position: relative; min-height: 26cqw; border: 1px solid var(--line); border-radius: .5cqw; background: radial-gradient(circle at 40% 45%, #FCFBFE, #E9E6EF); overflow: hidden; }
+  .view-rect { position: absolute; left: 20%; top: 20%; width: 42%; height: 56%; border: .22cqw dashed var(--teal); border-radius: .4cqw; background: rgba(231, 100, 57, .06); }
+  .view-rect i { position: absolute; left: .8cqw; top: -1.7cqw; font-family: var(--font-mono); font-style: normal; font-size: .95cqw; color: var(--teal-soft); white-space: nowrap; }
+  .dot { position: absolute; width: 1.1cqw; height: 1.1cqw; margin: -.55cqw 0 0 -.55cqw; border-radius: 50%; }
+  .dot.in { background: var(--teal); box-shadow: 0 0 .8cqw var(--teal-soft); }
+  .dot.out { background: var(--muted-dim); opacity: .55; }
+  .dot.agent { width: 2.6cqw; height: 2.6cqw; margin: -1.3cqw 0 0 -1.3cqw; display: grid; place-items: center; background: var(--amber); box-shadow: 0 0 1.4cqw var(--amber); }
+  .dot.agent b { font-family: var(--font-mono); font-size: .9cqw; color: #000; }
+  .vm-caption { position: absolute; right: 2cqw; bottom: 1.6cqw; max-width: 22cqw; text-align: right; font-family: var(--font-mono); font-size: 1.1cqw; color: var(--ink); }
+  .toggle { margin: 0; display: grid; grid-template-columns: auto 1fr; column-gap: 1.2cqw; align-items: center; padding: 1.1cqw 1.4cqw; border: 1px solid var(--rule); border-radius: .5cqw; background: var(--paper); }
+  .toggle b { font-family: var(--font-head); font-size: 1.5cqw; font-weight: 500; color: var(--ink); }
+  .toggle i { grid-column: 2; font-style: normal; font-family: var(--font-mono); font-size: 1cqw; color: var(--muted); }
+  .toggle .sw { grid-row: span 2; width: 3.2cqw; height: 1.7cqw; border-radius: 99px; background: var(--line); position: relative; }
+  .toggle .sw::after { content: ""; position: absolute; top: .2cqw; left: .2cqw; width: 1.3cqw; height: 1.3cqw; border-radius: 50%; background: #fff; }
+  .toggle .sw.on { background: var(--card); }
+  .toggle .sw.on::after { left: 1.7cqw; }
+  .rules p { display: flex; align-items: center; gap: 1.2cqw; margin: 0 0 1cqw; font-size: 1.35cqw; color: var(--text); }
+  .rules p:last-child { margin-bottom: 0; }
+  .rules .tag { flex: 0 0 11cqw; justify-content: center; }
+  .problem-head .funnel { flex-wrap: nowrap; } .problem-head .funnel-reports { flex-wrap: nowrap; } .problem-head h1 { flex: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .build-step { transition: none; transform: none !important; }
+  }
+  /* ---------- scenes 12-batch and 14-viewport ---------- */
+  .batch .b-bar { flex: 0 0 20cqw; display: flex; align-items: center; }
+  .b-one, .b-heavy, .b-chunk i { transform-origin: left center; }
+  .b-heavy { flex: 0 0 5cqw; height: 1.2cqw; margin-left: -.3cqw; border-radius: 0 .3cqw .3cqw 0; background: repeating-linear-gradient(135deg, var(--amber) 0 .4cqw, #F8DE8A .4cqw .8cqw); }
+  .batch [data-part="row-many"] { opacity: .55; }
+  [data-part="roads"] s { text-decoration-color: var(--red); text-decoration-thickness: .16cqw; }
+  .viewmap .routes { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .viewmap .routes path { fill: none; stroke: #C9C3D3; stroke-width: 2px; stroke-linejoin: round; }
+  .viewmap .fleet { position: absolute; inset: 0; }
+  .viewmap .view-rect { left: 30%; top: 30%; width: 28%; height: 40%; }
+  .dot.agent { z-index: 2; }
+  .dot.agent .bowtie { position: absolute; left: 50%; bottom: -.5cqw; width: 1.5cqw; margin-left: -.75cqw; fill: #0d0d0d; stroke: #fff; stroke-width: 1px; }
+  .rx { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: .6cqw 1cqw; padding: 1cqw 1.4cqw; }
+  .rx-browser { display: inline-flex; align-items: center; gap: .6cqw; padding: .5cqw .9cqw; border: .2cqw solid var(--line); border-radius: .5cqw; font: 500 1.1cqw var(--font-mono); color: var(--ink); }
+  .rx-browser svg { width: 2.2cqw; fill: none; stroke: var(--ink); stroke-width: 1.5px; }
+  .rx-browser svg circle { fill: var(--ink); stroke: none; }
+  .rx-stream { position: relative; height: 1.2cqw; overflow: hidden; }
+  .rx-stream .rec { position: absolute; top: .3cqw; right: 0; width: 1.4cqw; height: .6cqw; border-radius: .3cqw; background: var(--teal-soft); opacity: 0; }
+  .rx-nums { display: grid; text-align: right; font: 500 1.1cqw var(--font-mono); color: var(--ink); }
+  .rx-nums b { font-weight: 500; }
+  .rx-note { grid-column: 1 / -1; font-size: 1cqw; color: var(--muted-dim); }
+  [data-scene="14-viewport"] .rules .tag { flex-basis: 14cqw; }
+  [data-scene="14-viewport"] .rules, [data-scene="14-viewport"] [data-part="safe"] { padding: .9cqw 1.4cqw; }
+  [data-part="safe"] .body { font-size: 1.25cqw; }
+  .rx { padding: .7cqw 1.4cqw; }
+  .next { padding: .8cqw 1.4cqw; }
+  .next .caption { font-size: 1cqw; }
+
+  /* ---------- live-only motion (2026-10-10 engagement pass) ---------- */
+  /* `deck-live` is set only on the presenting deck: never in preview mode (the presenter window, the
+     video renderer, deck stills) and never under reduced motion. Every rule here is scoped to it and to
+     the active slide, so the thumbnail rail, print, and every capture path show the authored slide. */
+  @keyframes cascade-in { from { opacity: 0; transform: translateY(1.4cqw); } }
+  @keyframes blip { 0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(231, 100, 57, .7); } 60% { opacity: .55; box-shadow: 0 0 0 .7cqw rgba(231, 100, 57, 0); } }
+  @keyframes glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(105, 60, 178, 0); } 50% { box-shadow: 0 0 1.6cqw .2cqw rgba(105, 60, 178, .4); } }
+  @keyframes hb-sweep { from { stroke-dashoffset: 14; } to { stroke-dashoffset: -100; } }
+  @keyframes sw-flip { from { background: var(--line); } }
+  @keyframes knob-flip { from { left: .2cqw; } }
+  /* Slides 10-14: the tape becomes a map of the pipeline, with the stage each implementation changes
+     filled in, so server and browser work are never confused. */
+  .where { display: flex; align-items: center; gap: .35cqw; min-width: 0; letter-spacing: 0; text-transform: none; font-weight: 400; }
+  .where-zone { margin-right: .15cqw; font-size: .9cqw; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
+  .where-chip { padding: .2cqw .5cqw; border: 1px solid var(--line); border-radius: 99px; background: var(--fog); font-family: var(--font-mono); font-size: .85cqw; color: var(--text); white-space: nowrap; }
+  .where-chip.on { border-color: var(--card); background: var(--card-tint); color: var(--card); font-weight: 700; }
+  .where-arrow { font-size: 1cqw; color: var(--muted-dim); }
+  .where-sep { align-self: stretch; margin: 0 .5cqw; border-left: .18cqw dashed var(--teal); }
+  .deck-live .slide[data-deck-active] .where-chip.on { animation: glow 1.4s ease-in-out 700ms 2; }
+  .upstream .list { font-size: 1.3cqw; }
+  .take-home .pipeline { grid-template-columns: 3fr 4.4fr; }
+  .take-home .zone-body { align-items: stretch; gap: .6cqw; }
+  .take-home .node { display: flex; flex-direction: column; gap: .5cqw; padding: .9cqw .8cqw; }
+  .take-home .w-head { display: flex; align-items: center; gap: .5cqw; }
+  .take-home .node strong { margin: 0; font-size: 1.4cqw; line-height: 1.1; }
+  .take-home .node .every { margin: 0; font-family: var(--font-mono); font-size: .95cqw; font-style: italic; color: var(--muted-dim); }
+  .take-home .zone-note { margin-left: .8cqw; font-family: var(--font-mono); font-size: .9cqw; font-style: italic; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--muted-dim); }
+  .take-home .mode { margin: 0; padding: .35cqw .5cqw; border-radius: .3cqw; font-family: var(--font-body); font-size: 1.05cqw; line-height: 1.25; }
+  .take-home .mode code { font-family: var(--font-mono); font-weight: 700; }
+  .take-home .mode.teal { background: var(--card-tint); color: var(--card); }
+  .take-home .mode.red { background: rgba(200, 40, 59, .08); color: var(--red); }
+  @keyframes bar-grow { from { transform: scaleX(0); } }
+  .deck-live .slide[data-deck-active] .ec-bar { animation: bar-grow 700ms cubic-bezier(.2, .7, .2, 1) backwards; animation-delay: calc(350ms + var(--i, 0) * 140ms); }
+  /* slide 16: the comparison chart, drawn in the deck so the load and what one bar measures are on the slide */
+  .edit-chart { margin: 0; display: flex; flex-direction: column; justify-content: center; gap: .9cqw; padding: 1.6cqw; border: 1px solid var(--rule); border-top: .35cqw solid var(--card); border-radius: .5cqw; background: var(--paper); }
+  .edit-chart .panel-title { margin: 0; }
+  .ec-load { margin: 0; font-family: var(--font-mono); font-size: 1.1cqw; color: var(--teal-soft); }
+  .ec-bars { margin: 0; padding: 0; list-style: none; display: grid; gap: .8cqw; }
+  .ec-bars li { display: grid; grid-template-columns: 10cqw 1fr 4.4cqw; column-gap: 1cqw; row-gap: .15cqw; align-items: center; }
+  .ec-name { font-family: var(--font-head); font-size: 1.3cqw; color: var(--ink); white-space: nowrap; }
+  .ec-track { height: 1.5cqw; }
+  .ec-bar { display: block; width: var(--w); height: 100%; border-radius: .25cqw; background: var(--teal); transform-origin: left center; }
+  .ec-bars b { font-family: var(--font-mono); font-size: 1.35cqw; font-weight: 700; color: var(--ink); text-align: right; }
+  .ec-bars i { grid-column: 2 / 4; font-style: normal; font-family: var(--font-mono); font-size: .95cqw; color: var(--muted); }
+  .edit-chart figcaption { font-size: 1cqw; line-height: 1.35; color: var(--muted); }
+  /* A .cascade parent brings its children in one after another; each child sets its own --i. */
+  .deck-live .slide[data-deck-active] .cascade > * { animation: cascade-in 480ms cubic-bezier(.2, .7, .2, 1) both; animation-delay: calc(350ms + var(--i, 0) * 160ms); }
+
+  /* Slide 1: a heartbeat under the title, and a blinking live tag on the map. */
+  .heartbeat { display: block; width: 100%; max-width: 34cqw; height: 3.4cqw; overflow: visible; }
+  .heartbeat path { fill: none; stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+  /* Solid strokes, not an SVG gradient: the rail clones every slide, so a gradient id would repeat, and
+     the first copy sits in the rail, which preview mode hides. */
+  .hb-line { stroke: var(--purple); }
+  .hb-pulse { stroke: var(--teal-soft); stroke-dasharray: 14 100; stroke-dashoffset: 14; opacity: 0; }
+  .deck-live .slide[data-deck-active] .hb-line { opacity: .35; }
+  .deck-live .slide[data-deck-active] .hb-pulse { opacity: 1; filter: drop-shadow(0 0 .4cqw var(--teal)); animation: hb-sweep 2.4s linear infinite; }
+  .title-map { position: relative; }
+  .title-map .tag { position: absolute; top: 1.2cqw; left: 1.2cqw; background: rgba(255, 255, 255, .94); }
+  .live-dot::before { content: ""; width: .75cqw; height: .75cqw; border-radius: 50%; background: currentColor; }
+  .deck-live .slide[data-deck-active] .live-dot::before { animation: blip 1.4s ease-out infinite; }
+  .title-chips { gap: .8cqw; }
+
+  /* Slide 3: the talk's thesis in display type. */
+  .thesis { margin: 0; font-family: var(--font-head); font-size: 2.4cqw; line-height: 1.25; color: var(--ink); }
+
+  /* Slide 4: one selected ID, two writers, four readers. */
+  .fan { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.2cqw; }
+  .fan-row { display: flex; flex-wrap: wrap; justify-content: center; gap: .7cqw; }
+  .fan .chip { font-size: 1.6cqw; padding: .6cqw 1.3cqw; }
+  .fan-arrow { font-size: 3cqw; line-height: 1; color: var(--teal); }
+  .fan-hub { display: flex; flex-direction: column; align-items: center; padding: 1.6cqw 2.2cqw; border: .2cqw solid var(--card); border-radius: .6cqw; background: var(--paper); }
+  .fan-hub .panel-title { margin: 0 0 .5cqw; }
+  .fan-hub b { font-family: var(--font-mono); font-size: 2.3cqw; font-weight: 600; color: var(--ink); white-space: nowrap; }
+  .deck-live .slide[data-deck-active] .fan-hub { animation: cascade-in 480ms cubic-bezier(.2, .7, .2, 1) both, glow 2.2s ease-in-out 1.4s infinite; animation-delay: calc(350ms + var(--i, 0) * 160ms), 1.4s; }
+
+  /* Slide 9: one term per press, then the field that keeps a feature's identity. */
+  .terms { gap: 1.2cqw; }
+  .term { display: grid; grid-template-columns: 9cqw 1fr; align-items: baseline; gap: 1.2cqw; padding: 1.1cqw 1.4cqw; border: 1px solid var(--rule); border-left: .35cqw solid var(--card); border-radius: .5cqw; background: var(--paper); }
+  .term b { font-family: var(--font-head); font-size: 2.1cqw; font-weight: 500; color: var(--ink); }
+  .term span { font-size: 1.35cqw; color: var(--text); }
+  pre.code .hl { padding: .1cqw .3cqw; border-radius: .25cqw; background: rgba(242, 193, 78, .45); color: var(--ink); }
+  .term-note { margin: 0; font-family: var(--font-mono); font-size: 1.15cqw; color: var(--card); }
+
+  /* Slide 11: the rule, large enough to read from the back row. */
+  .rule-big { margin: 0 0 1.2cqw; font-family: var(--font-head); font-size: 2.3cqw; line-height: 1.2; color: var(--ink); }
+  .rule-big span { color: var(--red); }
+  .rule-eg { display: flex; align-items: center; gap: 1cqw; margin: 0 0 .7cqw; font-size: 1.3cqw; color: var(--text); }
+  .rule-eg .tag { flex: 0 0 7cqw; justify-content: center; }
+
+  /* Slide 16: the two free layers switch on after the slide arrives; traffic stays off without a key. */
+  .deck-live .slide[data-deck-active] .toggle .sw.on, .deck-live .slide[data-deck-active] .toggle .sw.on::after { animation: 260ms ease both; animation-delay: calc(1100ms + var(--i, 0) * 650ms); }
+  .deck-live .slide[data-deck-active] .toggle .sw.on { animation-name: sw-flip; }
+  .deck-live .slide[data-deck-active] .toggle .sw.on::after { animation-name: knob-flip; }
+
+  /* Slides 5 and 13 left half the frame empty, so their diagrams grow into it. Both scenes measure
+     positions when a beat plays, so the larger layout needs no change to their scripts. */
+  /* Slide 5: six stage boxes in two zones. Every box has the same rows (name, caption, picture,
+     tag) so the pictures line up and the animated cards can be measured between them. */
+  [data-scene="04-pipeline"] .zone-label { font-size: 1.2cqw; }
+  [data-scene="04-pipeline"] .zone-body { align-items: stretch; gap: .5cqw; }
+  [data-scene="04-pipeline"] .arrow { align-self: center; }
+  [data-scene="04-pipeline"] .node { display: flex; flex-direction: column; gap: .7cqw; padding: 1cqw .9cqw; }
+  [data-scene="04-pipeline"] .w-head { display: flex; align-items: center; gap: .5cqw; }
+  [data-scene="04-pipeline"] .node strong { margin: 0; font-size: 1.55cqw; line-height: 1.1; }
+  .w-no { flex: 0 0 auto; display: grid; place-items: center; width: 1.9cqw; height: 1.9cqw; border-radius: 50%; background: var(--card); color: #FFFFFF; font: 700 1.15cqw var(--font-body); }
+  .w-cap { margin: 0; min-height: 3.6cqw; font-size: 1.25cqw; line-height: 1.25; color: var(--text); }
+  .w-vis { position: relative; flex: 1 1 auto; min-height: 8.2cqw; display: flex; flex-direction: column; justify-content: center; gap: .5cqw; }
+  [data-scene="04-pipeline"] .node > .tag { display: inline-flex; align-self: flex-start; margin-top: 0; padding: .25cqw .6cqw; font-size: .95cqw; letter-spacing: .06em; }
+  .tag.keep { background: var(--card-tint); color: var(--card); border: 1px solid var(--card); }
+  .tag.batch { background: rgba(242, 193, 78, .35); color: var(--ink); border: 1px solid var(--amber); }
+  .w-slot { display: flex; align-items: center; justify-content: space-between; gap: .4cqw; padding: .25cqw .5cqw; border: 1px dashed var(--line); border-radius: .3cqw; background: var(--fog); }
+  .w-slot em { font-style: normal; font-size: 1cqw; color: var(--muted); }
+  .w-stack { display: grid; overflow: hidden; }
+  .w-stack > * { grid-area: 1 / 1; }
+  .w-rep { display: block; min-width: 3.4cqw; padding: .1cqw .4cqw; border-radius: .3cqw; background: var(--card-tint); border: 1px solid var(--card); font: 600 1.15cqw var(--font-mono); text-align: center; color: var(--ink); }
+  .w-rep.hot { background: var(--teal); border-color: var(--teal); color: #FFFFFF; }
+  .w-rep.dim { height: 1.6cqw; border-color: var(--line); background: var(--paper-2); }
+  .w-rep.gone { opacity: 0; }
+  .w-fcard { display: grid; place-items: center; min-height: 5cqw; border: .2cqw solid var(--card); border-radius: .4cqw; background: var(--card-tint); font: 600 1.35cqw var(--font-mono); color: var(--ink); }
+  .w-snap { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; gap: .4cqw; padding: 0 20%; opacity: 0; pointer-events: none; }
+  .w-snap b { display: block; height: .7cqw; border-radius: .2cqw; background: var(--teal); }
+  .w-chan { flex-direction: row; align-items: center; gap: .6cqw; }
+  .w-chan .chan-slot { min-height: 5cqw; }
+  .w-chan .chan-frame { font-size: 1.05cqw; }
+  .w-chan .w-one { flex: 0 1 60%; margin: 0 auto; }
+  /* Slide 9: frames arrive into one slot, and the page tick reads whatever sits there. */
+  .newest { display: flex; align-items: center; gap: 2cqw; }
+  .nf-source, .nf-tick { flex: 0 0 auto; display: flex; flex-direction: column; gap: .4cqw; padding: 1.2cqw 1.5cqw; border: 1px solid var(--line); border-left: .3cqw solid var(--card); border-radius: .5cqw; background: var(--paper); font: 1.25cqw var(--font-mono); color: var(--muted); }
+  .nf-source b, .nf-tick b { font-family: var(--font-head); font-size: 1.7cqw; font-weight: 600; color: var(--ink); }
+  .nf-source i { font-style: normal; font-size: 1.1cqw; }
+  .nf-tick { flex-direction: row; align-items: center; gap: 1.2cqw; }
+  .nf-tick svg { width: 4.4cqw; height: 4.4cqw; fill: none; stroke: var(--ink); stroke-width: 2.4; stroke-linecap: round; }
+  .nf-tick svg .ticks { stroke: var(--teal); }
+  .nf-tick span, .nf-tick em { display: block; }
+  .nf-tick em { margin-top: .5cqw; font-style: normal; font-weight: 700; color: var(--teal-soft); }
+  .nf-slot-wrap { flex: 1 1 auto; }
+  .nf-slot { min-height: 8cqw; }
+  .nf-slot .chan-frame { font-size: 1.8cqw; }
+  .nf-slot .chan-frame { opacity: 0; }
+  .nf-slot .chan-card:last-child .chan-frame { opacity: 1; }
+  .nf-ten { display: flex; flex-direction: column; gap: 1cqw; align-items: center; }
+  .nf-ten .caption { font-size: 1.9cqw; color: var(--ink); }
+  .nf-frames { display: flex; gap: .7cqw; }
+  .nf-frames i { width: 3cqw; height: 2cqw; border: 1px solid var(--line); border-radius: .3cqw; background: var(--paper-2); }
+  .nf-frames i.read { border-color: var(--teal); background: var(--teal); }
+  .w-map { border: 1px solid var(--line); border-radius: .4cqw; background: var(--paper-2); }
+  .w-dot { position: absolute; width: 1.1cqw; height: 1.1cqw; border-radius: 50%; background: var(--teal); }
+  .w-dot:nth-of-type(1) { left: 14%; top: 16%; }
+  .w-dot:nth-of-type(2) { left: 58%; top: 12%; }
+  .w-dot:nth-of-type(3) { left: 80%; top: 38%; }
+  .w-call { position: absolute; left: 0; right: 0; bottom: 7%; width: max-content; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: .2cqw; padding: .3cqw .7cqw; border: .2cqw solid var(--card); border-radius: .4cqw; background: var(--fog); font: 700 1.05cqw var(--font-mono); color: var(--ink); white-space: nowrap; }
+  .w-bars { display: flex; gap: .25cqw; }
+  .w-call i { width: .9cqw; height: .5cqw; border-radius: .15cqw; background: var(--teal); }
+  .w-key { margin-top: 1.8cqw; display: grid; gap: .8cqw; }
+  .w-key p { margin: 0; display: flex; align-items: center; gap: .8cqw; font-size: 1.35cqw; color: var(--text); }
+  .w-key b { font: 700 1.5cqw var(--font-mono); color: var(--teal-soft); }
+  .w-cadence { margin-top: .4cqw; }
+  .w-bracket { height: 1.5cqw; margin: 0 8cqw; border: .22cqw solid var(--teal); border-top: 0; border-radius: 0 0 .5cqw .5cqw; position: relative; }
+  .w-bracket::after { content: ""; position: absolute; left: 50%; top: 100%; height: .9cqw; border-left: .22cqw solid var(--teal); }
+  .w-clock-row { display: flex; align-items: center; justify-content: center; gap: 1.2cqw; margin-top: .9cqw; padding: .8cqw 1.2cqw; border: 1px solid var(--line); border-left: .3cqw solid var(--card); border-radius: .5cqw; background: var(--paper); }
+  .w-clock-row svg { flex: 0 0 auto; width: 4cqw; height: 4cqw; fill: none; stroke: var(--ink); stroke-width: 2.4; stroke-linecap: round; }
+  .w-clock-row svg .ticks { stroke: var(--teal); }
+  .w-clock-row .w-cap { min-height: 0; margin-top: .4cqw; }
+  [data-scene="16-cadence"] .cadence { gap: 2.8cqw; }
+  [data-scene="16-cadence"] .cadence-row { grid-template-columns: 15cqw 1fr 16cqw; }
+  [data-scene="16-cadence"] .cadence-name { font-size: 1.8cqw; }
+  [data-scene="16-cadence"] .cadence-track { height: 2.8cqw; }
+  [data-scene="16-cadence"] .cadence-value { font-size: 1.6cqw; }
+
+  /* Slide 19: the closing line, the talk's thesis in one sentence. */
+  .closing-line { margin: 0; font-family: var(--font-head); font-size: 2cqw; line-height: 1.3; color: var(--ink); }
+  .closing-line span { color: var(--teal-soft); }
+</style>
+</head>
+<body>
+<div id="deck-shell">
+  <nav id="deck-rail" aria-label="Slide thumbnails"><ol id="deck-thumbnails"></ol></nav>
+  <main id="deck-stage">
+    <div id="slide-frame" aria-live="polite">
+
+      <!-- ===================== 01 ===================== -->
+      <section class="slide" data-slide data-label="Title" data-screen-label="01">
+        <header class="tape"><span class="tape-section">TechBash 2026 · Real-time data visualization</span><span class="tape-mark">01</span></header>
+        <div class="slide-body">
+          <div class="split wide-left" style="align-items:center">
+            <div class="stack">
+              <p class="kicker">Thursday 11:30 a.m. · Sagewood</p>
+              <h1 class="hero">Real-Time Data<br>Visualization in <span class="gradient">Blazor</span></h1>
+              <svg class="heartbeat" viewBox="0 0 600 60" preserveAspectRatio="none" aria-hidden="true">
+                <path class="hb-line" pathLength="100" d="M0 30 H40 Q48 22 56 30 H80 L86 36 L94 4 L102 52 L108 30 H130 Q142 16 154 30 H240 Q248 22 256 30 H280 L286 36 L294 4 L302 52 L308 30 H330 Q342 16 354 30 H440 Q448 22 456 30 H480 L486 36 L494 4 L502 52 L508 30 H530 Q542 16 554 30 H600"/>
+                <path class="hb-pulse" pathLength="100" d="M0 30 H40 Q48 22 56 30 H80 L86 36 L94 4 L102 52 L108 30 H130 Q142 16 154 30 H240 Q248 22 256 30 H280 L286 36 L294 4 L302 52 L308 30 H330 Q342 16 354 30 H440 Q448 22 456 30 H480 L486 36 L494 4 L502 52 L508 30 H530 Q542 16 554 30 H600"/>
+              </svg>
+              <p class="screen small">Tim Purdum · TechBash 2026</p>
+              <p class="body">Your data has a heartbeat, and your dashboard can keep up with it.</p>
+              <p class="row title-chips"><span class="tag plain">GeoBlazor Core 4.6.2</span><span class="tag plain">Blazor WebAssembly</span><span class="tag plain">ASP.NET Core SignalR</span></p>
+            </div>
+            <figure class="shot-figure title-map">
+              <img src="assets/title-map.png" alt="The finished Pocono-region fleet map with vehicles drawn and OpenStreetMap attribution visible.">
+              <span class="tag live live-dot">Live · simulated telemetry</span>
+            </figure>
+          </div>
+        </div>
+        <footer class="route-band"><span class="route-track"><span class="route-fill"></span></span></footer>
+      </section>
+
+      <!-- ===================== 02 ===================== -->
+      <section class="slide" data-slide data-label="The problem" data-screen-label="02">
+        <header class="tape"><span class="tape-section">Opening · the problem</span><span class="tape-mark">02</span></header>
+        <div class="slide-body" data-build="freshness steps scene" data-scene="02-iris" data-build-lead="2200">
+          <div class="gun-barrel" data-part="barrel" aria-hidden="true">
+            <span class="gb-disc" data-part="gb-disc"></span>
+            <div class="gb-reveal" data-part="gb-reveal">
+              <svg viewBox="0 0 40 30"><path d="M0 4h24v18H0z M24 10h9l6 7v5H24z"/><circle cx="7" cy="24" r="4"/><circle cx="31" cy="24" r="4"/><text x="5" y="17">007</text></svg>
+              <b>TRUCK 007</b>
+              <i>Licensed to report.</i>
+            </div>
+          </div>
+          <div class="problem-head">
+            <h1>Which vehicles need attention?</h1>
+            <div class="agent">
+              <span class="agent-iris" data-part="iris"><svg viewBox="0 0 40 30" aria-hidden="true"><path d="M0 4h24v18H0z M24 10h9l6 7v5H24z"/><circle cx="7" cy="24" r="4"/><circle cx="31" cy="24" r="4"/></svg></span>
+              <span class="agent-caption" data-part="caption"><b>Truck 007</b><i>Licensed to report.</i></span>
+            </div>
+          </div>
+          <div class="split" data-build-step="0">
+            <div class="panel teal-top state build-step" data-build-before>
+              <span class="tag live">Live · reporting</span>
+              <h3>TRUCK 007</h3>
+              <dl>
+                <dt>Position</dt><dd>41.0621, −75.3390</dd>
+                <dt>Speed</dt><dd>42 km/h</dd>
+                <dt>Last report</dt><dd>0.4 s ago</dd>
+              </dl>
+            </div>
+            <div class="panel amber-top state" data-build-card
+              data-fresh-tag="Live · reporting"
+              data-fresh-position="41.0621, −75.3390"
+              data-fresh-speed="42 km/h">
+              <span class="tag stale" data-build-tag>Stale · not reporting</span>
+              <h3>TRUCK 007</h3>
+              <dl>
+                <dt>Position</dt><dd data-build-position>last known 41.0588, −75.3407</dd>
+                <dt>Speed</dt><dd data-build-speed>42 km/h (last report)</dd>
+                <dt>Last report</dt><dd data-build-age>12 s ago</dd>
+              </dl>
+            </div>
+          </div>
+          <div class="arith-block" data-build-step="1">
+            <div class="arith compact">
+              <span class="num">500</span><span class="unit">trucks</span>
+              <span class="op" aria-hidden="true">×</span>
+              <span class="num">10</span><span class="unit">reports / s</span>
+              <span class="op" aria-hidden="true">=</span>
+              <span class="num result" data-count>5,000</span><span class="unit">reports / s</span>
+            </div>
+            <div class="arith-second">sent as 10 messages / second<span class="mono" style="font-size:1.1cqw;color:var(--muted)">each carrying the whole fleet</span></div>
+            <p class="caption">Synthetic stress, not real truck behavior.</p>
+          </div>
+        </div>
+        <footer class="route-band"><span class="route-track"><span class="route-fill"></span></span></footer>
+      </section>
+
+      <!-- ===================== 03 ===================== -->
+      <section class="slide" data-slide data-label="What GeoBlazor is" data-screen-label="03">
+        <header class="tape"><span class="tape-section">Opening · the tool</span><span class="tape-mark">03</span></header>
+        <div class="slide-body" data-build="steps">
+          <div class="split" style="grid-template-columns:1.2fr 1fr; align-items:center">
+            <div class="stack">
+              <div class="stack" data-build-step="0">
+                <img class="brand-logo" src="assets/geoblazor/logos/geoblazor-black.svg" alt="GeoBlazor">
+                <h1>Interactive ArcGIS maps in Blazor, from C#</h1>
+                <p class="screen small">No hand-written JavaScript.</p>
+              </div>
+              <div class="split" style="gap:1.4cqw" data-build-step="1">
+                <div class="panel teal-top"><p class="panel-title">Core</p><p class="body">Open source · this whole demo</p></div>
+                <div class="panel"><p class="panel-title">Pro</p><p class="body">3D</p></div>
+              </div>
+            </div>
+            <div class="stack" style="gap:2.4cqw">
+              <p class="thesis" data-build-step="2">The map already knows how to draw.<br><span class="gradient">You decide what to hand it, and how often.</span></p>
+              <div class="panel teal-top links" data-build-step="3">
+                <p class="panel-title">Learn more</p>
+                <p class="link-row"><span>Website</span><code>geoblazor.com</code></p>
+                <p class="link-row"><span>Documentation</span><code>docs.geoblazor.com</code></p>
+                <p class="link-row"><span>Samples</span><code>github.com/dymaptic/GeoBlazor-Samples</code></p>
+                <p class="link-row"><span>Core source</span><code>github.com/dymaptic/GeoBlazor</code></p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <footer class="route-band"><span class="route-track"><span class="route-fill"></span></span></footer>
+      </section>
+
+      <!-- ===================== 04 ===================== -->
+      <section class="slide" data-slide data-label="The fleet dashboard" data-screen-label="04">
+        <header class="tape"><span class="tape-section">Opening · live demo · ready</span><span class="tape-mark">04</span></header>
+        <div class="slide-body">
+          <h1>Live demo</h1>
+          <div class="split" style="grid-template-columns:1.5fr 1fr">
+            <figure class="shot-figure">
+              <video class="shot-video" src="assets/dashboard.mp4" poster="assets/dashboard.png" controls muted playsinline preload="auto" data-autoplay aria-label="Screen recording of the finished dashboard: selecting truck 007, its route, and the speed chart."></video>
+              <figcaption>Finished dashboard · 50 trucks</figcaption>
+            </figure>
+            <div class="fan cascade" role="img" aria-label="A map click and a list row both write one selected vehicle ID, which the list, the highlight, the route name, and the chart all read.">
+              <div class="fan-row" style="--i:0"><span class="chip">Map click</span><span class="chip">List row</span></div>
+              <span class="fan-arrow" style="--i:1" aria-hidden="true">↓</span>
+              <div class="fan-hub" style="--i:2"><span class="panel-title">One shared value</span><b>SelectedVehicleId = 7</b></div>
+              <span class="fan-arrow" style="--i:3" aria-hidden="true">↓</span>
+              <div class="fan-row" style="--i:4"><span class="chip">List</span><span class="chip">Highlight</span><span class="chip">Route name</span><span class="chip">Chart</span></div>
+            </div>
+          </div>
+        </div>
+        <footer class="route-band"><span class="route-track"><span class="route-fill"></span></span></footer>
+      </section>
+
+      <!-- ===================== 05 ===================== -->
+      <section class="slide" data-slide data-label="Six stages from truck to map" data-screen-label="05">
+        <header class="tape"><span class="tape-section">Architecture · the pipeline</span><span class="tape-mark">05</span></header>
+        <div class="slide-body" data-build="scene" data-scene="04-pipeline">
+          <h1>Six stages from truck to map</h1>
+          <div class="pipeline">
+            <div class="zone" data-part="server" data-zone="server">
+              <span class="zone-label">Server</span>
+              <div class="zone-body">
+                <div class="node" data-stage="1" data-tag="keep latest" data-part="stage-1">
+                  <div class="w-head"><b class="w-no">1</b><strong>Store</strong></div>
+                  <p class="w-cap">latest report per truck</p>
+                  <div class="w-vis w-slots" data-part="store-slots">
+                    <div class="w-slot"><em>Truck 6</em><div class="w-stack"><b class="w-rep gone" data-part="r6-912">912</b><b class="w-rep gone" data-part="r6-913">913</b><b class="w-rep gone" data-part="r6-914">914</b><b class="w-rep" data-part="r6-915">915</b></div></div>
+                    <div class="w-slot"><em>Truck 7</em><div class="w-stack"><b class="w-rep gone" data-part="r-4187">4187</b><b class="w-rep hot" data-part="r-4188">4188</b></div></div>
+                    <div class="w-slot"><em>Truck 8</em><div class="w-stack"><b class="w-rep gone" data-part="r8-2301">2301</b><b class="w-rep" data-part="r8-2302">2302</b></div></div>
+                  </div>
+                  <span class="tag keep">keep latest</span>
+                </div>
+                <span class="arrow" aria-hidden="true">→</span>
+                <div class="node" data-stage="2" data-tag="batch" data-part="stage-2">
+                  <div class="w-head"><b class="w-no">2</b><strong>Send</strong></div>
+                  <p class="w-cap">every truck, one message, on a clock</p>
+                  <div class="w-vis">
+                    <div class="w-fcard" data-part="frame-card">500 trucks</div>
+                    <div class="w-snap" data-part="snap" aria-hidden="true"><b></b><b></b><b></b></div>
+                  </div>
+                  <span class="tag batch">batch</span>
+                </div>
+              </div>
+              <div class="w-key" data-part="key">
+                <p>Following report <b>4188</b> from Truck 7</p>
+                <p><span class="tag keep">keep latest</span> a newer one replaces an older one</p>
+                <p><span class="tag batch">batch</span> many go on together</p>
+              </div>
+            </div>
+            <div class="zone boundary" data-part="browser" data-zone="browser">
+              <span class="zone-label">Browser</span>
+              <div class="zone-body">
+                <div class="node" data-stage="3" data-tag="keep latest" data-part="stage-3">
+                  <div class="w-head"><b class="w-no">3</b><strong>Newest frame</strong></div>
+                  <p class="w-cap">each frame replaces the last</p>
+                  <div class="w-vis w-chan">
+                    <div class="chan-slot w-one" data-part="nf-slot">
+                      <div class="chan-card gone" data-part="nf-prev"><div class="chan-frame">last</div></div>
+                      <div class="chan-card" data-part="nf-cur"><div class="chan-frame">newest</div></div>
+                    </div>
+                  </div>
+                  <span class="tag keep">keep latest</span>
+                </div>
+                <span class="arrow" aria-hidden="true">→</span>
+                <div class="node" data-stage="4" data-tag="keep latest" data-part="stage-4">
+                  <div class="w-head"><b class="w-no">4</b><strong>Fleet state</strong></div>
+                  <p class="w-cap">a queue, or one slot per truck</p>
+                  <div class="w-vis w-slots" data-part="fleet-slots">
+                    <div class="w-slot"><em>Truck 6</em><b class="w-rep" data-part="fs6-915">915</b></div>
+                    <div class="w-slot"><em>Truck 7</em><b class="w-rep hot" data-part="fs-4188">4188</b></div>
+                    <div class="w-slot"><em>Truck 8</em><b class="w-rep" data-part="fs8-2302">2302</b></div>
+                  </div>
+                  <span class="tag keep">keep latest</span>
+                </div>
+                <span class="arrow" aria-hidden="true">→</span>
+                <div class="node" data-stage="5" data-tag="batch" data-part="stage-5">
+                  <div class="w-head"><b class="w-no">5</b><strong>Map edits</strong></div>
+                  <p class="w-cap">one call per report, per truck, or for all</p>
+                  <div class="w-vis w-map" data-part="map-pane">
+                    <i class="w-dot" data-part="dot-1"></i><i class="w-dot" data-part="dot-2"></i><i class="w-dot" data-part="dot-3"></i>
+                    <div class="w-call" data-part="call"><b>ApplyEdits</b><div class="w-bars" aria-hidden="true"><i></i><i></i><i></i></div></div>
+                  </div>
+                  <span class="tag batch">batch</span>
+                </div>
+              </div>
+              <div class="w-cadence" data-stage="6" data-part="cadence">
+                <div class="w-bracket" aria-hidden="true"></div>
+                <div class="w-clock-row">
+                  <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="17"/><path d="M20 7v13l8 5"/><path class="ticks" d="M20 3v3M37 20h-3M20 37v-3M3 20h3"/></svg>
+                  <div><div class="w-head"><b class="w-no">6</b><strong>Cadence</strong></div><p class="w-cap">one page timer, 100 or 250 ms</p></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <footer class="route-band"><span class="route-track"><span class="route-fill"></span></span></footer>
+      </section>
+
+      <!-- ===================== 06 ===================== -->
+      <section class="slide" data-slide data-label="Blazor Server or WebAssembly?" data-screen-label="06">
+        <header class="tape"><span class="tape-section">Architecture · hosting</span><span class="tape-mark">06</span></header>
+        <div class="slide-body" data-build="scene" data-scene="05-hosting">
+          <h1>Blazor Server or WebAssembly?</h1>
+          <div class="hosting">
+            <span class="scene-pulse" data-part="pulse-1" aria-hidden="true"></span><span class="scene-pulse" data-part="pulse-2" aria-hidden="true"></span><span class="scene-pulse" data-part="pulse-3" aria-hidden="true"></span>
+            <span class="scene-pulse" data-part="pulse-4" aria-hidden="true"></span><span class="scene-pulse" data-part="pulse-5" aria-hidden="true"></span><span class="scene-pulse" data-part="pulse-6" aria-hidden="true"></span>
+            <p class="row-label" data-part="label-wasm"><b>WebAssembly</b> (this talk): C# runs in the browser</p>
+            <div class="node" data-part="w-sim"><span class="node-where">Server</span><strong>Incoming telemetry</strong><span>ASP.NET Core</span></div>
+            <div class="hop crosses" data-part="w-hop-1"><span class="hop-how">SignalR hub</span><span class="hop-arrow" aria-hidden="true">→<b class="hop-cut" data-part="w-cut">✕</b></span><span class="hop-cost" data-part="w-cost-1">serialize #1</span></div>
+            <div class="node in-browser" data-part="w-state"><span class="node-where">Browser</span><strong>Fleet state</strong><span>C# in WebAssembly</span></div>
+            <div class="hop" data-part="w-hop-2"><span class="hop-how">JS interop</span><span class="hop-arrow" aria-hidden="true">→</span><span class="hop-cost" data-part="w-cost-2">serialize #2</span></div>
+            <div class="node in-browser" data-part="w-map"><span class="node-where">Browser</span><strong>Map and chart</strong><span>ArcGIS JS</span><div class="node-overlay"><div class="alive-card" data-part="w-alive"><span class="alive-title">Still usable</span><span class="alive-note">stale parts flagged</span></div></div></div>
+            <p class="row-label" data-part="label-server"><b>Blazor Server</b>: C# runs on the server</p>
+            <div class="node" data-part="s-sim"><span class="node-where">Server</span><strong>Incoming telemetry</strong><span>ASP.NET Core</span></div>
+            <div class="hop" data-part="s-hop-1"><span class="hop-how">in process</span><span class="hop-arrow" aria-hidden="true">→</span><span class="hop-free">no serializing</span></div>
+            <div class="node" data-part="s-state"><span class="node-where">Server</span><strong>Fleet state</strong><span>C#, one per user</span></div>
+            <div class="hop crosses" data-part="s-hop-2"><span class="hop-how">JS interop<br>over the circuit</span><span class="hop-arrow" aria-hidden="true">→<b class="hop-cut" data-part="s-cut">✕</b></span><span class="hop-cost" data-part="s-cost-1">serialize #1</span></div>
+            <div class="node in-browser" data-part="s-map"><span class="node-where">Browser</span><strong>Map and chart</strong><span>ArcGIS JS</span><div class="node-veil" data-part="s-veil"></div><div class="node-overlay"><div class="reconnect-card" data-part="s-modal"><span class="reconnect-spinner" aria-hidden="true"></span><span class="reconnect-title">Reconnecting…</span></div></div></div>
+          </div>
+          <div class="split picks" data-part="closing">
+            <div class="panel teal-top"><p class="panel-title">Pick Server when</p><p class="body">Internal app, reliable network, modest messages.</p></div>
+            <div class="panel teal-top"><p class="panel-title">Pick WebAssembly when</p><p class="body">It must stay usable through a disconnect.</p></div>
+          </div>
+        </div>
+        <footer class="route-band"><span class="route-track"><span class="route-fill"></span></span></footer>
+      </section>
+
+      <!-- ===================== 07 ===================== -->
+      <section class="slide" data-slide data-label="The latest report, into one frame" data-screen-label="07">
+        <header class="tape"><span class="where" role="img" aria-label="Stages 1 and 2 of 6: Store and Send."><span class="where-zone">Server</span><span class="where-chip on" data-stage="1">Store</span><span class="where-arrow" aria-hidden="true">→</span><span class="where-chip on" data-stage="2">Send</span><span class="where-sep" aria-hidden="true"></span><span class="where-zone">Browser</span><span class="where-chip" data-stage="3">Newest frame</span><span class="where-arrow" aria-hidden="true">→</span><span class="where-chip" data-stage="4">Fleet state</span><span class="where-arrow" aria-hidden="true">→</span><span class="where-chip" data-stage="5">Map edits</span><span class="where-arrow" aria-hidden="true">→</span><span class="where-chip" data-stage="6">Cadence</span></span><span class="tape-mark">07</span></header>
+        <div class="slide-body" data-build="scene" data-scene="06-contract">
+          <div class="problem-head"><h1>The latest report, into one frame</h1>
+          <div class="funnel" aria-label="The store keeps one latest report per truck. A snapshot of the store becomes one fleet frame.">
+            <span class="funnel-store" data-part="funnel-store"><i class="funnel-label"><b>1</b> Store: latest report per truck <span class="tag keep">keep latest</span></i>
+              <span class="funnel-reports" data-part="funnel-reports" style="display:grid;grid-template-columns:repeat(3,auto)"><span class="chip" title="VehicleReport">Truck 5</span><span class="chip" title="VehicleReport">Truck 6</span><span class="chip slot-7" title="VehicleReport">Truck 7 <span class="w-stack" data-part="slot-7"><b class="w-rep gone" data-part="r-4186">4186</b><b class="w-rep gone" data-part="r-4187">4187</b><b class="w-rep hot" data-part="r-4188">4188</b></span></span><span class="chip" title="VehicleReport">Truck 8</span><span class="chip" title="VehicleReport">Truck 9</span><span class="chip dim">… 500</span></span></span>
+            <span class="arrow" data-part="funnel-arrow" aria-hidden="true">snapshot →</span>
+            <span class="funnel-frame" data-part="funnel-frame"><i class="funnel-label"><b>2</b> Send <span class="tag batch">batch</span></i><b>FleetFrame</b><i>every truck · one message</i></span>
+          </div></div>
+          <div class="split" style="grid-template-columns:1.15fr 1fr">
+            <div class="stack">
+              <pre class="code" style="font-size:1.2cqw" data-part="code-report"><span class="c">// FleetDashboard.Shared · Telemetry.cs</span>
+<span class="k">public sealed record</span> VehicleReport(
+    <span class="k">int</span>            <span data-part="f-vehicleid">VehicleId</span>,
+    <span class="k">long</span>           <span data-part="f-sequence">Sequence</span>,
+    DateTimeOffset <span data-part="f-observed">ObservedAtUtc</span>,
+    <span class="k">double</span>         <span data-part="f-lon">Longitude</span>,
+    <span class="k">double</span>         <span data-part="f-lat">Latitude</span>,
+    <span class="k">double</span>         SpeedKph,
+    <span class="k">string</span>         RouteId);</pre>
+              <pre class="code" style="font-size:1.2cqw" data-part="code-frame"><span class="c">// One frame carries the whole roster</span>
+<span class="k">public sealed record</span> FleetFrame(
+    Guid                         <span data-part="f-runid">RunId</span>,
+    <span class="k">long</span>                         FrameSequence,
+    DateTimeOffset               PublishedAtUtc,
+    IReadOnlyList&lt;VehicleReport&gt; <span data-part="f-vehicles">Vehicles</span>);</pre>
+            </div>
+            <div class="stack">
+              <div class="panel teal-top" data-part="panel-marker">
+                <p class="panel-title">Fields → one marker</p>
+                <p class="body mono" style="font-size:1.25cqw">Longitude, Latitude → point geometry<br>VehicleId → object ID and attributes<br>SpeedKph, ObservedAtUtc → details and staleness</p>
+              </div>
+              <div class="panel amber-top" data-part="panel-frame">
+                <p class="panel-title">Frame-level, not vehicle-level</p>
+                <p class="body"><span class="tag stale">RunId</span> changes on a server restart and on a reset, so old sequence numbers stop counting.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <footer class="route-band"><span class="route-track"><span class="route-fill"></span></span></footer>
+      </section>
+
+      <!-- ===================== 08 ===================== -->
+      <section class="slide" data-slide data-label="Send the latest when you're ready" data-screen-label="08">
+        <header class="tape"><span class="where" role="img" aria-label="Stage 2 of 6: Send."><span class="where-zone">Server</span><span class="where-chip" data-stage="1">Store</span><span class="where-arrow" aria-hidden="true">→</span><span class="where-chip on" data-stage="2">Send</span><span class="where-sep" aria-hidden="true"></span><span class="where-zone">Browser</span><span class="where-chip" data-stage="3">Newest frame</span><span class="where-arrow" aria-hidden="true">→</span><span class="where-chip" data-stage="4">Fleet state</span><span class="where-arrow" aria-hidden="true">→</span><span class="where-chip" data-stage="5">Map edits</span><span class="where-arrow" aria-hidden="true">→</span><span class="where-chip" data-stage="6">Cadence</span></span><span class="tape-mark">08</span></header>
+        <div class="slide-body" data-build="scene" data-scene="08-channel">
+          <h1>Send the latest when you're ready</h1>
+          <div class="split" style="grid-template-columns:.9fr 1.2fr">
+            <div class="stack" style="justify-content:center; gap:2.4cqw">
+              <div>
+              <span class="zone-label">The server</span>
+              <div class="chan" role="img" aria-label="A frame clock ticks. Each tick, the server builds one frame from the store and sends it to every browser. When one browser is slow, the next tick waits for the send to finish, and the next frame is built fresh.">
+                <div class="chan-node" data-part="clock"><b>Frame clock</b><div class="chan-sim" data-part="tick">tick</div><span>PeriodicTimer</span><span class="chan-late" data-part="late" style="opacity:0">tick due, waiting</span></div>
+                <div class="chan-pipe" data-part="pipe">
+                  <span class="chan-slot" data-part="slot-t5"><span class="chan-card"><span class="chan-frame">Truck 5</span></span></span>
+                  <span class="chan-slot" data-part="slot-t6"><span class="chan-card"><span class="chan-frame">Truck 6</span></span></span>
+                  <span class="chan-slot" data-part="slot-t7"><span class="chan-card"><span class="chan-frame">Truck 7</span></span></span>
+                  <span class="chan-out" data-part="out">
+                    <span class="chan-card gone" data-part="card-41"><span class="chan-frame" data-part="card-41-out">frame 41</span></span>
+                    <span class="chan-card gone" data-part="card-42"><span class="chan-frame">frame 42</span></span>
+                    <span class="chan-card" data-part="card-43"><span class="chan-frame">frame 43</span></span>
+                  </span>
+                  <i>the store: latest per truck<br>built when sent, nothing queued</i>
+                </div>
+                <div class="chan-node" data-part="send"><b>Send</b><span>SendAsync<br>to all clients</span>
+                  <div class="chan-wait" data-part="wait" style="opacity:0"><div class="chan-ring" data-part="ring"></div>send waiting</div>
+                  <div class="chan-pkt" data-part="pkt-1"></div><div class="chan-pkt" data-part="pkt-2"></div><div class="chan-pkt" data-part="pkt-3"></div>
+                  <div class="chan-pkt" data-part="pkt-4"></div><div class="chan-pkt" data-part="pkt-5"></div><div class="chan-pkt" data-part="pkt-6"></div>
+                  <div class="chan-browsers"><div class="chan-browser" data-part="browser-1"></div><div class="chan-browser" data-part="browser-2"></div><div class="chan-browser" data-part="browser-3"></div></div>
+                </div>
+              </div>
+              </div>
+            </div>
+            <pre class="code" style="font-size:1.1cqw"><span class="c">// FleetBroadcaster.cs · abbreviated</span>
+<span class="k">using var</span> timer = <span class="k">new</span> PeriodicTimer(FrameInterval());
+<span class="k">while</span> (<span class="k">await</span> timer.WaitForNextTickAsync(stoppingToken))
+{
+    <span class="c">// a slow send delays the next tick; missed ticks are not replayed</span>
+    <span class="k">await</span> BroadcastAsync(_frameBuilder.CreateFrame(), stoppingToken);
+
+    <span class="c">// re-read the frame rate each tick</span>
+    TimeSpan interval = FrameInterval();
+    <span class="k">if</span> (timer.Period != interval) timer.Period = interval;
+}</pre>
+          </div>
+          <p class="caption learn">Learn more: <a href="https://learn.microsoft.com/en-us/dotnet/api/system.threading.periodictimer">PeriodicTimer</a></p>
+        </div>
+        <footer class="route-band"><span class="route-track"><span class="route-fill"></span></span></footer>
+      </section>
+
+      <!-- ===================== 09 ===================== -->
+      <section class="slide" data-slide data-label="The browser keeps the newest frame" data-screen-label="09">
+        <header class="tape"><span class="where" role="img" aria-label="Stage 3 of 6: Newest frame."><span class="where-zone">Server</span><span class="where-chip" data-stage="1">Store</span><span class="where-arrow" aria-hidden="true">→</span><span class="where-chip" data-stage="2">Send</span><span class="where-sep" aria-hidden="true"></span><span class="where-zone">Browser</span><span class="where-chip on" data-stage="3">Newest frame</span><span class="where-arrow" aria-hidden="true">→</span><span class="where-chip" data-stage="4">Fleet state</span><span class="where-arrow" aria-hidden="true">→</span><span class="where-chip" data-stage="5">Map edits</span><span class="where-arrow" aria-hidden="true">→</span><span class="where-chip" data-stage="6">Cadence</span></span><span class="tape-mark">09</span></header>
+        <div class="slide-body" data-build="scene" data-scene="09-newest">
+          <h1>The browser keeps the newest frame</h1>
+          <div class="newest">
+            <div class="nf-source" data-part="source"><b>Received</b><span>every frame is<br>deserialized</span><i>10 a second at stress</i></div>
+            <span class="arrow" aria-hidden="true">→</span>
+            <div class="nf-slot-wrap" data-part="slot-wrap">
+              <span class="zone-label">Newest frame <span class="tag keep">keep latest</span></span>
+              <div class="chan-slot nf-slot" role="img" aria-label="One slot. Each frame that arrives replaces the one before it.">
+                <span class="chan-card" data-part="in-41"><span class="chan-frame" data-part="out-41">frame 41</span></span>
+                <span class="chan-card" data-part="in-42"><span class="chan-frame" data-part="out-42">frame 42</span></span>
+                <span class="chan-card" data-part="in-43"><span class="chan-frame">frame 43</span></span>
+              </div>
+            </div>
+            <span class="arrow" aria-hidden="true">←</span>
+            <div class="nf-tick" data-part="tick">
+              <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="17"/><path d="M20 7v13l8 5"/><path class="ticks" d="M20 3v3M37 20h-3M20 37v-3M3 20h3"/></svg>
+              <div><b>Page tick</b><span>reads the slot</span><em data-part="tick-read">read: frame 43</em></div>
+            </div>
+          </div>
+          <div class="nf-ten" data-part="ten" aria-label="Of ten frames, about two are read.">
+            <span class="nf-frames" aria-hidden="true"><i></i><i class="read"></i><i></i><i></i><i></i><i></i><i class="read"></i><i></i><i></i><i></i></span>
+            <p class="caption">Under stress the page reads about 2 of every 10 frames.</p>
+          </div>
+        </div>
+        <footer class="route-band"><span class="route-track"><span class="route-fill"></span></span></footer>
+      </section>
+
+      <!-- ===================== 10 ===================== -->
+      <section class="slide" data-slide data-label="Map, layer, feature" data-screen-label="10">
+        <header class="tape"><span class="tape-section">Architecture · GIS terms</span><span class="tape-mark">10</span></header>
+        <div class="slide-body" data-build="steps">
+          <h1>Map, layer, feature</h1>
+          <div class="split" style="grid-template-columns:1.2fr 1fr">
+            <figure class="shot-figure" data-build-step="0">
+              <img src="assets/map-feature.png" alt="The map zoomed to truck 007, with the selected truck ringed and its route name shown.">
+              <figcaption>Truck 007 selected</figcaption>
+            </figure>
+            <div class="stack terms">
+              <div class="term" data-build-step="1"><b>Feature</b><span>One truck: a point plus attributes<br><code>oid</code>, <code>vehicle</code>, <code>speedKph</code>, <code>route</code>, <code>status</code></span></div>
+              <div class="term" data-build-step="2"><b>Layer</b><span>The fleet: a <code>FeatureLayer</code><br>The routes: a <code>GraphicsLayer</code></span></div>
+              <pre class="code" style="font-size:1.05cqw" data-build-step="3"><span class="c">// FleetMap.razor · abbreviated</span>
+&lt;MapView OnClick=<span class="k">"SelectAtPoint"</span>&gt;
+  &lt;Map&gt;
+    &lt;GraphicsLayer Title=<span class="k">"Stored demonstration routes"</span> /&gt;
+    &lt;FeatureLayer Title=<span class="k">"Fleet vehicles"</span>
+                  <span class="hl">ObjectIdField="oid"</span> ... /&gt;
+    &lt;GraphicsLayer Title=<span class="k">"Selected vehicle"</span> /&gt;
+  &lt;/Map&gt;
+&lt;/MapView&gt;</pre>
+              <p class="term-note" data-build-step="3"><code>ObjectIdField</code> names the attribute GeoBlazor pairs with a stable <code>Graphic.Id</code> to update the right feature.</p>
+              <p class="term-note" data-build-step="3">An edit is one <code>ApplyEdits</code> call.</p>
+            </div>
+          </div>
+          <p class="caption learn">Learn more: <a href="https://docs.geoblazor.com">docs.geoblazor.com</a></p>
+        </div>
+        <footer class="route-band"><span class="route-track"><span class="route-fill"></span></span></footer>
+      </section>
+
+      <!-- ===================== 11 ===================== -->
+      <section class="slide" data-slide data-label="Fleet state: a queue or one slot per truck" data-screen-label="11">
+        <header class="tape"><span class="where" role="img" aria-label="Stage 4 of 6: Fleet state."><span class="where-zone">Server</span><span class="where-chip" data-stage="1">Store</span><span class="where-arrow" aria-hidden="true">→</span><span class="where-chip" data-stage="2">Send</span><span class="where-sep" aria-hidden="true"></span><span class="where-zone">Browser</span><span class="where-chip" data-stage="3">Newest frame</span><span class="where-arrow" aria-hidden="true">→</span><span class="where-chip on" data-stage="4">Fleet state</span><span class="where-arrow" aria-hidden="true">→</span><span class="where-chip" data-stage="5">Map edits</span><span class="where-arrow" aria-hidden="true">→</span><span class="where-chip" data-stage="6">Cadence</span></span><span class="tape-mark">11</span></header>
+        <div class="slide-body" data-build="scene" data-scene="10-queue">
+          <h1><span class="impl">Implementation #1 · in the browser</span> Every report goes to the map</h1>
+          <div class="split" style="grid-template-columns:1.3fr 1fr">
+            <div class="stack">
+              <pre class="code" style="font-size:1.05cqw"><span class="c">// VehicleGraphicFactory.cs · abbreviated: one graphic per report</span>
+<span class="k">new</span> Graphic(<span class="k">new</span> Point(vehicle.Longitude, vehicle.Latitude),
+    attributes: <span class="k">new</span> AttributesDictionary(<span class="k">new</span> Dictionary&lt;<span class="k">string</span>, <span class="k">object</span>?&gt;
+    {
+        [<span class="k">"oid"</span>]      = objectId ?? vehicle.VehicleId,
+        [<span class="k">"speedKph"</span>] = vehicle.SpeedKph,
+        [<span class="k">"status"</span>]   = vehicle.Status.ToString()
+    }))
+{ Id = graphicId ?? Guid.NewGuid() };</pre>
+              <pre class="code" style="font-size:1.05cqw"><span class="c">// FleetMap.razor · ApplyVehicleDelta, abbreviated</span>
+FeatureEditsResult result = <span class="k">await</span> _vehicleLayer!.ApplyEdits(
+    <span class="k">new</span> FeatureEdits { UpdateFeatures = updates },
+    cancellationToken: _lifetime.Token);</pre>
+            </div>
+            <div class="stack">
+              <div class="panel teal-top queue" data-part="queue">
+                <p class="panel-title">Raw queue · first in, first out</p>
+                <div class="q-lane" data-part="lane">
+                  <div class="q-worker" data-part="worker"><b>Map edit</b>one at a time</div>
+                  <span class="q-row" data-part="q-row"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="hot"></i><i class="hot"></i><i class="hot"></i><u class="q-stop" data-part="stop"><b>20,000 safety stop</b></u></span>
+                  <span class="q-arrivals" data-part="arrivals">◂ reports</span>
+                  <em class="q-chip in" data-part="in-1"></em><em class="q-chip in" data-part="in-2"></em><em class="q-chip in" data-part="in-3"></em><em class="q-chip in" data-part="in-4"></em><em class="q-chip in" data-part="in-5"></em><em class="q-chip in" data-part="in-6"></em><em class="q-chip in" data-part="in-7"></em><em class="q-chip in" data-part="in-8"></em><em class="q-chip in" data-part="in-9"></em><em class="q-chip in" data-part="in-10"></em>
+                  <em class="q-chip out" data-part="out-1"></em><em class="q-chip out" data-part="out-2"></em><em class="q-chip out" data-part="out-3"></em>
+                </div>
+                <div class="q-banner" data-part="banner">Baseline safety stop</div>
+                <div class="q-behind" data-part="behind"><span data-part="arrow-1">◂</span><span data-part="arrow-2">◂</span><span data-part="arrow-3">◂</span><b>telemetry still arriving behind it</b></div>
+              </div>
+              <div class="metrics">
+                <span class="metric"><span class="metric-label">Incoming</span><span class="metric-value">5,000</span><span class="metric-note">records / s</span></span>
+                <span class="metric"><span class="metric-label">Pending</span><span class="metric-value danger" data-part="pending">20,000</span><span class="metric-note">safety cap</span></span>
+              </div>
+              <figure class="shot-figure" style="flex:1">
+                <img src="assets/baseline.png" alt="Baseline mode at the stress preset, showing the red baseline safety-stop banner and the metrics strip.">
+                <figcaption>Live in <code>baseline</code>: the safety stop</figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>
+        <footer class="route-band"><span class="route-track"><span class="route-fill"></span></span></footer>
+      </section>
+
+      <!-- ===================== 12 ===================== -->
+      <section class="slide" data-slide data-label="Map edits: one call for every truck" data-screen-label="12">
+        <header class="tape"><span class="where" role="img" aria-label="Stage 5 of 6: Map edits."><span class="where-zone">Server</span><span class="where-chip" data-stage="1">Store</span><span class="where-arrow" aria-hidden="true">→</span><span class="where-chip" data-stage="2">Send</span><span class="where-sep" aria-hidden="true"></span><span class="where-zone">Browser</span><span class="where-chip" data-stage="3">Newest frame</span><span class="where-arrow" aria-hidden="true">→</span><span class="where-chip" data-stage="4">Fleet state</span><span class="where-arrow" aria-hidden="true">→</span><span class="where-chip on" data-stage="5">Map edits</span><span class="where-arrow" aria-hidden="true">→</span><span class="where-chip" data-stage="6">Cadence</span></span><span class="tape-mark">12</span></header>
+        <div class="slide-body" data-build="scene" data-scene="12-batch">
+          <h1><span class="impl">Stage 5 · the second batch</span> Map edits: one call for every truck</h1>
+          <div class="split">
+            <div class="stack">
+              <p class="code-label" style="color:var(--red)">Before · one awaited edit per feature</p>
+              <pre class="code" style="background-image:none;background:var(--code-bg);border:1px solid var(--red);border-left:.35cqw solid var(--red)"><span class="k">foreach</span> (VehicleListItem update <span class="k">in</span> updates)
+{
+    <span class="k">await</span> ApplyVehicleDelta([update], []);
+    RemoveAppliedDelta([update], []);
+    appliedCalls++;
+}</pre>
+            </div>
+            <div class="stack">
+              <p class="code-label" style="color:var(--teal-soft)">After · one awaited collection edit</p>
+              <pre class="code"><span class="c">// FleetMap.razor · DrainUpdates, EditGranularity branch</span>
+<span class="k">await</span> ApplyVehicleDelta(updates, removals);
+RemoveAppliedDelta(updates, removals);
+appliedCalls++;</pre>
+            </div>
+          </div>
+          <div class="split" style="grid-template-columns:1.3fr 1fr">
+            <div class="panel teal-top batch" data-part="batch">
+              <p class="panel-title">500 map edits become 1 call, then 3 chunks</p>
+              <div class="b-row" data-part="row-many"><span class="b-bar"><span class="b-many" data-part="ticks" aria-hidden="true"></span></span><b><span data-part="calls">500</span> × ApplyEdits(1 feature)</b></div>
+              <div class="b-row" data-part="row-one"><span class="b-bar"><span class="b-one" data-part="one" aria-hidden="true"></span><span class="b-heavy" data-part="heavy" aria-hidden="true"></span></span><b>1 × ApplyEdits(500 features)</b></div>
+              <div class="b-row" data-part="row-chunk"><span class="b-bar"><span class="b-chunk" aria-hidden="true"><i>200</i><i>200</i><i>100</i></span></span><b>GeoBlazor splits it internally</b></div>
+              <p class="body" data-part="honest"><b style="color:var(--red)">Honest result:</b> under 1 truck a second became 30 to 70. But each call now takes 4 to 6 s, so every truck still waits.<br>More trucks a second is not a smoother map.</p>
+            </div>
+            <div class="panel amber-top" data-part="roads">
+              <p class="panel-title">Roads we tried</p>
+              <ul class="list" style="font-size:1.2cqw">
+                <li><s data-part="strike-graphics"><code>GraphicsLayer</code> in a loop</s>: a margin, not a multiple</li>
+                <li><s data-part="strike-setsource"><code>SetSource</code></s>: 2 of 40 trucks still clickable</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <footer class="route-band"><span class="route-track"><span class="route-fill"></span></span></footer>
+      </section>
+
+      <!-- ===================== 13 ===================== -->
+      <section class="slide" data-slide data-label="Cadence" data-screen-label="13">
+        <header class="tape"><span class="where" role="img" aria-label="Stage 6 of 6: Cadence."><span class="where-zone">Server</span><span class="where-chip" data-stage="1">Store</span><span class="where-arrow" aria-hidden="true">→</span><span class="where-chip" data-stage="2">Send</span><span class="where-sep" aria-hidden="true"></span><span class="where-zone">Browser</span><span class="where-chip" data-stage="3">Newest frame</span><span class="where-arrow" aria-hidden="true">→</span><span class="where-chip" data-stage="4">Fleet state</span><span class="where-arrow" aria-hidden="true">→</span><span class="where-chip" data-stage="5">Map edits</span><span class="where-arrow" aria-hidden="true">→</span><span class="where-chip on" data-stage="6">Cadence</span></span><span class="tape-mark">13</span></header>
+        <div class="slide-body" data-build="scene" data-scene="16-cadence">
+          <h1>Cadence</h1>
+          <div class="cadence">
+            <div class="cadence-row" data-part="row-map">
+              <span class="cadence-name">Timer</span>
+              <span class="cadence-track fast" role="img" aria-label="Four page timer ticks per second"><span class="cadence-track medium scene-overlay" data-part="map-old" aria-hidden="true"></span><span class="scene-playhead" data-part="head-map" aria-hidden="true"></span></span>
+              <span class="cadence-value">250 ms, was 100</span>
+            </div>
+            <div class="cadence-row" data-part="row-chart">
+              <span class="cadence-name">Chart</span>
+              <span class="cadence-track slow" role="img" aria-label="One chart sample per second"><span class="scene-playhead" data-part="head-chart" aria-hidden="true"></span></span>
+              <span class="cadence-value">1 a second</span>
+            </div>
+          </div>
+          <div class="panel teal-top" data-part="ticklist">
+            <p class="panel-title">Every tick of the page timer</p>
+            <ul class="list">
+              <li>Reads the newest frame and updates fleet state</li>
+              <li>Hands the map the pending batch, and redraws the chart and counters</li>
+              <li>The chart keeps 60 samples; the counters report over a 5-second window</li>
+            </ul>
+          </div>
+          <p class="screen small" data-part="closing">Map calls a second: about 0.19 at 100 ms, about 0.20 at 250 ms. One edit outlasts either interval.</p>
+        </div>
+        <footer class="route-band"><span class="route-track"><span class="route-fill"></span></span></footer>
+      </section>
+
+      <!-- ===================== 14 ===================== -->
+      <section class="slide" data-slide data-label="Where does the time go?" data-screen-label="14">
+        <header class="tape"><span class="tape-section">Implementations · measurements</span><span class="tape-mark">14</span></header>
+        <div class="slide-body">
+          <h1>Where does the time go?</h1>
+        </div>
+        <footer class="route-band"><span class="route-track"><span class="route-fill"></span></span></footer>
+      </section>
+
+      <!-- ===================== 15 ===================== -->
+      <section class="slide" data-slide data-label="Implementation #5: only send what the map can see" data-screen-label="15">
+        <header class="tape"><span class="where" role="img" aria-label="Stage 2 of 6: Send."><span class="where-zone">Server</span><span class="where-chip" data-stage="1">Store</span><span class="where-arrow" aria-hidden="true">→</span><span class="where-chip on" data-stage="2">Send</span><span class="where-sep" aria-hidden="true"></span><span class="where-zone">Browser</span><span class="where-chip" data-stage="3">Newest frame</span><span class="where-arrow" aria-hidden="true">→</span><span class="where-chip" data-stage="4">Fleet state</span><span class="where-arrow" aria-hidden="true">→</span><span class="where-chip" data-stage="5">Map edits</span><span class="where-arrow" aria-hidden="true">→</span><span class="where-chip" data-stage="6">Cadence</span></span><span class="tape-mark">15</span></header>
+        <div class="slide-body" data-build="scene" data-scene="14-viewport">
+          <h1><span class="impl">Implementation #5 · server and browser <span class="tag stale">Experiment</span></span> Only send what the map can see</h1>
+          <div class="split" style="grid-template-columns:1.25fr 1fr">
+            <div class="viewmap" data-part="viewmap" role="img" aria-label="A fleet map with a rectangle for the current view. Trucks inside it update at full rate, trucks outside once a second, and Truck 007 stays at full rate outside the rectangle.">
+              <svg class="routes" data-part="routes" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                <path d="M5 22 L30 32 L55 42 L95 26"/><path d="M8 80 L35 60 L62 50 L92 72"/><path d="M3 50 L28 48 L48 30 L75 18 L97 12"/><path d="M30 5 L45 35 L62 62 L75 95"/>
+              </svg>
+              <span class="view-rect" data-part="rect"><i>bounding box · the current view</i></span>
+              <span class="fleet" data-part="fleet" aria-hidden="true">
+                <span class="dot in" style="left:38%;top:35%"></span><span class="dot in" style="left:50%;top:40%"></span><span class="dot in" style="left:35%;top:42%"></span><span class="dot in" style="left:54%;top:49%"></span><span class="dot in" style="left:40%;top:58%"></span>
+                <span class="dot out" style="left:8%;top:23%"></span><span class="dot out" style="left:18%;top:27%"></span><span class="dot out" style="left:65%;top:38%"></span><span class="dot out" style="left:80%;top:32%"></span><span class="dot out" style="left:92%;top:27%"></span>
+                <span class="dot out" style="left:14%;top:76%"></span><span class="dot out" style="left:24%;top:68%"></span><span class="dot out" style="left:72%;top:57%"></span><span class="dot out" style="left:80%;top:63%"></span>
+                <span class="dot out" style="left:10%;top:49%"></span><span class="dot out" style="left:20%;top:49%"></span><span class="dot out" style="left:60%;top:25%"></span><span class="dot out" style="left:87%;top:15%"></span>
+                <span class="dot out" style="left:35%;top:15%"></span><span class="dot out" style="left:66%;top:72%"></span><span class="dot out" style="left:72%;top:87%"></span>
+              </span>
+              <span class="dot agent" data-part="agent" style="left:88%;top:69%"><b>007</b><svg class="bowtie" viewBox="0 0 24 12" aria-hidden="true"><path d="M12 6 L2 1 V11 Z M12 6 L22 1 V11 Z"/><rect x="10" y="3.5" width="4" height="5" rx="1"/></svg></span>
+              <span class="vm-caption" data-part="vm-caption">We never lose our agent.</span>
+            </div>
+            <div class="stack">
+              <div class="panel rx" data-part="rx">
+                <span class="rx-browser" data-part="rx-browser"><svg viewBox="0 0 32 24" aria-hidden="true"><rect x="1" y="1" width="30" height="22" rx="3"/><path d="M1 7h30"/><circle cx="5" cy="4" r=".9"/><circle cx="8.5" cy="4" r=".9"/></svg><b>receive</b></span>
+                <span class="rx-stream" aria-hidden="true"><i class="rec"></i><i class="rec"></i><i class="rec"></i><i class="rec"></i><i class="rec"></i></span>
+                <span class="rx-nums"><b><span data-part="rate">1,600</span> records/s</b><b><span data-part="perframe">160</span> per frame</b></span>
+                <span class="rx-note">Measured: stress preset, zoomed in on Truck 007.</span>
+              </div>
+              <div class="panel teal-top rules" data-part="rules">
+                <p data-part="rule-in"><span class="tag live">Inside</span>Full rate, every frame.</p>
+                <p data-part="rule-out"><span class="tag plain">Outside</span>Once a second, so the list stays complete.</p>
+                <p data-part="rule-sel"><span class="tag stale">Selected truck</span>Full rate, wherever it goes.</p>
+              </div>
+              <div class="panel" data-part="safe"><p class="panel-title">Still safe</p><p class="body">Every truck still arrives once a second.</p></div>
+              <div class="panel amber-top next" data-part="next"><p class="body" style="font-size:1.2cqw"><b>Result:</b> ⅔ less data. Edit time within the noise (4.8 → 4.3 s median).</p><p class="caption">Better answer: StreamLayer, once GeoBlazor wraps it.</p></div>
+            </div>
+          </div>
+        </div>
+        <footer class="route-band"><span class="route-track"><span class="route-fill"></span></span></footer>
+      </section>
+
+      <!-- ===================== 16 ===================== -->
+      <section class="slide" data-slide data-label="Compare the same workload" data-screen-label="16">
+        <header class="tape"><span class="tape-section">Implementations · comparison</span><span class="tape-mark">16</span></header>
+        <div class="slide-body" data-build="steps">
+          <h1>Compare the same workload</h1>
+          <div class="split" style="flex:1; min-height:0; grid-template-columns:1fr 1.1fr">
+            <!-- Values: demo/measurements/results.json (2026-10-09), applyP50Ms per condition. Bar width is
+                 the share of the slowest run (6.43 s). Trucks per call follow EditGranularity in FleetMap.razor. -->
+            <figure class="edit-chart" data-build-step="0" role="img" aria-label="Median time for one map update under the stress load: implementation 1, 1.4 seconds; 2, 1.4 seconds; 3, 6.4 seconds; 4, 4.8 seconds; 5 zoomed in, 4.3 seconds; 5 at the full region, 5.0 seconds.">
+              <p class="panel-title">Time for one map update · median</p>
+              <p class="ec-load">Stress load: 500 trucks, 10 reports a second each</p>
+              <ol class="ec-bars">
+                <li style="--i:0; --w:21.3%"><span class="ec-name">#1 every report</span><span class="ec-track"><span class="ec-bar"></span></span><b>1.4 s</b><i>1 truck per call</i></li>
+                <li style="--i:1; --w:22.4%"><span class="ec-name">#2 latest</span><span class="ec-track"><span class="ec-bar"></span></span><b>1.4 s</b><i>1 truck per call</i></li>
+                <li style="--i:2; --w:100%"><span class="ec-name">#3 batched</span><span class="ec-track"><span class="ec-bar"></span></span><b>6.4 s</b><i>every changed truck in one call</i></li>
+                <li style="--i:3; --w:75%"><span class="ec-name">#4 scheduled</span><span class="ec-track"><span class="ec-bar"></span></span><b>4.8 s</b><i>every changed truck in one call</i></li>
+                <li style="--i:4; --w:67.2%"><span class="ec-name">#5 zoomed in</span><span class="ec-track"><span class="ec-bar"></span></span><b>4.3 s</b><i>every changed truck in one call</i></li>
+                <li style="--i:5; --w:77.9%"><span class="ec-name">#5 full region</span><span class="ec-track"><span class="ec-bar"></span></span><b>5.0 s</b><i>every changed truck in one call</i></li>
+              </ol>
+              <figcaption>From the awaited call to its return, not to the painted pixel · median of 3 runs · presentation machine</figcaption>
+            </figure>
+            <div class="stack">
+              <table class="data" style="font-size:1.12cqw" data-build-step="1">
+                <thead><tr><th>#</th><th>Browser keeps</th><th>Map update</th><th>Server sends</th></tr></thead>
+                <tbody>
+                  <tr><td>1</td><td>raw queue, 20,000 cap</td><td>one call per report</td><td>every frame</td></tr>
+                  <tr><td>2</td><td>latest per truck</td><td>one call per truck</td><td>every frame</td></tr>
+                  <tr><td>3</td><td>latest per truck</td><td>one call per batch</td><td>every frame</td></tr>
+                  <tr><td>4</td><td>latest per truck</td><td>one batch, 250 ms</td><td>every frame</td></tr>
+                  <tr><td>5</td><td>latest per truck</td><td>one batch, 250 ms</td><td>only what the map sees</td></tr>
+                </tbody>
+              </table>
+              <div class="metrics" data-build-step="2">
+                <span class="metric"><span class="metric-label">Normal load</span><span class="metric-value">~17 ms</span><span class="metric-note">per map update · 50 trucks</span></span>
+                <span class="metric"><span class="metric-label">Tenth the rate</span><span class="metric-value">2.3 → 0.2 s</span><span class="metric-note">per map update</span></span>
+                <span class="metric"><span class="metric-label">GPU = software</span><span class="metric-value">same</span><span class="metric-note">painting is not the cost</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <footer class="route-band"><span class="route-track"><span class="route-fill"></span></span></footer>
+      </section>
+
+      <!-- ===================== 17 ===================== -->
+      <section class="slide" data-slide data-label="Streams someone else hosts" data-screen-label="17">
+        <header class="tape"><span class="tape-section">Beyond the trucks · hosted layers</span><span class="tape-mark">17</span></header>
+        <div class="slide-body">
+          <h1>Streams someone else hosts</h1>
+          <div class="split" style="grid-template-columns:1fr 1.2fr">
+            <div class="stack cascade">
+              <p class="toggle" style="--i:0"><span class="sw on" aria-hidden="true"></span><b>NOAA weather radar</b><i>free · refreshes every 5 minutes</i></p>
+              <p class="toggle" style="--i:1"><span class="sw on" aria-hidden="true"></span><b>NWS watches and warnings</b><i>free · refreshes every 3 minutes</i></p>
+              <p class="toggle" style="--i:2"><span class="sw" aria-hidden="true"></span><b>Traffic</b><i>Esri · needs an ArcGIS API key · every 5 minutes</i></p>
+            </div>
+            <table class="data">
+              <thead><tr><th></th><th>Someone else's stream</th><th>Your stream</th></tr></thead>
+              <tbody>
+                <tr><td>Code</td><td>a refresh interval</td><td>a store, frames, and the stages after them</td></tr>
+                <tr><td>How often it changes</td><td>theirs</td><td>yours</td></tr>
+                <tr><td>Format</td><td>theirs</td><td>yours</td></tr>
+                <tr><td>Filtering</td><td>not at the source</td><td>stage 2, per connection</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="caption learn">Learn more: <a href="https://livingatlas.arcgis.com">ArcGIS Living Atlas</a></p>
+        </div>
+        <footer class="route-band"><span class="route-track"><span class="route-fill"></span></span></footer>
+      </section>
+
+      <!-- ===================== 18 ===================== -->
+      <section class="slide" data-slide data-label="When the feed breaks" data-screen-label="18">
+        <header class="tape"><span class="tape-section">Reliability · stale and reconnect · resilient</span><span class="tape-mark">18</span></header>
+        <div class="slide-body" data-build="scene" data-scene="20-reconnect">
+          <h1>Connected does not mean current</h1>
+          <div class="split">
+            <div class="stack">
+              <figure class="shot-figure" style="flex:1" data-asset="assets/stale.png" data-scene-hook="17-dark">
+                <div class="dark-stage" data-part="dark-stage">
+                  <div class="dark-frame">
+                  <img src="assets/stale.png" alt="Vehicle 7 marked Stale with its last-known position, an amber marker, and a gap in the speed chart.">
+                  <span class="dark-tint" data-part="dark-tint" aria-hidden="true"></span>
+                  <svg class="dark-radar" data-part="dark-radar" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="46" data-part="dark-ring"/><path data-part="dark-sweep" d="M50 50 L50 4 A46 46 0 0 1 82.5 17.5 Z"/><text x="50" y="56" data-part="dark-lost">SIGNAL LOST</text></svg>
+                  </div>
+                </div>
+                <figcaption><b data-part="dark-caption">Agent 007 has gone dark.</b> Last observation: 9 seconds ago.</figcaption>
+              </figure>
+              <div class="panel amber-top"><p class="panel-title">Stale after 5 s</p><p class="body">Measured from <code>ObservedAtUtc</code>, never from frame receipt. Checked again on every page tick.</p></div>
+            </div>
+            <div class="stack">
+              <div class="row" style="gap:1.4cqw">
+                <span class="tag live" data-part="state-live" style="font-size:1.3cqw;padding:.6cqw 1.2cqw">Live</span>
+                <span class="arrow" data-part="arrow-1" aria-hidden="true">→</span>
+                <span class="tag stale" data-part="state-reconnecting" style="font-size:1.3cqw;padding:.6cqw 1.2cqw">Reconnecting</span>
+                <span class="arrow" data-part="arrow-2" aria-hidden="true">→</span>
+                <span class="tag live" data-part="state-current" style="font-size:1.3cqw;padding:.6cqw 1.2cqw">Live</span>
+              </div>
+              <figure class="shot-figure" style="flex:1">
+                <video class="shot-video" src="assets/reconnect.mp4" poster="assets/reconnect.png" controls muted playsinline preload="metadata" aria-label="Recording of the connection break, visible reconnect, snapshot merge, and returning movement."></video>
+                <figcaption>Break, reconnect, one snapshot merge, movement returns.</figcaption>
+              </figure>
+              <div class="panel teal-top" data-part="merge-rule"><p class="panel-title">Reconnect rules</p><p class="body">Auto-reconnect for dropped transports · merge by sequence · RunId guards resets · no replay</p></div>
+            </div>
+          </div>
+        </div>
+        <footer class="route-band"><span class="route-track"><span class="route-fill"></span></span></footer>
+      </section>
+
+      <!-- ===================== 19 ===================== -->
+      <section class="slide" data-slide data-label="What to take home" data-screen-label="19">
+        <header class="tape"><span class="where" role="img" aria-label="All six stages lit: Store, Send, Newest frame, Fleet state, Map edits, and Cadence."><span class="where-zone">Server</span><span class="where-chip on" data-stage="1">Store</span><span class="where-arrow" aria-hidden="true">→</span><span class="where-chip on" data-stage="2">Send</span><span class="where-sep" aria-hidden="true"></span><span class="where-zone">Browser</span><span class="where-chip on" data-stage="3">Newest frame</span><span class="where-arrow" aria-hidden="true">→</span><span class="where-chip on" data-stage="4">Fleet state</span><span class="where-arrow" aria-hidden="true">→</span><span class="where-chip on" data-stage="5">Map edits</span><span class="where-arrow" aria-hidden="true">→</span><span class="where-chip on" data-stage="6">Cadence</span></span><span class="tape-mark">19</span></header>
+        <div class="slide-body take-home" data-build="steps">
+          <h1 data-build-step="0">What to take home</h1>
+          <div class="pipeline">
+            <div class="zone">
+              <span class="zone-label">Server <em class="zone-note">all modes: latest per truck, one frame per interval</em></span>
+              <div class="zone-body">
+                <div class="node" data-stage="1"><div class="w-head"><b class="w-no">1</b><strong>Store</strong></div><span class="every">latest report per truck</span></div>
+                <div class="node" data-stage="2"><div class="w-head"><b class="w-no">2</b><strong>Send</strong></div><span class="every">every truck, one message, on a clock</span><span class="mode teal" data-build-step="4"><code>viewport</code> per connection: about 60% fewer trucks, no faster</span></div>
+              </div>
+            </div>
+            <div class="zone boundary">
+              <span class="zone-label">Browser</span>
+              <div class="zone-body">
+                <div class="node" data-stage="3"><div class="w-head"><b class="w-no">3</b><strong>Newest frame</strong></div><span class="every">each frame replaces the last</span></div>
+                <div class="node" data-stage="4"><div class="w-head"><b class="w-no">4</b><strong>Fleet state</strong></div><span class="every">a queue, or one slot per truck</span><span class="mode red" data-build-step="1"><code>baseline</code> every report: fell over</span><span class="mode teal" data-build-step="1"><code>latest</code> one slot per truck</span></div>
+                <div class="node" data-stage="5"><div class="w-head"><b class="w-no">5</b><strong>Map edits</strong></div><span class="every">one call per report, per truck, or for all</span><span class="mode teal" data-build-step="2"><code>batched</code> one call for all the trucks</span></div>
+                <div class="node" data-stage="6"><div class="w-head"><b class="w-no">6</b><strong>Cadence</strong></div><span class="every">one page timer, 100 or 250 ms</span><span class="mode teal" data-build-step="3"><code>scheduled</code> a 250 ms tick</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="row" style="gap:1.2cqw" data-build-step="5">
+            <span class="tag live">Bounded state</span>
+            <span class="tag live">One map edit in flight</span>
+            <span class="tag live">No edit outlives its component</span>
+          </div>
+          <p class="closing-line" data-build-step="6">The server batches and thins the data before the browser sees it, so the browser's job is to keep that work, not undo it, <span>and under stress the change that clearly helped was sending less.</span></p>
+        </div>
+        <footer class="route-band"><span class="route-track"><span class="route-fill"></span></span></footer>
+      </section>
+
+      <!-- ===================== 20 ===================== -->
+      <section class="slide" data-slide data-label="Questions" data-screen-label="20">
+        <header class="tape"><span class="tape-section">Close · questions</span><span class="tape-mark">20</span></header>
+        <div class="slide-body">
+          <h1 class="hero" style="font-size:4.6cqw">Questions</h1>
+          <div class="split" style="align-items:start">
+            <div class="stack">
+              <figure class="shot-figure qr" data-asset="assets/sample-url-qr.png">
+                <img src="assets/sample-url-qr.png" alt="QR code that opens the write-up and sample code for this session.">
+                <figcaption>Write-up, live demo, and sample code</figcaption>
+              </figure>
+              <figure class="url-figure" data-asset="assets/sample-url.txt">
+                <p class="panel-title">Sample code and write-up</p>
+                <code>https://timpurdum.dev/post/2026/10/15/techbash.html</code>
+              </figure>
+            </div>
+            <div class="stack">
+              <figure class="shot-figure qr" data-asset="assets/feedback-qr.png">
+                <img src="assets/feedback-qr.png" alt="QR code that opens the Sessionize feedback form for Real-Time Data Visualization in Blazor.">
+                <figcaption>Session feedback on Sessionize. Two minutes, and it decides whether this talk runs again.</figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>
+        <footer class="route-band"><span class="route-track"><span class="route-fill"></span></span></footer>
+      </section>
+
+      <!-- ===================== A1 ===================== -->
+      <section class="slide" data-slide data-label="Appendix · Running the sample" data-screen-label="A1">
+        <header class="tape"><span class="tape-section">Appendix · running the sample</span><span class="tape-mark">A1</span></header>
+        <div class="slide-body">
+          <h1>Running the sample</h1>
+          <div class="split" style="grid-template-columns:1.15fr 1fr">
+            <figure class="shot-figure">
+              <img src="assets/readme.png" alt="The sample README showing the requirements and the key configuration.">
+              <figcaption>The sample README: requirements and key configuration.</figcaption>
+            </figure>
+            <div class="stack">
+              <div class="panel teal-top"><p class="panel-title">Core registration</p><p class="body mono" style="font-size:1.25cqw">builder.Services.AddGeoBlazor(builder.Configuration);</p><p class="body">Core registration and ArcGIS authentication are separate concerns.</p></div>
+              <div class="panel"><p class="panel-title">Configuration keys</p><p class="body mono" style="font-size:1.25cqw">GeoBlazor:RegistrationKey<br>GeoBlazor:LicenseKey &nbsp;(fallback)<br>ArcGISApiKey &nbsp;(optional · turns on traffic)</p><p class="body">No real key is committed. Presenter credentials never ship.</p></div>
+              <div class="panel"><p class="panel-title">Checkpoints</p><p class="body">One launch serves every mode through <code>?mode=</code>, so recovery is a URL, not a branch.</p></div>
+            </div>
+          </div>
+        </div>
+        <footer class="route-band"><span class="route-track"><span class="route-fill"></span></span></footer>
+      </section>
+      <!-- ===================== A2 ===================== -->
+      <section class="slide" data-slide data-label="Appendix · What changes for Interactive Server?" data-screen-label="A2">
+        <header class="tape"><span class="tape-section">Appendix · interactive server variant</span><span class="tape-mark">A2</span></header>
+        <div class="slide-body">
+          <h1>What changes for Interactive Server?</h1>
+          <div class="pipeline">
+            <div class="zone">
+              <span class="zone-label">Server process</span>
+              <div class="zone-body">
+                <div class="node"><strong>Telemetry service</strong><span>events, in process</span></div>
+                <span class="arrow" aria-hidden="true">→</span>
+                <div class="node"><strong>Server-side state service</strong><span>per-user state</span></div>
+                <span class="arrow" aria-hidden="true">→</span>
+                <div class="node"><strong>Component dispatcher</strong><span>circuit updates</span></div>
+                <span class="arrow" aria-hidden="true">→</span>
+                <div class="node"><strong>GeoBlazor interop</strong><span>renders in the browser</span></div>
+              </div>
+            </div>
+          </div>
+          <ul class="list" style="font-size:1.4cqw">
+            <li>The SignalR hub is not needed: the circuit already is the connection.</li>
+            <li>Both models own their state and cleanup; on Server, per-user state lives on the server and every update crosses the circuit.</li>
+            <li>Circuit messages default to 32 KB, and GeoBlazor's own Server samples raise that limit.</li>
+            <li>Do not add a same-process hub client just to imitate the WebAssembly architecture.</li>
+          </ul>
+        </div>
+        <footer class="route-band"><span class="route-track"><span class="route-fill"></span></span></footer>
+      </section>
+      <!-- ===================== A3 ===================== -->
+      <section class="slide" data-slide data-label="Appendix · Measurement definitions" data-screen-label="A3">
+        <header class="tape"><span class="tape-section">Appendix · measurement definitions</span><span class="tape-mark">A3</span></header>
+        <div class="slide-body">
+          <h1>Measurement definitions</h1>
+          <div class="split" style="grid-template-columns:1.55fr 1fr">
+            <table class="data" style="font-size:1.15cqw">
+              <thead><tr><th>Metric</th><th>Definition</th></tr></thead>
+              <tbody>
+                <tr><td>Records / s</td><td>vehicle reports in newly observed frames; a repeated frame adds nothing</td></tr>
+                <tr><td>Pending records</td><td>raw queue size in baseline; dirty vehicle count in optimized modes</td></tr>
+                <tr><td>Replaced state</td><td>pending reports replaced by a newer report for the same vehicle</td></tr>
+                <tr><td>Application map calls / s</td><td>calls to FeatureLayer.ApplyEdits, not JavaScript calls</td></tr>
+                <tr><td>Features submitted / s</td><td>feature edits passed to the adapter, by add, update or delete</td></tr>
+                <tr><td>Edit duration</td><td>monotonic elapsed time around the awaited call, including internal chunks</td></tr>
+                                <tr><td>Selected observation age</td><td>now minus the last successfully applied observation time</td></tr>
+                <tr><td>Failure count</td><td>failed feature edits and failed batches</td></tr>
+                <tr><td>Reconnects</td><td>client reconnect events, a separate counter</td></tr>
+                <tr><td>Received frames / s, receipt-to-apply delay</td><td>defined in the demo plan, not measured</td></tr>
+              </tbody>
+            </table>
+            <div class="stack">
+              <div class="panel teal-top"><p class="panel-title">Protocol</p><p class="body">Release build, same seed and preset, 30 s warm-up, 60 s per mode, three repeats, counters reset between runs. The <code>viewport</code> runs fix the map extent: one zoomed on the selected truck, one at the full region.</p></div>
+              <div class="panel teal-top" style="flex:1">
+                <p class="panel-title">Environment</p>
+                <p class="body mono" style="font-size:1.02cqw;line-height:1.7;color:var(--text)">
+                  Run &nbsp; 2026-09-17 · Dell XPS 8960<br>
+                  Build &nbsp; Release · .NET 10 · Core 4.6.2<br>
+                  Chunk size &nbsp; 200 features<br>
+                  Browser &nbsp; Chromium 153, headed, RTX 3050<br>
+                  Window &nbsp; 30 s warm-up · 60 s run · 3 repeats<br>
+                  Workload &nbsp; 500 vehicles · 10 frames/s
+                </p>
+                <p class="body">Full record of the 2026-09-17 four-mode run, not the later run in the main talk: <code>assets/measurement-environment.txt</code>. Paint rate was not measured.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <footer class="route-band"><span class="route-track"><span class="route-fill"></span></span></footer>
+      </section>
+
+      <!-- ===================== A4 ===================== -->
+      <section class="slide" data-slide data-label="Appendix · Beyond the sample" data-screen-label="A4">
+        <header class="tape"><span class="tape-section">Appendix · beyond the sample</span><span class="tape-mark">A4</span></header>
+        <div class="slide-body">
+          <h1>Beyond the sample</h1>
+          <div class="split" style="grid-template-columns:1fr 1fr">
+            <div class="panel teal-top"><p class="panel-title">Durable event history</p><p class="body">Keep an append-only record when replay and audit matter more than freshness.</p></div>
+            <div class="panel teal-top"><p class="panel-title">Authorization</p><p class="body">Decide who may see which vehicles before the frame leaves the server.</p></div>
+            <div class="panel teal-top"><p class="panel-title">Routing</p><p class="body">Routing chooses a path. This demo follows stored paths and claims nothing about legal truck access.</p></div>
+            <div class="panel teal-top"><p class="panel-title">StreamLayer</p><p class="body">Coming in a later GeoBlazor release, it moves the live feed into the map itself.</p></div>
+          </div>
+          <p class="caption">These are named expansion points, not features hidden in the demonstration.</p>
+        </div>
+        <footer class="route-band"><span class="route-track"><span class="route-fill"></span></span></footer>
+      </section>
+
+      <!-- ===================== A5 ===================== -->
+      <section class="slide" data-slide data-label="Appendix · Choosing the update path" data-screen-label="A5">
+        <header class="tape"><span class="tape-section">Appendix · choosing the update path</span><span class="tape-mark">A5</span></header>
+        <div class="slide-body">
+          <h1>Choosing the update path</h1>
+          <div class="split" style="gap:1.6cqw">
+            <div class="panel teal-top">
+              <p class="panel-title">The JavaScript engine is not the constraint</p>
+              <p class="body" style="font-size:1.25cqw">A JavaScript-only control moved the same 500 points: one collection call took 10.9 ms at 119.5 fps and a single-feature call 0.1 ms. A JavaScript <code>GraphicsLayer</code> matched it on throughput only; GeoBlazor's own was not measured. A tenfold drop in offered records cut the dashboard's edit p50 from 2.3 s to 0.2 s (2026-09-19), so receive work dominates.</p>
+            </div>
+            <div class="panel teal-top">
+              <p class="panel-title">Three paths GeoBlazor exposes</p>
+              <ul class="list" style="font-size:1.12cqw">
+                <li>One collection <code>FeatureLayer.ApplyEdits</code> call: today's path, chunked at 200 graphics.</li>
+                <li><code>FeatureLayer.SetSource</code>, a bulk replacement: data stayed current but the rendered view desynced. After 40 calls, hit testing returned the vehicle's own feature for 2 of 40 and some feature for 27 of 40. A call took about 994 ms against 154 ms for <code>ApplyEdits</code>: context only, not a timing result.</li>
+                <li>A <code>GraphicsLayer</code>: one interop call per graphic, no bulk update, no renderer.</li>
+              </ul>
+            </div>
+            <div class="panel teal-top">
+              <p class="panel-title">Measure before choosing</p>
+              <ul class="list" style="font-size:1.12cqw">
+                <li>Visible movement, current attributes and status</li>
+                <li>Same object identity, working hit testing and selection</li>
+                <li>Join and leave handling</li>
+              </ul>
+              <p class="body" style="font-size:1.2cqw">Keep one edit in flight. Quote no timing before all of it.</p>
+            </div>
+            <div class="panel teal-top">
+              <p class="panel-title">No stream layer in 4.6.2</p>
+              <p class="body" style="font-size:1.25cqw">GeoBlazor 4.6.2 wraps no <code>StreamLayer</code>, the layer Esri designed for this. Keeping <code>FeatureLayer</code> also keeps the <code>UniqueValueRenderer</code>, the <code>ObjectIdField</code>, and <code>queryFeatures</code>.</p>
+            </div>
+          </div>
+          <p class="caption">Paint rate was never measured. Software and hardware WebGL runs of <code>batched</code> recorded the same edit durations, and edit duration excludes painting.</p>
+        </div>
+        <footer class="route-band"><span class="route-track"><span class="route-fill"></span></span></footer>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<button id="deck-rail-toggle" class="deck-control" type="button" aria-pressed="true" title="Hide slide thumbnails (T)">☰</button>
+<button id="deck-fullscreen" class="deck-control" type="button" title="Toggle fullscreen (F)" aria-label="Toggle fullscreen">⛶</button>
+<div id="deck-controls" aria-label="Slide navigation">
+  <button id="deck-previous" class="deck-control" type="button" aria-label="Previous slide">←</button>
+  <span id="deck-counter" aria-live="polite"></span>
+  <button id="deck-next" class="deck-control" type="button" aria-label="Next slide">→</button>
+</div>
+<p id="deck-message" role="status" hidden></p>
+<aside id="presenter-notes-panel" hidden aria-hidden="true" aria-labelledby="presenter-notes-title">
+  <button class="presenter-notes-close" type="button" aria-label="Close presenter notes">×</button>
+  <h2 id="presenter-notes-title">Current slide notes</h2>
+  <p id="presenter-notes-content"></p>
+</aside>
+
+<script src="assets/scenes/runner.js"></script>
+<script src="assets/scenes/04-pipeline.js"></script>
+<script src="assets/scenes/05-hosting.js"></script>
+<script src="assets/scenes/02-iris.js"></script>
+<script src="assets/scenes/06-contract.js"></script>
+<script src="assets/scenes/08-channel.js"></script>
+<script src="assets/scenes/09-newest.js"></script>
+<script src="assets/scenes/10-queue.js"></script>
+<script src="assets/scenes/12-batch.js"></script>
+<script src="assets/scenes/13-coalescing.js"></script>
+<script src="assets/scenes/14-viewport.js"></script>
+<script src="assets/scenes/16-cadence.js"></script>
+<script src="assets/scenes/20-reconnect.js"></script>
+<script>
+(() => {
+  const params = new URLSearchParams(location.search);
+  const isPreview = params.has("deckPreview");
+  const slides = [...document.querySelectorAll("section[data-slide]")].filter(slide => !slide.hasAttribute("data-deck-skip"));
+  const shell = document.getElementById("deck-shell");
+  const railToggle = document.getElementById("deck-rail-toggle");
+  const thumbnails = document.getElementById("deck-thumbnails");
+  const counter = document.getElementById("deck-counter");
+  const message = document.getElementById("deck-message");
+  const notesPanel = document.getElementById("presenter-notes-panel");
+  const notesTitle = document.getElementById("presenter-notes-title");
+  const notesContent = document.getElementById("presenter-notes-content");
+  let currentIndex = 0;
+  let presenterWindow = null;
+  let railVisible = true;
+  try { railVisible = localStorage.getItem("html-deck.railVisible") !== "0"; } catch { }
+  if (isPreview) document.body.classList.add("preview-mode");
+
+  slides.forEach((slide, index) => slide.style.setProperty("--deck-progress", ((index + 1) / slides.length * 100).toFixed(2) + "%"));
+
+  const showMessage = text => { message.textContent = text; message.hidden = !text; if (text) setTimeout(() => message.hidden = true, 5000); };
+  const updateRail = () => {
+    shell.classList.toggle("rail-hidden", !railVisible);
+    railToggle.setAttribute("aria-pressed", String(railVisible));
+    railToggle.setAttribute("aria-label", `${railVisible ? "Hide" : "Show"} slide thumbnails`);
+    railToggle.title = `${railVisible ? "Hide" : "Show"} slide thumbnails (T)`;
+    try { localStorage.setItem("html-deck.railVisible", railVisible ? "1" : "0"); } catch { }
+  };
+  const updateNotes = () => {
+    const slide = slides[currentIndex];
+    const number = slide.dataset.screenLabel || String(currentIndex + 1);
+    notesTitle.textContent = `Slide ${number} notes`;
+    notesContent.textContent = slide.dataset.speakerNotes || "No presenter notes for this slide.";
+  };
+  const previewUrl = index => {
+    const url = new URL(location.href);
+    url.searchParams.set("deckPreview", "1");
+    url.searchParams.set("slide", String(index + 1));
+    url.hash = String(index + 1);
+    return url.href;
+  };
+
+  const buildPresenterWindow = () => {
+    const doc = presenterWindow.document;
+    doc.title = `${document.title} · Presenter View`;
+    doc.head.innerHTML = `<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>:root{color-scheme:dark;font-family:"Roboto","Segoe UI",system-ui,sans-serif}*{box-sizing:border-box}body{margin:0;height:100vh;overflow:hidden;background:#121212;color:#DDD}main{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:1rem;padding:1rem}.header,.footer{display:flex;align-items:center;justify-content:space-between;gap:1rem}.warning{color:#FF5C6C;font-weight:700}.grid{min-height:0;display:grid;grid-template-columns:minmax(0,1.45fr) minmax(20rem,.8fr);gap:1rem}.previews{min-height:0;display:grid;grid-template-rows:minmax(0,1fr) minmax(10rem,.43fr);gap:1rem}section,aside{min-height:0;overflow:hidden;border:1px solid #46414C;border-radius:1rem;background:#1c1c1c}.label{display:flex;justify-content:space-between;padding:.6rem 1rem;color:#AAAAAA}iframe{width:100%;height:calc(100% - 2.3rem);border:0;background:#000;pointer-events:none}aside{overflow:auto;padding:1.5rem;border-top:.4rem solid #E76439;background:#1c1c1c;color:#DDD}aside p{font-size:1.35rem;line-height:1.5;white-space:pre-wrap}.controls{display:flex;gap:.6rem}.controls button{padding:.65rem 1rem;border:1px solid #E76439;border-radius:999px;background:#1c1c1c;color:#FFF;cursor:pointer}</style>`;
+    doc.body.innerHTML = `<main><header class="header"><strong>Presenter view</strong><span class="warning">Share the deck window, not this window</span></header><div class="grid"><div class="previews"><section><div class="label"><span>Current</span><strong id="presenter-current-label"></strong></div><iframe id="presenter-current-slide" title="Current slide preview"></iframe></section><section><div class="label"><span>Next</span><strong id="presenter-next-label"></strong></div><iframe id="presenter-next-slide" title="Next slide preview"></iframe></section></div><aside><h1 id="presenter-window-title">Current slide notes</h1><p id="presenter-window-notes" aria-live="polite"></p></aside></div><footer class="footer"><div class="controls"><button id="presenter-previous">← Previous</button><button id="presenter-next">Next →</button></div><span>Arrow keys navigate · Escape closes</span></footer></main>`;
+    doc.getElementById("presenter-previous").addEventListener("click", () => retreat());
+    doc.getElementById("presenter-next").addEventListener("click", () => advance());
+    presenterWindow.addEventListener("keydown", event => handleNavigationKey(event, true));
+  };
+  const syncPresenterWindow = () => {
+    if (!presenterWindow || presenterWindow.closed) return;
+    const doc = presenterWindow.document;
+    const current = slides[currentIndex];
+    const next = slides[currentIndex + 1];
+    doc.getElementById("presenter-current-label").textContent = current.dataset.label || `Slide ${currentIndex + 1}`;
+    doc.getElementById("presenter-current-slide").src = previewUrl(currentIndex);
+    doc.getElementById("presenter-window-title").textContent = `Slide ${current.dataset.screenLabel || currentIndex + 1} notes`;
+    doc.getElementById("presenter-window-notes").textContent = current.dataset.speakerNotes || "No presenter notes for this slide.";
+    doc.getElementById("presenter-next-label").textContent = next ? (next.dataset.label || "Next slide") : "End of deck";
+    const frame = doc.getElementById("presenter-next-slide");
+    if (next) frame.src = previewUrl(currentIndex + 1); else frame.removeAttribute("src");
+  };
+  const openPresenterWindow = () => {
+    notesPanel.hidden = true;
+    notesPanel.setAttribute("aria-hidden", "true");
+    if (presenterWindow && !presenterWindow.closed) { syncPresenterWindow(); presenterWindow.focus(); return; }
+    presenterWindow = window.open("", "_blank", "popup=yes,width=1440,height=900");
+    if (!presenterWindow) { showMessage("Presenter window was blocked. Allow pop-ups and press P again."); return; }
+    buildPresenterWindow();
+    syncPresenterWindow();
+    presenterWindow.focus();
+  };
+  const goTo = (index, updateHash = true) => {
+    currentIndex = Math.max(0, Math.min(index, slides.length - 1));
+    slides.forEach((slide, i) => slide.toggleAttribute("data-deck-active", i === currentIndex));
+    [...thumbnails.children].forEach((item, i) => item.firstElementChild.setAttribute("aria-current", String(i === currentIndex)));
+    counter.textContent = `${currentIndex + 1} / ${slides.length}`;
+    if (updateHash) history.replaceState(null, "", `#${currentIndex + 1}`);
+    updateNotes();
+    syncPresenterWindow();
+    document.dispatchEvent(new CustomEvent("slidechange", { detail: { index: currentIndex } }));
+  };
+  const handleNavigationKey = (event, presenter = false) => {
+    const target = event.composedPath ? event.composedPath()[0] : event.target;
+    if (target && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))) return;
+    if (event.metaKey || event.ctrlKey || event.altKey) return;
+    const key = event.key;
+    if (key === "ArrowLeft" || key === "PageUp") retreat();
+    else if (key === "ArrowRight" || key === "PageDown" || key === " ") advance();
+    else if (key === "Home") goTo(0);
+    else if (key === "End") goTo(slides.length - 1);
+    else if (presenter && key === "Escape") presenterWindow.close();
+    else return;
+    event.preventDefault();
+  };
+
+  slides.forEach((slide, index) => {
+    const item = document.createElement("li");
+    const button = document.createElement("button");
+    const preview = document.createElement("span");
+    const label = document.createElement("span");
+    button.className = "thumbnail";
+    button.type = "button";
+    button.setAttribute("aria-label", `Go to slide ${index + 1}: ${slide.dataset.label || "Untitled"}`);
+    preview.className = "thumbnail-preview";
+    preview.append(slide.cloneNode(true));
+    label.className = "thumbnail-label";
+    label.textContent = `${slide.dataset.screenLabel || index + 1}. ${slide.dataset.label || "Untitled"}`;
+    button.append(preview, label);
+    button.addEventListener("click", () => goTo(index));
+    item.append(button);
+    thumbnails.append(item);
+  });
+
+  railToggle.addEventListener("click", () => { railVisible = !railVisible; updateRail(); });
+  document.getElementById("deck-previous").addEventListener("click", () => retreat());
+  document.getElementById("deck-next").addEventListener("click", () => advance());
+  document.getElementById("deck-fullscreen").addEventListener("click", () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen());
+  document.querySelector(".presenter-notes-close").addEventListener("click", () => { notesPanel.hidden = true; notesPanel.setAttribute("aria-hidden", "true"); });
+  window.addEventListener("hashchange", () => goTo(Number(location.hash.slice(1)) - 1 || 0, false));
+  window.addEventListener("keydown", event => {
+    const target = event.composedPath ? event.composedPath()[0] : event.target;
+    if (target && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))) return;
+    if (event.metaKey || event.ctrlKey || event.altKey) return;
+    const key = event.key.toLowerCase();
+    if (key === "t") { railVisible = !railVisible; updateRail(); event.preventDefault(); }
+    else if (key === "n") { notesPanel.hidden = !notesPanel.hidden; notesPanel.setAttribute("aria-hidden", String(notesPanel.hidden)); updateNotes(); event.preventDefault(); }
+    else if (key === "p" && !isPreview) { openPresenterWindow(); event.preventDefault(); }
+    else if (key === "f") { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); event.preventDefault(); }
+    else if (event.key === "Escape" && !notesPanel.hidden) { notesPanel.hidden = true; notesPanel.setAttribute("aria-hidden", "true"); event.preventDefault(); }
+    else handleNavigationKey(event);
+  });
+
+  /* ---------- in-slide builds ---------- */
+  // A build animates on the live deck only. Preview mode (the presenter window and deck stills),
+  // print, a no-script load and the thumbnail rail all render the finished slide, and a run always
+  // restores the authored markup, so a still cannot catch a half-built slide. The one exception is
+  // `deckVideo`: the video renderer captures a build frame by frame under virtual time, so it keeps
+  // builds running in preview mode and ignores the reduced-motion preference of the capturing browser.
+  // A scene slide (data-build="scene") hands its build to window.deckScenes (assets/scenes/runner.js).
+  const BUILD_START_SECONDS = 0.4;   // the age on the fresh card
+  const BUILD_STALE_SECONDS = 5;     // FleetViews.cs calls a report stale past five seconds
+  const BUILD_SETTLE_SECONDS = 12;   // the age the stale card settles on, as authored
+  const BUILD_TOTAL_MS = 6000;       // wall-clock length of the climb; compressed for the stage
+  const noBuild = !params.has("deckVideo")
+    && (isPreview || window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  // The presenting deck only. Unlike `noBuild`, this stays false under `deckVideo`: the video renderer
+  // adds its own entrance to each slide, and a second one here would play on top of it.
+  const live = !isPreview && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  document.body.classList.toggle("deck-live", live);
+  const authoredStates = new Map();
+  const stepBuilds = new Set();   // slides whose speaker-controlled build has started
+  let buildFrame = 0;
+
+  const cardParts = card => ({
+    tag: card.querySelector("[data-build-tag]"),
+    position: card.querySelector("[data-build-position]"),
+    speed: card.querySelector("[data-build-speed]"),
+    age: card.querySelector("[data-build-age]")
+  });
+  const readCard = card => {
+    const parts = cardParts(card);
+    return {
+      panelClass: card.className,
+      tagClass: parts.tag.className,
+      tagText: parts.tag.textContent,
+      position: parts.position.textContent,
+      speed: parts.speed.textContent,
+      age: parts.age.textContent
+    };
+  };
+  const applyCard = (card, state) => {
+    const parts = cardParts(card);
+    card.className = state.panelClass;
+    parts.tag.className = state.tagClass;
+    parts.tag.textContent = state.tagText;
+    parts.position.textContent = state.position;
+    parts.speed.textContent = state.speed;
+    parts.age.textContent = state.age;
+  };
+  // The fresh state reuses the authored classes with the live accent and tag swapped in, and reads
+  // its text from the card's own data-fresh-* attributes, so each value is authored once.
+  const freshState = (card, stale) => ({
+    panelClass: stale.panelClass.replace("amber-top", "teal-top"),
+    tagClass: stale.tagClass.replace("stale", "live"),
+    tagText: card.dataset.freshTag,
+    position: card.dataset.freshPosition,
+    speed: card.dataset.freshSpeed,
+    age: `${BUILD_START_SECONDS.toFixed(1)} s ago`
+  });
+
+  const settleBuild = slide => {
+    if (buildFrame) cancelAnimationFrame(buildFrame);
+    buildFrame = 0;
+    const card = slide.querySelector("[data-build-card]");
+    const body = slide.querySelector(".slide-body");
+    if (body) body.classList.remove("is-building");
+    const before = slide.querySelector("[data-build-before]");
+    if (before) before.classList.remove("build-shown");
+    const stale = authoredStates.get(slide);
+    if (card && stale) applyCard(card, stale);
+    stepBuilds.delete(slide);
+    window.deckScenes?.settle(slide);
+    for (const animation of entrances.get(slide) ?? []) animation.cancel();
+    entrances.delete(slide);
+    stopCounters(slide);
+  };
+
+  // The live entrance: each piece of the slide rises in, one after another, the way the SpatialData
+  // deck opens a slide. Pieces are found the way prepareEntrance in scripts/video/animate-page.mjs
+  // finds them, so the live deck and the video bring in the same pieces. Hidden build steps and scene
+  // parts are left to their own builds, because an entrance keyframe would override the opacity that
+  // hides them. The first step is already showing, so it enters like any other piece. A .cascade
+  // brings in its own children from CSS. A slide whose body is a scene host arrives through beat 0.
+  const ENTRANCE = { durationMs: 500, risePx: 24, staggerMs: 90, maxStaggerTotalMs: 1200, delayMs: 120 };
+  const entrances = new Map(); // slide -> its running entrance animations
+  const entranceTargets = slide => {
+    const root = slide.querySelector(".slide-body");
+    if (!root || root.matches("[data-scene]")) return [];
+    const first = firstStep(slide);
+    const OWN_BUILD = "[data-build-step], [data-build-before], [data-scene], .cascade";
+    const isBuild = element => element.matches(OWN_BUILD) && !(element.matches("[data-build-step]") && element.dataset.buildStep === first);
+    const holdsBuild = element => element.querySelector(OWN_BUILD) !== null;
+    const isLayout = element => ["flex", "grid"].includes(getComputedStyle(element).display);
+    const visible = element => getComputedStyle(element).display !== "none" && !element.matches("script, style");
+    const targets = [];
+    const visit = (element, depth) => {
+      for (const child of [...element.children].filter(visible)) {
+        if (isBuild(child)) continue;
+        const children = [...child.children].filter(visible);
+        if (holdsBuild(child) || (depth < 2 && isLayout(child) && children.length > 1)) visit(child, depth + 1);
+        else targets.push(child);
+      }
+    };
+    visit(root, 0);
+    return targets;
+  };
+  const enter = slide => {
+    const targets = entranceTargets(slide);
+    const stagger = targets.length > 1 ? Math.min(ENTRANCE.staggerMs, ENTRANCE.maxStaggerTotalMs / (targets.length - 1)) : 0;
+    entrances.set(slide, targets.map((element, index) => element.animate(
+      [{ opacity: 0, transform: `translateY(${ENTRANCE.risePx}px)` }, { opacity: 1, transform: "none" }],
+      { duration: ENTRANCE.durationMs, delay: ENTRANCE.delayMs + index * stagger, easing: "cubic-bezier(.2,.7,.2,1)", fill: "backwards" }
+    )));
+  };
+
+  // A revealed [data-count] number counts up from zero to its authored value. Live deck only: the
+  // video captures a reveal for REVEAL_MS (300 ms), so a longer count would freeze partway there.
+  const COUNT_MS = 900;
+  const counters = new Map(); // element -> { text, frame }
+  const countUp = element => {
+    const text = counters.get(element)?.text ?? element.textContent;
+    const target = Number(text.replace(/[^\d.]/g, ""));
+    if (!target) return;
+    cancelAnimationFrame(counters.get(element)?.frame ?? 0);
+    const started = performance.now();
+    const tick = now => {
+      const progress = Math.min(1, (now - started) / COUNT_MS);
+      if (progress >= 1) { element.textContent = text; counters.delete(element); return; }
+      element.textContent = Math.round(target * (1 - (1 - progress) ** 3)).toLocaleString("en-US");
+      counters.set(element, { text, frame: requestAnimationFrame(tick) });
+    };
+    counters.set(element, { text, frame: requestAnimationFrame(tick) });
+  };
+  const stopCounters = slide => {
+    for (const [element, { text, frame }] of counters) {
+      if (!slide.contains(element)) continue;
+      cancelAnimationFrame(frame);
+      element.textContent = text;
+      counters.delete(element);
+    }
+  };
+
+  const startFreshness = slide => {
+    const body = slide.querySelector('.slide-body[data-build~="freshness"]');
+    const card = slide.querySelector("[data-build-card]");
+    if (!body || !card) return;
+    if (!authoredStates.has(slide)) authoredStates.set(slide, readCard(card));
+    const stale = authoredStates.get(slide);
+    const ageOut = cardParts(card).age;
+    const before = slide.querySelector("[data-build-before]");
+    applyCard(card, freshState(card, stale));
+    body.classList.add("is-building");
+    if (before) before.classList.remove("build-shown");
+    // data-build-lead holds the climb back while a scene pre-roll plays (slide 2's gun-barrel iris).
+    const started = performance.now() + (Number(body.dataset.buildLead) || 0);
+    const climb = now => {
+      const progress = Math.min(1, Math.max(0, (now - started) / BUILD_TOTAL_MS));
+      const age = BUILD_START_SECONDS + (BUILD_SETTLE_SECONDS - BUILD_START_SECONDS) * progress;
+      ageOut.textContent = `${age.toFixed(1)} s ago`;
+      if (age >= BUILD_STALE_SECONDS && card.classList.contains("teal-top")) {
+        applyCard(card, { ...stale, age: ageOut.textContent });
+        if (before) before.classList.add("build-shown");
+      }
+      if (progress < 1) { buildFrame = requestAnimationFrame(climb); return; }
+      applyCard(card, stale);
+      if (before) before.classList.add("build-shown");
+      if (!stepNodes(slide).some(node => !node.classList.contains("build-shown"))) body.classList.remove("is-building");
+      buildFrame = 0;
+    };
+    buildFrame = requestAnimationFrame(climb);
+  };
+
+  // A speaker-controlled build holds its later steps back until the presenter presses the advance
+  // key, so the arithmetic lands one line at a time. The first step is the entry state: the slide
+  // opens with it already on screen. Advance reveals the next step and then moves on; back undoes
+  // the last reveal and then moves back, the way a PowerPoint build behaves.
+  const stepNodes = slide => [...slide.querySelectorAll("[data-build-step]")];
+  const firstStep = slide => stepNodes(slide).map(node => node.dataset.buildStep).sort()[0];
+
+  const startSteps = slide => {
+    const body = slide.querySelector('.slide-body[data-build~="steps"]');
+    if (!body) return;
+    const first = firstStep(slide);
+    stepNodes(slide).forEach(node => {
+      node.classList.add("build-step");
+      node.classList.toggle("build-shown", node.dataset.buildStep === first);
+    });
+    body.classList.add("is-building");
+    stepBuilds.add(slide);
+  };
+
+  const revealStep = slide => {
+    if (!stepBuilds.has(slide)) return false;
+    const body = slide.querySelector('.slide-body[data-build~="steps"]');
+    if (!body) return false;
+    const pending = stepNodes(slide).filter(node => !node.classList.contains("build-shown"));
+    if (!pending.length) return false;
+    // Lowest pending step, not the first in DOM order: slide 19 numbers its annotations in
+    // talk order, which differs from the order of the pipeline nodes that carry them.
+    const next = pending.map(node => node.dataset.buildStep).sort()[0];
+    slide.querySelectorAll(`[data-build-step="${next}"]`).forEach(node => {
+      node.classList.add("build-shown");
+      if (live) node.querySelectorAll("[data-count]").forEach(countUp);
+    });
+    if (!stepNodes(slide).some(node => !node.classList.contains("build-shown"))) body.classList.remove("is-building");
+    return true;
+  };
+
+  const hideStep = slide => {
+    if (!stepBuilds.has(slide)) return false;
+    const body = slide.querySelector('.slide-body[data-build~="steps"]');
+    if (!body) return false;
+    const shown = stepNodes(slide).filter(node => node.classList.contains("build-shown"));
+    if (!shown.length) return false;
+    const highest = shown.map(node => node.dataset.buildStep).sort().pop();
+    if (highest === firstStep(slide)) return false;
+    slide.querySelectorAll(`[data-build-step="${highest}"]`).forEach(node => node.classList.remove("build-shown"));
+    body.classList.add("is-building");
+    return true;
+  };
+
+  const advance = () => {
+    const slide = slides[currentIndex];
+    if (!revealStep(slide) && !window.deckScenes?.next(slide)) goTo(currentIndex + 1);
+  };
+  const retreat = () => {
+    const slide = slides[currentIndex];
+    if (!hideStep(slide) && !window.deckScenes?.back(slide)) goTo(currentIndex - 1);
+  };
+
+  const startBuild = slide => {
+    // A body may combine kinds, for example "freshness steps": the freshness card plays on entry
+    // and a later press reveals the next step.
+    if (slide.querySelector('.slide-body[data-build~="scene"]')) window.deckScenes?.start(slide);
+    if (slide.querySelector('.slide-body[data-build~="steps"]')) startSteps(slide);
+    if (slide.querySelector('.slide-body[data-build~="freshness"]')) startFreshness(slide);
+  };
+
+  document.addEventListener("slidechange", event => {
+    slides.forEach((slide, index) => { if (index !== event.detail.index) settleBuild(slide); });
+    if (noBuild) return;
+    startBuild(slides[event.detail.index]);
+    if (live) enter(slides[event.detail.index]);
+  });
+
+  // A video marked data-autoplay restarts when its slide opens and pauses when the slide closes.
+  document.addEventListener("slidechange", event => {
+    slides.forEach((slide, index) => slide.querySelectorAll("video[data-autoplay]").forEach(video => {
+      if (index !== event.detail.index) { video.pause(); return; }
+      video.currentTime = 0;
+      video.play().catch(() => {});
+    }));
+  });
+
+  updateRail();
+  const requested = Number(params.get("slide") || location.hash.slice(1));
+  goTo(Number.isFinite(requested) && requested > 0 ? requested - 1 : 0, false);
+})();
+</script>
+</body>
+</html>
