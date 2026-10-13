@@ -61,7 +61,7 @@
 <li><a href="/files/techbash-2026/spatial-data/containment-clustered-scan.sqlplan"><code>containment-clustered-scan.sqlplan</code></a> and <a href="/files/techbash-2026/spatial-data/containment-spatial-seek.sqlplan"><code>containment-spatial-seek.sqlplan</code></a>: the same comparison for the containment query.</li>
 </ul>
 </li>
-<li><a href="/files/techbash-2026/spatial-data/capture-execution-plan.ps1"><code>capture-execution-plan.ps1</code></a>: rebuilds those plans yourself. It creates a throwaway <code>SpatialDispatchPlan</code> database with 200,000 technicians and 40,000 territories on the sample's SQL Server container, captures all four plans, and fails if a seek plan loses its spatial index. Point it at row counts like your own before you trust the 45.3 km distance bound from the slides.</li>
+<li><a href="/files/techbash-2026/spatial-data/capture-execution-plan.ps1"><code>capture-execution-plan.ps1</code></a>: rebuilds those plans yourself. It creates a throwaway <code>SpatialDispatchPlan</code> database with 200,000 technicians and 40,000 territories on the sample's SQL Server container, captures all four plans, and fails if a seek plan loses its spatial index. The row counts are hardcoded in its setup SQL, so edit them to match your own data before you trust the 45.3 km distance bound from the slides.</li>
 </ul>
 <div id="spatial-resources"></div>
 <h2 id="spatial-data-resources">Spatial Data Resources</h2>
@@ -147,7 +147,7 @@
 <ol>
 <li><strong>Break the happy path.</strong> Seed a customer outside every territory, one inside two territories, and one exactly on a shared border. Compare <code>Contains</code>, <code>Intersects</code>, <code>Covers</code>, and <code>CoveredBy</code> for all three, on both <code>geography</code> and <code>geometry</code>. The border case is where they disagree, and the two storage types can disagree with each other too.</li>
 <li><strong>Port the demo to PostGIS.</strong> Swap <code>UseSqlServer</code> for <code>UseNpgsql</code>, opt the columns into <code>geography</code>, and re-run the containment and ranking queries. Check the generated SQL and the distance units before trusting it.</li>
-<li><strong>Run the index investigation at your scale.</strong> Use <a href="/files/techbash-2026/spatial-data/capture-execution-plan.ps1"><code>capture-execution-plan.ps1</code></a> with row counts that match your data. Note when the seek appears and how tight the distance bound has to be to keep it.</li>
+<li><strong>Run the index investigation at your scale.</strong> Use <a href="/files/techbash-2026/spatial-data/capture-execution-plan.ps1"><code>capture-execution-plan.ps1</code></a> after editing its row counts to match your data. Note when the seek appears and how tight the distance bound has to be to keep it.</li>
 <li><strong>Publish and consume.</strong> Push the demo territories to a hosted feature layer, then point a GeoBlazor layer (or plain <code>fetch</code> plus GeoJSON) at it. Note what changes about authentication.</li>
 <li><strong>Sketch a territory.</strong> Add a GeoBlazor Pro <code>Sketch</code> widget that draws a boundary and posts the ring back to your API as Well-Known Text. Check the vertex order before storing it, because SQL Server reads a reversed ring as the whole globe minus your shape.</li>
 <li><strong>Geocode an address end to end.</strong> Use the Census Geocoder for a US address, store the point, and run the dispatch query against it. Log the match confidence.</li>
