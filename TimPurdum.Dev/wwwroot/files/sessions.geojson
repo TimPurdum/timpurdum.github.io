@@ -6,6 +6,46 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -75.39206035106909,
+          41.09917257098567
+        ]
+      },
+      "properties": {
+        "name": "TechBash 2026",
+        "url": "https://www.techbash.com/",
+        "starting-date": "2026-10-13",
+        "ending-date": "2026-10-16",
+        "location": "Pocono Manor, PA",
+        "sessions": 2,
+        "session-titles": "Spatial Data in .NET: From Database to Dashboard;Real-Time Data Visualization in Blazor",
+        "marker-color": "#2ca02c"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -93.61108177507913,
+          41.70667029525874
+        ]
+      },
+      "properties": {
+        "name": "Iowa Code Camp 2026",
+        "url": "https://iowacodecamp.com/",
+        "starting-date": "2026-11-07",
+        "ending-date": "2026-11-07",
+        "location": "Ankeny, IA",
+        "sessions": 1,
+        "session-titles": "Don't Feed the Machine Spaghetti: Code Quality Principles for the AI Era",
+        "marker-color": "#ff7f0e"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -90.5024,
           38.7705
         ]
