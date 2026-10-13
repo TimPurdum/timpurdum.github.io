@@ -44,6 +44,19 @@ public sealed class FleetDashboardState
         }
     }
 
+    /// <summary>Starts a scenario over without losing the roster the map is showing. Forgetting the
+    /// last frame makes the next <see cref="Accept"/> a new run: vehicles outside the new roster are
+    /// queued for removal and every vehicle in it is queued again. Replacing the whole state object
+    /// instead would drop those removals and leave stale markers on the map.</summary>
+    public void ForgetRun()
+    {
+        lock (_sync)
+        {
+            _frame = null;
+            _selectedId = null;
+        }
+    }
+
     public PendingFleetBatch CaptureDirty()
     {
         lock (_sync)

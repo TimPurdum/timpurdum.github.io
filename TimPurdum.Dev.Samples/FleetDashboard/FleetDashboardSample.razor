@@ -492,6 +492,8 @@
     {
         _emptyFleet = true;
         _pauseFleet = false;
+        // Reports already queued for the map would re-add the vehicles this removes, so drop them first.
+        DiscardMapBacklog();
         await Advance();
     }
 
@@ -509,7 +511,7 @@
         _pauseFleet = false;
         _emptyFleet = false;
         _heldTruck = null;
-        _state = new FleetDashboardState();
+        _state.ForgetRun();
         DiscardMapBacklog();
         RetryMap();
         await Advance();
