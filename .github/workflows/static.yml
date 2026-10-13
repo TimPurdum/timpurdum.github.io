@@ -50,11 +50,14 @@ jobs:
           cd TimPurdum.Dev.Source
           dotnet build -c Release
 
+      # The secret is read from the environment rather than pasted into the script, so any JSON
+      # formatting survives intact. Pasting it into a double-quoted string broke on the first `"`.
       - name: Copy AppSettings
         shell: pwsh
+        env:
+          APP_SETTINGS: ${{ secrets.APP_SETTINGS }}
         run: |
-          $appSettings = "${{ secrets.APP_SETTINGS }}"
-          $appSettings | Out-File -FilePath ./TimPurdum.Dev/wwwroot/appsettings.json -Encoding utf8
+          $env:APP_SETTINGS | Out-File -FilePath ./TimPurdum.Dev/wwwroot/appsettings.json -Encoding utf8
           
       - name: Generate Static Pages
         run: |
