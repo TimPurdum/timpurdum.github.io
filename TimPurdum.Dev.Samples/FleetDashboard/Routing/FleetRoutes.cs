@@ -80,7 +80,7 @@ public sealed class FleetRoute
             throw new InvalidDataException("A fleet route requires at least two distinct points.");
         }
 
-        return [..result];
+        return [.. result];
     }
 
     private static double DistanceKm(RoutePoint start, RoutePoint end)
@@ -134,7 +134,7 @@ public static class FleetRoutes
             throw new InvalidDataException("routes.geojson contains no routes.");
         }
 
-        return [..routes];
+        return [.. routes];
     }
 
     private static FleetRoute ReadRoute(JsonElement feature)

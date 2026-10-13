@@ -60,7 +60,7 @@ public sealed class DemoMetrics(TimeProvider? clock = null)
             lock (_sync)
             {
                 if (_applySamples.Count == 0) return (0, 0);
-                double[] sorted = [.._applySamples];
+                double[] sorted = [.. _applySamples];
                 Array.Sort(sorted);
                 double median = sorted.Length % 2 == 1
                     ? sorted[sorted.Length / 2]
