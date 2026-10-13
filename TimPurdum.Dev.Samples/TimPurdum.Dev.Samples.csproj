@@ -15,4 +15,10 @@
         <PackageReference Include="dymaptic.GeoBlazor.Core" Version="4.6.2" />
     </ItemGroup>
 
+    <ItemGroup>
+        <!-- FleetDashboard's prepared road geometry, read by FleetRoutes under this exact name. -->
+        <EmbeddedResource Include="FleetDashboard\Routing\routes.geojson"
+                          LogicalName="TimPurdum.Dev.Samples.FleetDashboard.routes.geojson" />
+    </ItemGroup>
+
 </Project>

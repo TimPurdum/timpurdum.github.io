@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using TimPurdum.Dev.BlogGenerator;
 using TimPurdum.Dev.Components;
+using TimPurdum.Dev.Samples.FleetDashboard;
+using TimPurdum.Dev.Samples.SpatialDispatch;
 
 WebAssemblyHostBuilder builder = WebAssemblyHostBuilder.CreateDefault(args);
 
@@ -11,6 +13,10 @@ builder.Services.AddScoped(_ => new HttpClient { BaseAddress = new Uri(builder.H
 
 builder.Services.AddGeoBlazorPro(builder.Configuration);
 builder.Services.AddMemoryCache();
+
+// Services for the TechBash 2026 samples embedded in the 2026-10-15 post. Both run entirely in the browser.
+builder.Services.AddFleetDashboardSample();
+builder.Services.AddSpatialDispatchSample(new Uri(builder.HostEnvironment.BaseAddress));
 
 try
 {

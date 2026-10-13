@@ -1,0 +1,130 @@
+/* The dashboard sits inside a blog post whose global CSS (dark theme, purple buttons, link underlines,
+   post-content margins and text-align) would otherwise leak in, and whose own page must not pick up the
+   dashboard's. Everything is therefore scoped to .fleet-sample:
+   - Variables live on the root and carry a --fleet- prefix, so they cannot collide with the blog's
+     --primary/--text/--background/--accent or with other samples.
+   - Element resets reach child components through ::deep.
+   - Every rule here and in the child components' .razor.css files starts with .fleet-sample, which adds
+     one class of specificity so the blog's `.post-content h2`-style rules lose to ours.
+   Fonts are system stacks only (Bahnschrift, Segoe UI, Cascadia Mono, with fallbacks); there is no
+   @font-face to carry over. */
+
+.fleet-sample {
+    --fleet-fog: #F3F6F4;
+    --fleet-paper: #FFFFFF;
+    --fleet-ink: #182724;
+    --fleet-teal: #087F78;
+    --fleet-amber: #D98218;
+    --fleet-failure: #B23A32;
+    --fleet-font-heading: Bahnschrift, "Segoe UI", sans-serif;
+    --fleet-font-body: "Segoe UI", Arial, sans-serif;
+    --fleet-font-data: "Cascadia Mono", Consolas, monospace;
+
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    height: 720px;
+    margin: 1.5rem 0;
+    padding: 1rem 1.25rem .75rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border-radius: 8px;
+    background: var(--fleet-fog);
+    color: var(--fleet-ink);
+    color-scheme: light;
+    font: 400 16px/normal var(--fleet-font-body);
+    letter-spacing: normal;
+    text-align: left;
+    text-transform: none;
+}
+
+/* Reset what the blog sets globally on elements the dashboard renders. */
+.fleet-sample ::deep *, .fleet-sample ::deep *::before, .fleet-sample ::deep *::after { box-sizing: border-box; }
+.fleet-sample ::deep :is(h2, h3):not([class*="esri"]) { font-size: 1rem; font-weight: 700; line-height: normal; }
+.fleet-sample ::deep :is(h2, h3, p, ul, ol, figure) { margin-block: 0; }
+.fleet-sample ::deep :is(ul, ol) { margin-inline-start: 0; }
+.fleet-sample ::deep :is(p, li, ol) { text-align: left; }
+.fleet-sample ::deep :is(button, input, select) { font: inherit; color: inherit; letter-spacing: inherit; }
+.fleet-sample ::deep button { min-height: 44px; padding: .55rem .85rem; border-radius: 3px; cursor: pointer; }
+.fleet-sample ::deep button:disabled { cursor: default; opacity: .5; }
+.fleet-sample ::deep a::after { content: none; }
+.fleet-sample.fleet-sample ::deep img { max-width: none; margin: 0; border-radius: 0; opacity: 1; animation: none; }
+.fleet-sample ::deep :is(button, a, summary, [tabindex]):focus-visible { outline: 3px solid var(--fleet-teal); outline-offset: 3px; }
+
+.fleet-sample .dispatch-header { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: .8rem; }
+.fleet-sample .eyebrow { margin: 0 0 .35rem; color: #52665f; text-transform: uppercase; letter-spacing: .14em; font-size: .65rem; font-weight: 600; }
+.fleet-sample .board-title { font: 500 2rem var(--fleet-font-heading); letter-spacing: -.04em; margin: 0; line-height: 1.05; }
+.fleet-sample .board-title span { color: var(--fleet-teal); }
+.fleet-sample .simulation-label { font-size: .78rem; padding: .5rem .8rem; border: 1px solid #bed3c8; background: #eaf2ed; white-space: nowrap; }
+.fleet-sample .status-tape { flex: none; display: flex; align-items: center; gap: 1.2rem; flex-wrap: wrap; border-top: 2px solid var(--fleet-ink); border-bottom: 1px solid #c7d7ce; padding: .6rem 0; margin-bottom: .75rem; font-size: .75rem; }
+.fleet-sample .connection { text-transform: uppercase; color: var(--fleet-teal); letter-spacing: .06em; }
+.fleet-sample .connection::before { content: "●"; margin-right: .5rem; }
+.fleet-sample .connection.failure { color: var(--fleet-failure); }
+.fleet-sample .freshness { margin-left: auto; color: #52665f; font-family: var(--fleet-font-data); font-size: .68rem; }
+.fleet-sample .workspace-grid { flex: 1 1 420px; min-height: 420px; display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(280px, 1fr); grid-template-rows: minmax(0, 1fr); gap: 1rem; }
+.fleet-sample .map-panel { display: flex; flex-direction: column; border: 1px solid #cad8d0; background: var(--fleet-paper); min-width: 0; min-height: 0; }
+.fleet-sample .map-heading { display: flex; justify-content: space-between; padding: .7rem 1rem; align-items: center; }
+.fleet-sample .map-heading h3 { font-size: .9rem; margin: 0; }
+.fleet-sample .map-heading span { color: #52665f; font: .65rem var(--fleet-font-data); }
+.fleet-sample .map-surface { flex: 1; position: relative; min-height: 0; }
+.fleet-sample .map-surface ::deep .fleet-map { position: absolute; inset: 0; height: auto; min-height: 0; }
+.fleet-sample .map-notice { position: absolute; top: 1rem; left: 4rem; right: 1rem; max-width: 340px; padding: .9rem 1rem; display: grid; gap: .3rem; background: #fffffff2; border-left: 3px solid var(--fleet-teal); box-shadow: 0 2px 10px #18272410; pointer-events: none; }
+.fleet-sample .map-notice span { font-size: .78rem; color: #52665f; }
+.fleet-sample .map-legend { display: flex; flex-wrap: wrap; gap: .85rem; padding: .6rem 1rem; border-top: 1px solid #dce6e0; font-size: .65rem; }
+.fleet-sample .map-legend > span { display: inline-flex; align-items: center; gap: .4rem; }
+.fleet-sample .marker { width: 8px; height: 8px; background: var(--fleet-teal); border-radius: 50%; display: inline-block; }
+.fleet-sample .marker.idle { border-radius: 0; background: #52665f; }
+.fleet-sample .marker.stale { border-radius: 0; background: var(--fleet-amber); transform: rotate(45deg); }
+.fleet-sample .route-note { color: #52665f; }
+.fleet-sample .detail-rail { background: var(--fleet-paper); border: 1px solid #cad8d0; min-width: 0; min-height: 0; overflow-y: auto; }
+.fleet-sample .selected-details { border-top: 2px solid var(--fleet-ink); padding: 1.1rem 1.2rem; }
+.fleet-sample .detail-heading { display: flex; justify-content: space-between; align-items: center; }
+.fleet-sample .selected-details h3 { font-family: var(--fleet-font-heading); font-size: 1.8rem; margin: 0; font-weight: 500; }
+.fleet-sample .clear-selection { border: 1px solid #cad8d0; background: white; width: 44px; font-size: 1.3rem; }
+.fleet-sample .route-progress { list-style: none; padding: 0 0 0 1rem; margin: 1.2rem 0 0 .25rem; border-left: 1px solid #adc9c2; }
+.fleet-sample .route-progress li { position: relative; padding: 0 0 1.2rem .5rem; display: grid; gap: .25rem; }
+.fleet-sample .route-progress li::before { content: ""; position: absolute; left: -1.3rem; top: .15rem; width: 9px; height: 9px; border: 2px solid var(--fleet-teal); border-radius: 50%; background: var(--fleet-paper); }
+.fleet-sample .route-progress li:last-child { padding-bottom: 0; }
+.fleet-sample .route-progress strong { font-size: .9rem; font-weight: 600; }
+.fleet-sample .route-progress li > span:not(.detail-label) { font: .65rem var(--fleet-font-data); color: #52665f; }
+.fleet-sample .detail-label { color: #52665f; font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; }
+.fleet-sample .route-progress .is-stale::before { border-color: var(--fleet-amber); background: var(--fleet-amber); }
+.fleet-sample .stale-message { color: #8a4d08; font-size: .75rem; margin: .3rem 0 0; }
+.fleet-sample .no-selection { color: #52665f; line-height: 1.6; font-size: .88rem; margin: 1rem 0; }
+.fleet-sample .selection-hint { display: block; border-top: 1px solid #dce6e0; padding-top: 1rem; font-size: .75rem; color: var(--fleet-teal); }
+.fleet-sample .error-banner { flex: none; display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1rem; margin-bottom: 1rem; border-left: 3px solid var(--fleet-failure); background: #fbece8; color: #822b26; }
+.fleet-sample .error-banner p { font-size: .8rem; margin: .3rem 0 0; }
+.fleet-sample .error-banner button { background: white; border: 1px solid var(--fleet-failure); flex-shrink: 0; }
+.fleet-sample .scenario-controls { flex: none; margin-top: .75rem; border-top: 1px solid #cad8d0; border-bottom: 1px solid #cad8d0; }
+.fleet-sample .scenario-controls summary { padding: .6rem 0; font-size: .8rem; cursor: pointer; min-height: 44px; }
+.fleet-sample .scenario-controls summary span { color: #52665f; font-size: .7rem; margin-left: .7rem; }
+.fleet-sample .preview-settings { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; padding: .25rem 0 .75rem; font-size: .75rem; }
+.fleet-sample .preview-settings select { min-height: 44px; max-width: 100%; font-size: .75rem; background: var(--fleet-paper); border: 1px solid #b9cbc1; padding: 0 .5rem; }
+.fleet-sample .preview-settings button { background: var(--fleet-paper); border: 1px solid #b9cbc1; font-size: .75rem; }
+.fleet-sample .scenario-actions { display: flex; gap: .6rem; flex-wrap: wrap; padding: .25rem 0 1rem; }
+.fleet-sample .scenario-actions button { background: var(--fleet-paper); border: 1px solid #b9cbc1; font-size: .75rem; }
+.fleet-sample .scenario-actions button[aria-pressed="true"] { background: #f6e7ce; border-color: var(--fleet-amber); }
+.fleet-sample .board-footer { flex: none; display: flex; justify-content: space-between; gap: 1rem; padding-top: .6rem; font-size: .6rem; color: #52665f; }
+
+/* The post column is not the viewport, but the blog itself collapses to one column around here, so the
+   narrow layout keys off the viewport and lets the whole dashboard scroll inside its fixed height. */
+@media (max-width: 720px) {
+    .fleet-sample { padding: 1rem; }
+    .fleet-sample .workspace-grid { flex: none; min-height: 0; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; }
+    .fleet-sample .map-surface { min-height: 360px; }
+    .fleet-sample .detail-rail { overflow-y: visible; }
+    .fleet-sample .status-tape { gap: .6rem 1rem; }
+}
+
+@media (max-width: 500px) {
+    .fleet-sample .dispatch-header { align-items: flex-start; flex-direction: column; }
+    .fleet-sample .simulation-label { padding: .35rem .55rem; }
+    .fleet-sample .freshness { margin-left: 0; width: 100%; }
+    .fleet-sample .board-footer, .fleet-sample .error-banner { flex-direction: column; align-items: flex-start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fleet-sample ::deep *, .fleet-sample ::deep *::before, .fleet-sample ::deep *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
+}

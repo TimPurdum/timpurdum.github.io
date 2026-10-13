@@ -1,0 +1,4 @@
+.fleet-sample .live-layers { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; padding: 0 0 1rem; font-size: .75rem; }
+.fleet-sample .live-layers-label { color: #52665f; font-size: .7rem; }
+.fleet-sample .live-layers button { background: var(--fleet-paper); border: 1px solid #b9cbc1; font-size: .75rem; }
+.fleet-sample .live-layers button[aria-pressed="true"] { background: #f6e7ce; border-color: var(--fleet-amber); }
