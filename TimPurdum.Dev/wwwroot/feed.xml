@@ -1,4 +1,188 @@
-<?xml version="1.0" encoding="utf-8"?><rss version="2.0"><channel><title>TimPurdum.Dev</title><link>https://www.timpurdum.dev/</link><description>Tim Purdum is the visionary behind the &lt;a class="dymaptic-branding" target="_blank" href="https://www.geoblazor.com"&gt;&lt;img src="/images/geoblazor.png"&gt;GeoBlazor&lt;/a&gt; mapping library and serves as the Director of Product Development at &lt;a class="dymaptic-branding" target="_blank" href="https://www.dymaptic.com"&gt;&lt;img src="https://www.dymaptic.com/wp-content/uploads/2021/02/dymaptic-smaller.png" alt="dymaptic logo" /&gt;dymaptic&lt;/a&gt;. With a robust background in .NET and web technologies, Tim has been focused on Geographic Information Systems (GIS) since 2021. His expertise and passion for technology have made him a sought-after speaker at numerous conferences, including &lt;a target="_blank" href="https://vslive.com/home.aspx"&gt;Visual Studio Live&lt;/a&gt;, &lt;a target="_blank" href="https://techbash.com/"&gt;TechBash&lt;/a&gt;, &lt;a target="_blank" href="https://iowacodecamp.com/"&gt;Iowa Code Camp&lt;/a&gt;, and &lt;a target="_blank" href="https://www.devupconf.org/"&gt;DevUp&lt;/a&gt;. Tim lives in Cedar Falls, Iowa.</description><item><link>https://www.timpurdum.dev/post/2026/6/2/itag</link><author>TimPurdum.Dev</author><title>ITAG 2026 Presentation Links — The Case File</title><description /><pubDate>Tue, 02 Jun 2026 00:00:00 -0500</pubDate><content type="html" xml:base="https://www.timpurdum.dev/post/2026/6/2/itag"><![CDATA[<style>
+<?xml version="1.0" encoding="utf-8"?><rss version="2.0"><channel><title>TimPurdum.Dev</title><link>https://www.timpurdum.dev/</link><description>Tim Purdum is the visionary behind the &lt;a class="dymaptic-branding" target="_blank" href="https://www.geoblazor.com"&gt;&lt;img src="/images/geoblazor.png"&gt;GeoBlazor&lt;/a&gt; mapping library and serves as the Director of Product Development at &lt;a class="dymaptic-branding" target="_blank" href="https://www.dymaptic.com"&gt;&lt;img src="https://www.dymaptic.com/wp-content/uploads/2021/02/dymaptic-smaller.png" alt="dymaptic logo" /&gt;dymaptic&lt;/a&gt;. With a robust background in .NET and web technologies, Tim has been focused on Geographic Information Systems (GIS) since 2021. His expertise and passion for technology have made him a sought-after speaker at numerous conferences, including &lt;a target="_blank" href="https://vslive.com/home.aspx"&gt;Visual Studio Live&lt;/a&gt;, &lt;a target="_blank" href="https://techbash.com/"&gt;TechBash&lt;/a&gt;, &lt;a target="_blank" href="https://iowacodecamp.com/"&gt;Iowa Code Camp&lt;/a&gt;, and &lt;a target="_blank" href="https://www.devupconf.org/"&gt;DevUp&lt;/a&gt;. Tim lives in Cedar Falls, Iowa.</description><item><link>https://www.timpurdum.dev/post/2026/10/15/techbash</link><author>Tim Purdum</author><title>TechBash 2026 Presentation Links</title><description>Spatial Data in .NET and Real-Time Data Visualization in Blazor</description><pubDate>Thu, 15 Oct 2026 00:00:00 -0500</pubDate><content type="html" xml:base="https://www.timpurdum.dev/post/2026/10/15/techbash"><![CDATA[<style>
+.tb-hero { background: linear-gradient(135deg, #693CB2 0%, #3B1F6E 100%); color: #FFFFFF; padding: 2rem; border-radius: 12px; margin: 2rem auto; text-align: center; }
+.tb-hero h2 { color: #FFFFFF; margin: 0 0 0.5rem 0; border: none; }
+.tb-hero p { margin: 0.25rem 0; font-size: 1.1rem; }
+.tb-session { background: #F5F5F5; color: #2B2830; border-left: 6px solid #E76439; border-radius: 8px; padding: 1.5rem 2rem; margin: 2rem auto; box-shadow: 0 6px 18px rgba(18, 18, 18, 0.12); }
+.tb-session h2 { color: #693CB2; margin-top: 0; }
+.tb-session .tb-when { font-family: "Courier New", monospace; font-size: 0.85rem; color: #46414C; text-transform: uppercase; letter-spacing: 1px; }
+.tb-session img { width: 100%; height: auto; border: 1px solid #DCD8E3; border-radius: 6px; margin: 1rem 0; }
+.tb-links a { display: block; color: #693CB2; font-weight: 600; text-decoration: none; padding: 0.4rem 0; border-bottom: 1px dotted #B9B2C4; }
+.tb-links a:hover { color: #E76439; }
+.tb-geoblazor { background: linear-gradient(135deg, #3B1F6E 0%, #693CB2 100%); padding: 2rem; border-radius: 12px; margin: 2rem auto; text-align: center; }
+.tb-geoblazor a { color: #FFFFFF; font-size: 1.6rem; font-weight: bold; text-decoration: none; }
+.tb-geoblazor p { color: #FFFFFF; margin-top: 0.75rem; }
+</style>
+<div class="tb-hero">
+<h2>Thanks for coming to my TechBash 2026 sessions!</h2>
+<p>Kalahari Resorts, Pocono Manor, Pennsylvania · October 13 to 16, 2026</p>
+<p>Both demos are set in northeastern Pennsylvania, not far from the conference.</p>
+</div>
+<p>Everything from both sessions is on this page: the full slide decks, the sample applications, files you can download, and the reading list I promised from the stage. The slides open right in your browser. Use the arrow keys or Space to move through them, <code>T</code> for a thumbnail rail, and <code>F</code> for full screen.</p>
+<div class="tb-session" id="spatial-data">
+<p class="tb-when">Wednesday, October 14 · 1:30 PM · Rosewood · Data track</p>
+<h2>Spatial Data in .NET: From Database to Dashboard</h2>
+<p>A field-service dispatch board for a fictional company around Scranton answers one question: which service territory covers this customer, and which available technician assigned there is closest? The answer comes out of SQL Server <code>geography</code> columns through EF Core and NetTopologySuite, a Minimal API, and GeoJSON, with GeoBlazor drawing the map. My claim for the hour was that spatial is just a data type, and it composes with ordinary business data and ordinary LINQ.</p>
+<a href="/slides/techbash-2026/spatial-data-in-dotnet/index.html" target="_blank"><img src="/images/techbash-2026-spatial-dispatch.png" alt="The Spatial Dispatch board, recommending Jordan Alvarez for the urgent Summit Sports Catering job inside the North Valley territory" /></a>
+<div class="tb-links">
+<a href="/slides/techbash-2026/spatial-data-in-dotnet/index.html" target="_blank">View the slides</a>
+<a href="https://github.com/dymaptic/GeoBlazor-Samples/tree/main/projects/SpatialDispatch" target="_blank">The SpatialDispatch sample on GitHub</a>
+<a href="/post/2026/10/15/techbash.html#spatial-downloads">Downloads: the generated SQL, the territories, and the execution plans</a>
+<a href="/post/2026/10/15/techbash.html#spatial-resources">Additional resources and exercises</a>
+<a href="https://techbash.com/schedule" target="_blank">TechBash 2026 schedule</a>
+</div>
+</div>
+<div class="tb-session" id="data-visualization">
+<p class="tb-when">Thursday, October 15 · 11:30 AM · Sagewood</p>
+<h2>Real-Time Data Visualization in Blazor</h2>
+<p>A Blazor WebAssembly dispatcher dashboard tracks a simulated delivery fleet around the Poconos, using GeoBlazor Core for the map. The goal is live telemetry without drowning the browser in redraws: keep only the latest report per vehicle, hand the map one batch per cadence tick, and give every visual its own clock. All of the vehicle data is simulated, so the sample runs anywhere with no live feed behind it.</p>
+<a href="/slides/techbash-2026/real-time-data-visualization-in-blazor/index.html" target="_blank"><img src="/slides/techbash-2026/real-time-data-visualization-in-blazor/assets/dashboard.png" alt="The Fleet dispatch dashboard showing live trucks on routes around Mount Pocono and Tannersville" /></a>
+<div class="tb-links">
+<a href="/slides/techbash-2026/real-time-data-visualization-in-blazor/index.html" target="_blank">View the slides</a>
+<a href="https://github.com/dymaptic/GeoBlazor-Samples/tree/main/projects/FleetDashboard" target="_blank">The FleetDashboard sample on GitHub</a>
+<a href="/post/2026/10/15/techbash.html#visualization-resources">Additional resources</a>
+<a href="https://techbash.com/schedule" target="_blank">TechBash 2026 schedule</a>
+</div>
+</div>
+<h2 id="running-the-samples">Running the Samples</h2>
+<p>Both applications live in the <a href="https://github.com/dymaptic/GeoBlazor-Samples">dymaptic/GeoBlazor-Samples</a> repository, and each project's <code>README.md</code> has the full setup. A few things worth knowing before you clone:</p>
+<ul>
+<li><strong>SpatialDispatch</strong> needs Docker for the SQL Server container (<code>docker compose up -d</code> from the project folder), then <code>dotnet run --project SpatialDispatch</code>. Startup applies the migration and seeds the demo records, so there's no manual database work. The map uses GeoBlazor Pro, so it needs a Pro license key in <code>appsettings.Development.json</code>. Without one, the dispatch answer, the candidate list, and assignment all still work, because the spatial work happens in SQL Server, not in the map.</li>
+<li><strong>FleetDashboard</strong> runs on a free GeoBlazor registration key. Its preview controls and the <code>?mode=</code> URL parameter let you switch between the pipeline stages from the talk without rebuilding.</li>
+</ul>
+<div id="spatial-downloads"></div>
+<h2 id="spatial-data-downloads">Spatial Data Downloads</h2>
+<p>These are the artifacts behind the query and indexing slides.</p>
+<ul>
+<li><a href="/files/techbash-2026/spatial-data/generated-spatial-queries.sql"><code>generated-spatial-queries.sql</code></a>: the SQL that EF Core emits for the two dispatch queries, &quot;which territory contains this job?&quot; and &quot;who is the closest available technician?&quot;</li>
+<li><a href="/files/techbash-2026/spatial-data/territories.geojson"><code>territories.geojson</code></a>: the two demo service territories. Paste it into <a href="https://geojson.io/">geojson.io</a> to see them.</li>
+<li>Execution plans, which open as graphical plans in SQL Server Management Studio:
+<ul>
+<li><a href="/files/techbash-2026/spatial-data/ranking-clustered-scan.sqlplan"><code>ranking-clustered-scan.sqlplan</code></a> and <a href="/files/techbash-2026/spatial-data/ranking-spatial-seek.sqlplan"><code>ranking-spatial-seek.sqlplan</code></a>: sorting by distance alone scans every row, while adding a distance filter to the <code>WHERE</code> clause lets the optimizer seek on the spatial index.</li>
+<li><a href="/files/techbash-2026/spatial-data/containment-clustered-scan.sqlplan"><code>containment-clustered-scan.sqlplan</code></a> and <a href="/files/techbash-2026/spatial-data/containment-spatial-seek.sqlplan"><code>containment-spatial-seek.sqlplan</code></a>: the same comparison for the containment query.</li>
+</ul>
+</li>
+<li><a href="/files/techbash-2026/spatial-data/capture-execution-plan.ps1"><code>capture-execution-plan.ps1</code></a>: rebuilds those plans yourself. It creates a throwaway <code>SpatialDispatchPlan</code> database with 200,000 technicians and 40,000 territories on the sample's SQL Server container, captures all four plans, and fails if a seek plan loses its spatial index. The row counts are hardcoded in its setup SQL, so edit them to match your own data before you trust the 45.3 km distance bound from the slides.</li>
+</ul>
+<div id="spatial-resources"></div>
+<h2 id="spatial-data-resources">Spatial Data Resources</h2>
+<h3 id="packages">Packages</h3>
+<ul>
+<li><a href="https://www.nuget.org/packages/NetTopologySuite"><code>NetTopologySuite</code></a>: the geometry library, with <code>Point</code>, <code>LineString</code>, <code>Polygon</code>, and the spatial predicates.</li>
+<li><a href="https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite"><code>Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite</code></a>: SQL Server spatial support for EF Core.</li>
+<li><a href="https://www.nuget.org/packages/Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite"><code>Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite</code></a>: PostGIS support for EF Core.</li>
+<li><a href="https://www.nuget.org/packages/NetTopologySuite.IO.GeoJSON4STJ"><code>NetTopologySuite.IO.GeoJSON4STJ</code></a>: GeoJSON serialization with <code>System.Text.Json</code>.</li>
+<li><a href="https://www.nuget.org/packages/NetTopologySuite.IO.GeoJSON"><code>NetTopologySuite.IO.GeoJSON</code></a>: GeoJSON with <code>Newtonsoft.Json</code>, if you're still there.</li>
+<li><a href="https://www.nuget.org/packages/ProjNet"><code>ProjNet</code></a>: coordinate system transformations and reprojection.</li>
+<li><a href="https://www.nuget.org/packages/NetTopologySuite.IO.Esri.Shapefile"><code>NetTopologySuite.IO.Esri.Shapefile</code></a>: reading and writing shapefiles. It replaces the older, now deprecated <code>NetTopologySuite.IO.ShapeFile</code>.</li>
+</ul>
+<h3 id="documentation">Documentation</h3>
+<ul>
+<li><a href="https://learn.microsoft.com/en-us/ef/core/modeling/spatial">EF Core spatial data</a> is the single best starting point. It covers both providers, the geometry hierarchy, and which methods translate to SQL. Open it before you trust any translation.</li>
+<li><a href="https://learn.microsoft.com/en-us/sql/relational-databases/spatial/spatial-data-sql-server">SQL Server spatial data</a> is the reference for the <code>geometry</code> and <code>geography</code> types and their methods.</li>
+<li><a href="https://learn.microsoft.com/en-us/sql/relational-databases/spatial/spatial-indexes-overview">SQL Server spatial indexes</a> explains grid tessellation, the clustered primary key prerequisite, and <code>GEOGRAPHY_AUTO_GRID</code>.</li>
+<li><a href="https://nettopologysuite.github.io/NetTopologySuite/">NetTopologySuite API docs</a> for method-level reference.</li>
+<li><a href="https://postgis.net/docs/">The PostGIS manual</a> has a deeper function library than SQL Server's. It's worth reading even if you're on SQL Server, because the concepts are named the same way.</li>
+<li><a href="https://datatracker.ietf.org/doc/html/rfc7946">RFC 7946 (GeoJSON)</a> is short, readable, and settles arguments about coordinate order. Longitude comes first!</li>
+</ul>
+<h3 id="if-youre-on-postgresql">If You're on PostgreSQL</h3>
+<ul>
+<li><a href="https://www.npgsql.org/efcore/mapping/nts.html">Npgsql's NetTopologySuite mapping</a> is the page behind the provider comparison slide: <code>UseNpgsql(connectionString, o =&gt; o.UseNetTopologySuite())</code>, the translation table (NTS <code>Contains</code> to <code>ST_Contains</code>, <code>Distance</code> to <code>ST_Distance</code>), and the trap that NTS types map to PostGIS <code>geometry</code> by default. Opt into <code>geography</code> per property with <code>[Column(TypeName = &quot;geography&quot;)]</code> when you want distances in meters on the spheroid.</li>
+<li><a href="https://postgis.net/docs/using_postgis_dbmanagement.html#PostGIS_Geography">PostGIS <code>geography</code></a> covers when <code>geography</code> beats <code>geometry</code> and what it costs.</li>
+<li><a href="https://postgis.net/workshops/postgis-intro/indexing.html">PostGIS GiST indexes</a> replace SQL Server's grid tessellation, and they're a plain <code>CREATE INDEX ... USING GIST (geom)</code> with no hand-edited migration.</li>
+<li><a href="https://postgis.net/docs/geometry_distance_knn.html">KNN nearest neighbor</a> answers &quot;closest&quot; with the <code>&lt;-&gt;</code> operator (<code>EF.Functions.DistanceKnn</code> from the provider), which is a different mechanism from SQL Server's <code>ORDER BY</code> plus a distance filter.</li>
+</ul>
+<h3 id="if-someone-already-publishes-the-data">If Someone Already Publishes the Data</h3>
+<ul>
+<li><a href="https://location.arcgis.com/">ArcGIS Location Platform</a> has a free tier for geocoding, routing, and hosted feature layers. The demo uses its <a href="https://developers.arcgis.com/documentation/mapping-and-location-services/routing-and-directions/">routing service</a> to compare drive time against straight-line distance.</li>
+<li>A published feature layer is data your app reads over and over (boundaries, technician locations). Geocoding and routing are one-off calls per request. They have different cost models and different ways to fail.</li>
+<li><a href="https://www.geoblazor.com/">GeoBlazor</a> is the Blazor component library drawing the dashboard map. The open-source Core package covers <code>MapView</code>, <code>GeoJSONLayer</code>, <code>GraphicsLayer</code>, and events, and Pro adds things like the <code>Sketch</code> widget for drawing and editing territory boundaries. Disclosure: it's my library, built at dymaptic.</li>
+</ul>
+<h3 id="where-to-get-spatial-data">Where to Get Spatial Data</h3>
+<ul>
+<li><a href="https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-line-file.html">US Census TIGER/Line</a> has states, counties, tracts, block groups, roads, and ZIP Code Tabulation Areas. It's authoritative and free.</li>
+<li><a href="https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html">Census Cartographic Boundary files</a> are generalized versions of the same shapes, with much smaller payloads. Use these for web maps.</li>
+<li><a href="https://www.naturalearthdata.com/">Natural Earth</a> is public domain country, state, and coastline data at three levels of detail, and my default for world maps.</li>
+<li>OpenStreetMap has everything, through <a href="https://download.geofabrik.de/">Geofabrik's regional extracts</a> or <a href="https://overpass-turbo.eu/">Overpass Turbo</a> for targeted queries. Check the <a href="https://www.openstreetmap.org/copyright">ODbL attribution terms</a>.</li>
+<li>State GIS portals publish parcels, roads, and administrative boundaries. The demo's home state has <a href="https://www.pasda.psu.edu/">PASDA</a>, and mine has the <a href="https://geodata.iowa.gov/">Iowa Geospatial Data Clearinghouse</a>.</li>
+<li><a href="https://data.gov/">data.gov</a> and city open data portals have municipal boundaries, service districts, and incident data.</li>
+<li><a href="https://livingatlas.arcgis.com/">ArcGIS Living Atlas</a> is a large curated collection. Some layers are open, and some need an ArcGIS account.</li>
+</ul>
+<p>Almost everything above ships as a shapefile. <a href="https://gdal.org/en/stable/programs/ogr2ogr.html"><code>ogr2ogr</code></a> from GDAL is the tool that gets it into SQL Server or PostGIS, and it handles reprojection on the way in.</p>
+<h3 id="geocoding">Geocoding</h3>
+<ul>
+<li><a href="https://geocoding.geo.census.gov/">US Census Geocoder</a> is free, needs no API key, and handles US addresses only. It's the fastest way to test an address-to-point pipeline without a contract.</li>
+<li><a href="https://nominatim.org/">Nominatim</a> is free and global, but the public instance has a <a href="https://operations.osmfoundation.org/policies/nominatim/">strict usage policy</a> (one request per second, no bulk jobs). Run your own instance for anything serious.</li>
+<li><a href="https://developers.arcgis.com/documentation/mapping-and-location-services/geocoding/">ArcGIS geocoding</a> is commercial and credit-based, on the same platform the demo uses for routing.</li>
+</ul>
+<p>Whichever one you pick, store the result as <code>geography</code> with SRID 4326 and longitude first, and keep the geocoder's confidence score. A rooftop match and an interpolated match are not the same promise.</p>
+<h3 id="tools">Tools</h3>
+<ul>
+<li><a href="https://qgis.org/">QGIS</a> is a free desktop GIS, and the fastest way to look at spatial data before writing any code, or to sanity check what's actually in your table.</li>
+<li><a href="https://gdal.org/">GDAL</a> handles format conversion and reprojection, and it's available as a container if you don't want it installed.</li>
+<li>The spatial results tab in <a href="https://learn.microsoft.com/en-us/ssms/">SQL Server Management Studio</a> is built in and surprisingly useful for &quot;did my insert do what I think?&quot; <a href="https://www.pgadmin.org/">pgAdmin</a> has a geometry viewer that does the same for PostGIS.</li>
+<li><a href="https://geojson.io/">geojson.io</a> lets you paste GeoJSON and see it on a map, which is great for debugging API output.</li>
+<li><a href="https://epsg.io/">epsg.io</a> looks up any SRID, with its units and area of use.</li>
+</ul>
+<h3 id="testing-spatial-code">Testing Spatial Code</h3>
+<p>This wasn't in the talk, but it's worth writing down.</p>
+<ul>
+<li>Anything that's pure NetTopologySuite is unit testable without a database: geometry construction, <code>Contains</code>, <code>Intersects</code>, <code>Distance</code>, <code>Buffer</code>, and validity checks. Build geometries from Well-Known Text in your fixtures. <code>new WKTReader().Read(&quot;POLYGON((...))&quot;)</code> is far more readable in a test than coordinate arrays.</li>
+<li>Anything that depends on the database's spatial engine is not. SQL Server's <code>geography</code> distance and NTS's <code>Distance()</code> don't compute the same number, because one is ellipsoidal and the other is planar, so an assertion that passes in memory can fail against the database.</li>
+<li>So integration test the queries, against a containerized SQL Server or PostGIS from <a href="https://dotnet.testcontainers.org/">Testcontainers for .NET</a>, seeded with a small known fixture. Test that the query translates and returns the right rows, because that's the part that actually breaks.</li>
+<li>Assert with a tolerance. Compare distances within a range, and choose <code>EqualsTopologically</code> or <code>EqualsExact</code> deliberately.</li>
+<li>If a query calls an NTS method with no SQL translation, EF Core throws at runtime, not compile time. An integration test is the only thing that catches that before a user does.</li>
+<li>Fixture geometries worth having: a simple square, two overlapping squares, a polygon with a hole, a self-intersecting invalid polygon, and a point exactly on a boundary edge. The last two find the most bugs.</li>
+</ul>
+<h3 id="front-end-map-libraries">Front-End Map Libraries</h3>
+<ul>
+<li><a href="https://www.geoblazor.com/">GeoBlazor</a> wraps the ArcGIS Maps SDK for JavaScript in Blazor components. Again, mine, so weigh that accordingly.</li>
+<li><a href="https://leafletjs.com/">Leaflet</a> is small and stable, with an enormous plugin ecosystem, and the easiest JavaScript interop story from Blazor.</li>
+<li><a href="https://maplibre.org/">MapLibre GL JS</a> renders vector tiles with WebGL, and it's the best-looking option for large datasets.</li>
+<li><a href="https://openlayers.org/">OpenLayers</a> is the heaviest and most capable, with strong projection support if you're not in 4326.</li>
+<li><a href="https://developers.arcgis.com/javascript/latest/">ArcGIS Maps SDK for JavaScript</a> is what GeoBlazor wraps, if you'd rather use it directly.</li>
+</ul>
+<p>All of them consume GeoJSON, so the serialization work from the talk isn't tied to any one library.</p>
+<h3 id="exercises">Exercises</h3>
+<p>These extend something from the talk, easiest first.</p>
+<ol>
+<li><strong>Break the happy path.</strong> Seed a customer outside every territory, one inside two territories, and one exactly on a shared border. Compare <code>Contains</code>, <code>Intersects</code>, <code>Covers</code>, and <code>CoveredBy</code> for all three, on both <code>geography</code> and <code>geometry</code>. The border case is where they disagree, and the two storage types can disagree with each other too.</li>
+<li><strong>Port the demo to PostGIS.</strong> Swap <code>UseSqlServer</code> for <code>UseNpgsql</code>, opt the columns into <code>geography</code>, and re-run the containment and ranking queries. Check the generated SQL and the distance units before trusting it.</li>
+<li><strong>Run the index investigation at your scale.</strong> Use <a href="/files/techbash-2026/spatial-data/capture-execution-plan.ps1"><code>capture-execution-plan.ps1</code></a> after editing its row counts to match your data. Note when the seek appears and how tight the distance bound has to be to keep it.</li>
+<li><strong>Publish and consume.</strong> Push the demo territories to a hosted feature layer, then point a GeoBlazor layer (or plain <code>fetch</code> plus GeoJSON) at it. Note what changes about authentication.</li>
+<li><strong>Sketch a territory.</strong> Add a GeoBlazor Pro <code>Sketch</code> widget that draws a boundary and posts the ring back to your API as Well-Known Text. Check the vertex order before storing it, because SQL Server reads a reversed ring as the whole globe minus your shape.</li>
+<li><strong>Geocode an address end to end.</strong> Use the Census Geocoder for a US address, store the point, and run the dispatch query against it. Log the match confidence.</li>
+<li><strong>Find the gaps and overlaps.</strong> <code>Union</code> the territory polygons, then <code>Difference</code> that against a county or state boundary to find uncovered ground, and <code>Intersection</code> pairs of territories to find double-covered ground. Decide which results are data errors and which are policy.</li>
+<li><strong>Rank by drive time, not distance.</strong> Request routes for the three closest eligible technicians and order by travel time instead of <code>STDistance</code>. The nearest technician isn't always the fastest, and each route is a per-request cost the distance query doesn't have.</li>
+<li><strong>Reproject before GeoJSON.</strong> Store or compute a projected geometry (Web Mercator, SRID 3857, for example), then reproject to 4326 before emitting RFC 7946 output. Confirm the map still lines up, and compare the distances in each form.</li>
+<li><strong>Use spatial types with Dapper.</strong> Run one containment query through Dapper instead of EF Core. The reader still needs the NetTopologySuite plugin registered on the connection to turn a <code>geography</code> column into a <code>Polygon</code>.</li>
+<li><strong>Diagnose an untranslatable expression.</strong> Write a query that calls an NTS method EF Core can't translate, watch it throw at runtime, and rewrite it into a shape the provider does translate.</li>
+</ol>
+<h3 id="worth-an-hour-of-reading">Worth an Hour of Reading</h3>
+<ul>
+<li><strong>Coordinate reference systems.</strong> Why 4326 isn't a projection, why 3857 distorts area at high latitudes, and why your distances came out in degrees.</li>
+<li><strong>Spatial indexing.</strong> R-trees (PostGIS GiST) and SQL Server's grid tessellation are different mechanisms with the same goal: cheaply rule out candidates before doing exact math.</li>
+<li><strong>Topological validity.</strong> Self-intersections and unclosed rings produce predicate results that look like bugs in your code. <code>IsValid</code> and <code>Buffer(0)</code> are the usual first aid.</li>
+<li><strong>Geometry simplification.</strong> Douglas-Peucker and its topology-preserving variants are necessary for any web map with real boundary data.</li>
+<li><strong>Payload size.</strong> The real cloud cost surprise with spatial data is egress on unsimplified geometry, not compute.</li>
+</ul>
+<div id="visualization-resources"></div>
+<h2 id="real-time-data-visualization-resources">Real-Time Data Visualization Resources</h2>
+<ul>
+<li><a href="https://github.com/dymaptic/GeoBlazor-Samples/tree/main/projects/FleetDashboard">The FleetDashboard sample</a> has every pipeline stage from the talk, selectable by URL.</li>
+<li><a href="https://learn.microsoft.com/en-us/aspnet/core/blazor/tutorials/signalr-blazor?view=aspnetcore-10.0">Use ASP.NET Core SignalR with Blazor</a> is the tutorial to start from for pushing data to a Blazor client.</li>
+<li><a href="https://learn.microsoft.com/en-us/aspnet/core/signalr/dotnet-client?view=aspnetcore-10.0">The SignalR .NET client</a> covers connections, automatic reconnect, and streaming from the client side.</li>
+<li><a href="https://learn.microsoft.com/en-us/dotnet/api/system.threading.periodictimer"><code>PeriodicTimer</code></a> is the frame clock on the server side of the sample, from the &quot;Send the latest when you're ready&quot; slide.</li>
+<li><a href="https://learn.microsoft.com/en-us/aspnet/core/blazor/components/render-modes">Blazor render modes</a> explains the WebAssembly and Interactive Server choice from the hosting slide and the appendix.</li>
+<li><a href="https://livingatlas.arcgis.com/">ArcGIS Living Atlas</a> is where to look for streams someone else hosts, like weather and traffic feeds.</li>
+<li><a href="https://docs.geoblazor.com/">GeoBlazor documentation</a> and the <a href="https://samples.geoblazor.com/">live GeoBlazor samples</a> for everything else on the map side.</li>
+</ul>
+<h2 id="get-in-touch">Get in Touch</h2>
+<p>If you try either sample on your own data, I'd love to hear how it goes. Ping me on Mastodon at &commat;TimPurdum&commat;dotnet.social, or email me at <a href="mailto:tim.purdum&commat;dymaptic.com">tim.purdum&commat;dymaptic.com</a> if you get stuck!</p>
+<div class="tb-geoblazor">
+<a href="https://www.geoblazor.com" target="_blank">Discover GeoBlazor</a>
+<p>Interactive ArcGIS maps for your Blazor applications, with an open-source core.</p>
+</div>
+]]></content></item><item><link>https://www.timpurdum.dev/post/2026/6/2/itag</link><author>TimPurdum.Dev</author><title>ITAG 2026 Presentation Links — The Case File</title><description /><pubDate>Tue, 02 Jun 2026 00:00:00 -0500</pubDate><content type="html" xml:base="https://www.timpurdum.dev/post/2026/6/2/itag"><![CDATA[<style>
 .casefile { background: #F7EFE1; color: #1A1410; border: 1px solid #B08858; border-radius: 6px; padding: 2rem; margin: 2rem auto; box-shadow: 0 8px 24px rgba(26,20,16,0.25); }
 .casefile h2 { color: #5B1A25; border-bottom: 2px solid #B08858; padding-bottom: 0.4rem; margin-top: 0; font-family: Georgia, "Playfair Display", serif; }
 .casefile h3 { color: #1D809F; font-family: Georgia, serif; margin-bottom: 0.4rem; }
