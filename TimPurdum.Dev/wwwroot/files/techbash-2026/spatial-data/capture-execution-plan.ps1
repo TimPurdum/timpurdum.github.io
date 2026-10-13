@@ -43,9 +43,10 @@ $ErrorActionPreference = 'Stop'
 #      message blames "SET options" without naming which caller turned them off.
 #   -y 0 is required. The default column width truncates plan XML into unparseable fragments. It is
 #      also mutually exclusive with both -h and -W on this client, so neither can be used here.
+#   -b makes a failed batch return a nonzero exit code, so the $LASTEXITCODE check below catches it.
 $sqlcmdArgs = @(
     '/opt/mssql-tools18/bin/sqlcmd', '-S', 'localhost', '-C',
-    '-U', 'sa', '-P', $SaPassword, '-I', '-y', '0'
+    '-U', 'sa', '-P', $SaPassword, '-I', '-b', '-y', '0'
 )
 
 function Invoke-ContainerSql {
@@ -163,8 +164,8 @@ SELECT i, CONCAT('Technician ', i), (i % 400) + 1,
           -80.50 + (ABS(CHECKSUM(NEWID())) % 550000) / 100000.0, 4326)
 FROM n;
 GO
--- Rings run counter-clockwise. Geography reads a clockwise ring as the rest of the planet, and the
--- resulting polygon fails validation rather than silently inverting.
+-- Rings run counterclockwise. Geography reads a clockwise ring as the rest of the planet and reports
+-- it as valid, so the wrong winding silently inverts containment instead of failing.
 WITH n AS (
     SELECT TOP (40000) ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS i
     FROM sys.all_objects a CROSS JOIN sys.all_objects b
@@ -201,51 +202,56 @@ END
 GO
 '@
 
-Write-Host 'Building SpatialDispatchPlan (200,000 points, 40,000 polygons)...'
-Invoke-ContainerSql -Sql $setup | Out-Null
+try {
+    Write-Host 'Building SpatialDispatchPlan (200,000 points, 40,000 polygons)...'
+    Invoke-ContainerSql -Sql $setup | Out-Null
 
-New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
+    New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
 
-foreach ($name in $shapes.Keys) {
-    $target = Join-Path $OutputDirectory "$name.sqlplan"
-    $raw = New-TemporaryFile
+    foreach ($name in $shapes.Keys) {
+        $target = Join-Path $OutputDirectory "$name.sqlplan"
+        $raw = New-TemporaryFile
 
-    try {
-        Invoke-ContainerSql -Sql ($preamble + $shapes[$name] + $postamble) -OutFile $raw | Out-Null
+        try {
+            Invoke-ContainerSql -Sql ($preamble + $shapes[$name] + $postamble) -OutFile $raw | Out-Null
 
-        # sqlcmd surrounds the plan with batch messages and row counts. Keep only the plan element, so
-        # the file is a .sqlplan SSMS will open rather than a transcript that contains one.
-        $plan = [regex]::Match((Get-Content -LiteralPath $raw -Raw), '(?s)<ShowPlanXML.*?</ShowPlanXML>')
-    }
-    finally {
-        Remove-Item -LiteralPath $raw -Force -ErrorAction SilentlyContinue
-    }
+            # sqlcmd surrounds the plan with batch messages and row counts. Keep only the plan element, so
+            # the file is a .sqlplan SSMS will open rather than a transcript that contains one.
+            $plan = [regex]::Match((Get-Content -LiteralPath $raw -Raw), '(?s)<ShowPlanXML.*?</ShowPlanXML>')
+        }
+        finally {
+            Remove-Item -LiteralPath $raw -Force -ErrorAction SilentlyContinue
+        }
 
-    if (-not $plan.Success) {
-        throw "No plan XML captured for $name."
-    }
+        if (-not $plan.Success) {
+            throw "No plan XML captured for $name."
+        }
 
-    Set-Content -LiteralPath $target -Value $plan.Value -Encoding UTF8 -NoNewline
+        Set-Content -LiteralPath $target -Value $plan.Value -Encoding UTF8 -NoNewline
 
-    # Report the index choice rather than trusting that the shape did what it was meant to. A seek
-    # count of zero on a *-spatial-seek shape means the capture is wrong, not that the plan is boring.
-    $seeks = ([regex]::Matches($plan.Value, 'Index="\[SIX_[^\]]*\]"')).Count
-    $rowsRead = [regex]::Matches($plan.Value, 'ActualRowsRead="(\d+)"') |
-        ForEach-Object { [int]$_.Groups[1].Value } |
-        Measure-Object -Maximum |
-        Select-Object -ExpandProperty Maximum
-    $ops = [regex]::Matches($plan.Value, 'PhysicalOp="([^"]*)"') |
-        ForEach-Object { $_.Groups[1].Value } | Sort-Object -Unique
+        # Report the index choice rather than trusting that the shape did what it was meant to. A seek
+        # count of zero on a *-spatial-seek shape means the capture is wrong, not that the plan is boring.
+        $seeks = ([regex]::Matches($plan.Value, 'Index="\[SIX_[^\]]*\]"')).Count
+        $rowsRead = [regex]::Matches($plan.Value, 'ActualRowsRead="(\d+)"') |
+            ForEach-Object { [int]$_.Groups[1].Value } |
+            Measure-Object -Maximum |
+            Select-Object -ExpandProperty Maximum
+        $ops = [regex]::Matches($plan.Value, 'PhysicalOp="([^"]*)"') |
+            ForEach-Object { $_.Groups[1].Value } | Sort-Object -Unique
 
-    Write-Host ("  {0,-28} spatial index refs: {1}  max rows read: {2}" -f $name, $seeks, $rowsRead)
-    Write-Host ("  {0,-28} {1}" -f '', ($ops -join ', '))
+        Write-Host ("  {0,-28} spatial index refs: {1}  max rows read: {2}" -f $name, $seeks, $rowsRead)
+        Write-Host ("  {0,-28} {1}" -f '', ($ops -join ', '))
 
-    if ($name.EndsWith('-spatial-seek') -and $seeks -eq 0) {
-        throw "$name did not reference a spatial index."
+        if ($name.EndsWith('-spatial-seek') -and $seeks -eq 0) {
+            throw "$name did not reference a spatial index."
+        }
     }
 }
-
-if (-not $KeepDatabase) {
-    Invoke-ContainerSql -Sql $teardown | Out-Null
-    Write-Host 'Dropped SpatialDispatchPlan.'
+finally {
+    # Runs after a failed setup or a failed assertion too, so a scratch database is not left behind.
+    # The teardown SQL checks DB_ID first, so it is safe after a partial setup.
+    if (-not $KeepDatabase) {
+        Invoke-ContainerSql -Sql $teardown | Out-Null
+        Write-Host 'Dropped SpatialDispatchPlan.'
+    }
 }
