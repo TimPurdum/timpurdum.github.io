@@ -15,13 +15,16 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.1" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.1" PrivateAssets="all" />
-        <PackageReference Include="dymaptic.GeoBlazor.Pro" Version="4.4.0-beta-1" />
+        <PackageReference Include="dymaptic.GeoBlazor.Pro" Version="4.6.1" />
+        <!-- Core is pinned to 4.6.2 because the FleetDashboard code copied from GeoBlazor-Samples targets it; Pro 4.6.1 accepts Core 4.6.1 or later. Keep both projects on the same versions. -->
+        <PackageReference Include="dymaptic.GeoBlazor.Core" Version="4.6.2" />
         <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.1" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\BlogGenerator\TimPurdum.Dev.BlogGenerator\TimPurdum.Dev.BlogGenerator.csproj"
                         PrivateAssets="all" />
+      <ProjectReference Include="..\TimPurdum.Dev.Samples\TimPurdum.Dev.Samples.csproj" />
     </ItemGroup>
 
     <ItemGroup>

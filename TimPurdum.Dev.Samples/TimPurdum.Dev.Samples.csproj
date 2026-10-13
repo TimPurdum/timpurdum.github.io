@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <SupportedPlatform Include="browser" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="dymaptic.GeoBlazor.Pro" Version="4.6.1" />
+        <!-- Core is pinned to 4.6.2 because the FleetDashboard code copied from GeoBlazor-Samples targets it; Pro 4.6.1 accepts Core 4.6.1 or later. Keep both projects on the same versions. -->
+        <PackageReference Include="dymaptic.GeoBlazor.Core" Version="4.6.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- FleetDashboard's prepared road geometry, read by FleetRoutes under this exact name. -->
+        <EmbeddedResource Include="FleetDashboard\Routing\routes.geojson"
+                          LogicalName="TimPurdum.Dev.Samples.FleetDashboard.routes.geojson" />
+    </ItemGroup>
+
+</Project>

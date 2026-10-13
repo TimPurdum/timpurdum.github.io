@@ -1,0 +1,556 @@
+@using TimPurdum.Dev.Samples.FleetDashboard.Components
+@using TimPurdum.Dev.Samples.FleetDashboard.Diagnostics
+@using TimPurdum.Dev.Samples.FleetDashboard.Rendering
+@using TimPurdum.Dev.Samples.FleetDashboard.State
+@using TimPurdum.Dev.Samples.FleetDashboard.Streaming
+@inject IFleetFrameSource FrameSource
+@inject TimeProvider Clock
+@implements IAsyncDisposable
+
+<div class="fleet-sample">
+    <header class="dispatch-header">
+        <div><p class="eyebrow">Monroe County, Pennsylvania</p><h2 class="board-title">Fleet dispatch<span>.</span></h2></div>
+        <div class="simulation-label">Simulated telemetry</div>
+    </header>
+    <div class="status-tape" role="status" aria-live="polite">
+        <strong class="connection @(_mapError is null ? "" : "failure")">@ConnectionLabel</strong>
+        <span>@_snapshot.Vehicles.Count vehicles</span>
+        <span>@_snapshot.Vehicles.Count(v => v.Status == VehicleStatus.Moving) moving</span>
+        <span>@_snapshot.Vehicles.Count(v => v.Status == VehicleStatus.Stale) stale</span>
+        <span class="freshness">@FreshnessLabel</span>
+    </div>
+    @if (_mapError is not null)
+    {
+        <div class="error-banner" role="alert">
+            <div><strong>Map updates paused</strong><p>@_mapError Telemetry remains available below.</p></div>
+            <button @onclick="RetryMap">Retry map updates</button>
+        </div>
+    }
+    @if (_sourceError is not null)
+    {
+        <div class="error-banner" role="alert">
+            <div><strong>Telemetry unavailable</strong><p>@_sourceError</p></div>
+            <button @onclick="RetryTelemetry">Retry telemetry</button>
+        </div>
+    }
+    @if (_commandError is not null)
+    {
+        <div class="error-banner" role="alert">
+            <div><strong>Scenario command failed</strong><p>@_commandError</p></div>
+        </div>
+    }
+    @if (_mapRetryingAttempt > 0 && _mapError is null)
+    {
+        <p class="stale-message" role="status">
+            Reapplying map updates after a failed batch (attempt @_mapRetryingAttempt of @FleetMap.MaxConsecutiveEditFailures).
+        </p>
+    }
+    @if (_selectionNotice is not null)
+    {
+        <p class="stale-message" role="status">@_selectionNotice</p>
+    }
+    @if (_queue is { SafetyStop: true } queue)
+    {
+        <div class="error-banner" role="alert">
+            <div><strong>Baseline safety stop</strong>
+            <p>Pending reports reached @RawTelemetryQueue.Capacity.ToString("N0"), so the page stopped
+               accepting new ones instead of growing without bound. Telemetry keeps flowing;
+               @queue.RejectedRecordCount.ToString("N0") records were rejected.</p></div>
+            <button @onclick="ResumeMapUpdates">Discard backlog and resume</button>
+        </div>
+    }
+    <div class="workspace-grid">
+        <section class="map-panel" aria-labelledby="fleet-map-title">
+            <div class="map-heading"><h3 id="fleet-map-title">Pocono region</h3><span>4 local routes</span></div>
+            <div class="map-surface">
+                <FleetMap @key="_mapGeneration" Vehicles="_snapshot.Vehicles"
+                          UpdatedVehicles="_mapUpdatedVehicles" RemovedVehicleIds="_mapRemovedVehicleIds"
+                          UpdateBatchVersion="_mapBatchVersion"
+                          EditGranularity="_mode.EditGranularity()"
+                          MaxEditsPerDrain="@(_mode.UsesRawQueue() && _mode.EditGranularity() != MapEditGranularity.Ordered ? RawEditsPerDrain : 0)"
+                          PendingReportsChanged="MapPendingReportsChanged" DiscardVersion="_discardVersion"
+                          EditsApplied="RecordMapTelemetry" EditRetrying="MapRetrying"
+                          SelectedVehicleId="_snapshot.SelectedVehicle?.VehicleId"
+                          SelectedVehicleIdChanged="SelectVehicle" Initialized="MapInitialized"
+                          EditFailed="MapFailed" SelectionFailed="SelectionFailed"
+                          RetryVersion="_retryVersion" SimulateFailure="_simulateMapFailure"
+                          HostedLayerOptions="_hostedLayers" VisibleHostedLayers="_liveLayers" />
+                @if (!_mapInitialized && _mapError is null)
+                {
+                    <div class="map-notice"><strong>Initializing map</strong><span>The vehicle list is ready to use.</span></div>
+                }
+                @if (_snapshot.HasCurrentSnapshot && _snapshot.Vehicles.Count == 0)
+                {
+                    <div class="map-notice"><strong>No vehicles to display</strong><span>Reset the scenario to restore the fleet.</span></div>
+                }
+            </div>
+            <div class="map-legend" aria-label="Map symbol legend">
+                <span><i class="marker moving" aria-hidden="true"></i> Live / moving</span>
+                <span><i class="marker idle" aria-hidden="true"></i> Idle</span>
+                <span><i class="marker stale" aria-hidden="true"></i> Stale</span>
+                <span class="route-note">Stored road routes · not for navigation</span>
+            </div>
+        </section>
+        <aside class="detail-rail" aria-label="Fleet roster and selected vehicle">
+            <VehicleList Vehicles="_snapshot.Vehicles" SelectedVehicleId="_snapshot.SelectedVehicle?.VehicleId"
+                         SelectedVehicleIdChanged="SelectVehicle" />
+            <section class="selected-details" aria-labelledby="fleet-details-title">
+                @if (_snapshot.SelectedVehicle is VehicleListItem selected)
+                {
+                    <div class="detail-heading">
+                        <div><p class="eyebrow">Selected vehicle</p><h3 id="fleet-details-title">Truck @selected.VehicleId.ToString("D3")</h3></div>
+                        <button class="clear-selection" @onclick="ClearSelection" aria-label="Clear vehicle selection">×</button>
+                    </div>
+                    <ol class="route-progress">
+                        <li><span class="detail-label">Assigned route</span><strong>@selected.RouteName</strong></li>
+                        <li class="@(selected.Status == VehicleStatus.Stale ? "is-stale" : "")">
+                            <span class="detail-label">Current observation</span><strong>@selected.Status · @selected.SpeedKph.ToString("0.#") km/h</strong>
+                            <span>Reported @selected.ObservedAtUtc.ToString("HH:mm:ss") UTC · @selected.AgeSeconds.ToString("0")s ago</span>
+                            @if (selected.Status == VehicleStatus.Stale)
+                            {
+                                <p class="stale-message">Stale report. Showing the last-known position and speed.</p>
+                            }
+                        </li>
+                        <li><SpeedChart Samples="_snapshot.SelectedHistory" LatestSpeedKph="selected.SpeedKph"
+                                        WindowEndUtc="Clock.GetUtcNow()" /></li>
+                    </ol>
+                }
+                else
+                {
+                    <p class="eyebrow">Selected vehicle</p><h3 id="fleet-details-title">Choose a truck</h3>
+                    <p class="no-selection">Select a marker on the map or a vehicle in the list to see its route, latest report, and speed history. The map zooms to the truck you choose.</p>
+                    <span class="selection-hint">Try truck 007 to follow the demo.</span>
+                }
+            </section>
+        </aside>
+    </div>
+    <details class="scenario-controls">
+        <summary>Display preview controls <span>In-browser simulation</span></summary>
+        <p class="eyebrow">
+            Mode: @_mode.Label() · Load: @_preset.Name@(PresetStatusSuffix) ·
+            Records/s: @Math.Round(_metrics.IncomingRecordsPerSecond) ·
+            Pending: @PendingDisplay ·
+            Map calls/s: @Math.Round(_metrics.MapCallsPerSecond, 1) ·
+            Edit p50/p95: @FormatApplyDelay ·
+            Failures: @_metrics.Failures ·
+            Latest map batch: @_lastMapBatchCount ·
+            Superseded state: @_state.SupersededPendingReportCount
+        </p>
+        <div class="preview-settings">
+            <label for="fleet-preview-mode">Mode</label>
+            <select id="fleet-preview-mode" @bind="_requestedMode">
+                @foreach (DemoMode mode in SelectableModes)
+                {
+                    <option value="@mode.Label()">@mode.Label()</option>
+                }
+            </select>
+            <label for="fleet-preview-load">Load</label>
+            <select id="fleet-preview-load" @bind="_requestedLoad">
+                @foreach (ScenarioSettings preset in ScenarioSettings.All)
+                {
+                    <option value="@preset.Name">@preset.Name · @preset.VehicleCount.ToString("N0") vehicles × @preset.ReportsPerSecond/s = @preset.RecordsPerSecond.ToString("N0") records/s</option>
+                }
+            </select>
+            <button class="apply-preview" @onclick="ApplyPreview">Apply</button>
+        </div>
+        <div class="scenario-actions">
+            <button @onclick="ToggleTruckPause" aria-pressed="@_pauseTruck.ToString().ToLowerInvariant()">@(_pauseTruck ? "Resume truck 007" : "Pause truck 007")</button>
+            <button @onclick="ToggleFleetPause" aria-pressed="@_pauseFleet.ToString().ToLowerInvariant()">@(_pauseFleet ? "Resume all reports" : "Pause all reports")</button>
+            <button @onclick="ShowEmptyFleet">Hide fleet locally</button>
+            <button @onclick="SimulateMapError" disabled="@(_mapError is not null)">Simulate map failure</button>
+            <button @onclick="ResetScenario">Reset scenario</button>
+        </div>
+        <LiveLayerControls Layers="_hostedLayers" Enabled="_liveLayers" LayerToggled="ToggleLiveLayer" />
+    </details>
+    <footer class="board-footer"><span>In-browser demonstration · seed 1190232</span><span>Positions and speeds are simulated.</span></footer>
+</div>
+
+@code {
+    private const int RawCaptureLimit = 250;
+    private const int RawEditsPerDrain = 250;
+
+    /// <summary>Viewport mode filters frames on a server per connection, which this in-browser source
+    /// does not have, so offering it here would just run the scheduled pipeline under a false name.</summary>
+    private static readonly DemoMode[] SelectableModes =
+        [..Enum.GetValues<DemoMode>().Where(mode => mode != DemoMode.Viewport)];
+
+    protected override async Task OnInitializedAsync()
+    {
+        _mode = DemoMode.Ready;
+        _preset = ScenarioSettings.ForMode(_mode);
+        _requestedMode = _mode.Label();
+        _requestedLoad = _preset.Name;
+        _metrics = new DemoMetrics(Clock);
+        // The blog's ArcGIS key is not authorized for the Esri traffic service, and an unauthorized
+        // request opens a full-page ArcGIS sign-in dialog. Offer only the layers that need no key.
+        _hostedLayers = HostedLayers.Available(hasApiKey: false);
+        if (_mode.UsesRawQueue()) _queue = new RawTelemetryQueue();
+        _presetNeedsApply = FrameSource is IFleetScenarioControls;
+        await Advance();
+        _updateLoop = RunUpdates();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        _disposed = true;
+        await _lifetime.CancelAsync();
+        if (_updateLoop is not null) await _updateLoop;
+        _lifetime.Dispose();
+    }
+
+    private string ConnectionLabel => _mapError is not null ? "Map paused"
+        : _sourceError is not null ? "Telemetry unavailable"
+        : !_mapInitialized ? "Initializing map"
+        : _snapshot.Vehicles.Count == 0 ? "Empty fleet"
+        : _snapshot.Vehicles.All(v => v.Status == VehicleStatus.Stale) ? "Stale telemetry"
+        : _pauseFleet ? "Display held" : "Live";
+
+    private string FreshnessLabel => _snapshot.LastFrameAtUtc is DateTimeOffset last
+        ? $"Updated {Math.Max(0, (Clock.GetUtcNow() - last).TotalSeconds):0}s ago" : "Awaiting telemetry";
+
+    private string PendingDisplay =>
+        ((_queue?.PendingCount ?? _state.DirtyVehicleCount) + _mapPendingReports).ToString("N0");
+
+    private void MapPendingReportsChanged(int count) => _mapPendingReports = count;
+
+    /// <summary>Drops the raw queue and the map's ordered backlog together, so resuming never
+    /// re-trips the safety stop on reports that were already abandoned.</summary>
+    private void DiscardMapBacklog()
+    {
+        _queue?.Reset();
+        _mapPendingReports = 0;
+        _discardVersion++;
+    }
+
+    /// <summary>Shown beside the requested preset until the simulator confirms the change, so the
+    /// controls never present a workload the simulator has not applied.</summary>
+    private string PresetStatusSuffix => _presetNeedsApply ? " (applying)" : "";
+
+    private string FormatApplyDelay
+    {
+        get
+        {
+            (double median, double p95) = _metrics.ApplyDurationMilliseconds;
+            return $"{median:0.#} / {p95:0.#} ms";
+        }
+    }
+
+    private async Task RunUpdates()
+    {
+        using var timer = new PeriodicTimer(_mode.MapCadence(), Clock);
+        _timer = timer;
+        try
+        {
+            while (await timer.WaitForNextTickAsync(_lifetime.Token))
+            {
+                if (_disposed) break;
+                await InvokeAsync(async () => { await Advance(); StateHasChanged(); });
+            }
+        }
+        catch (OperationCanceledException) when (_lifetime.IsCancellationRequested) { }
+        finally
+        {
+            _timer = null;
+        }
+    }
+
+    /// <summary>Switches the pipeline mode and workload preset without leaving the page. The mode
+    /// fixes the raw queue, the map's edit granularity, and the update cadence, so each is rebuilt
+    /// here, and the map is recreated when its edit granularity changes. That replaces the page reload
+    /// the original sample used. The preset is applied before the reset so the new run starts with
+    /// the full roster.</summary>
+    private async Task ApplyPreview()
+    {
+        DemoMode mode = DemoModeParser.TryParse(_requestedMode, out DemoMode parsedMode)
+            ? parsedMode : DemoMode.Ready;
+        ScenarioSettings preset = ScenarioSettings.TryByName(_requestedLoad, out ScenarioSettings parsedPreset)
+            ? parsedPreset : ScenarioSettings.ForMode(mode);
+
+        // Only a change of edit granularity needs a fresh map; the other mode inputs are live parameters.
+        if (mode.EditGranularity() != _mode.EditGranularity()) _mapInitialized = false;
+
+        _mode = mode;
+        _preset = preset;
+        _queue = _mode.UsesRawQueue() ? new RawTelemetryQueue() : null;
+        _metrics = new DemoMetrics(Clock);
+        _lastMapBatchCount = 0;
+        if (_timer is not null && !_disposed) _timer.Period = _mode.MapCadence();
+
+        _presetNeedsApply = FrameSource is IFleetScenarioControls;
+        if (FrameSource is IFleetScenarioControls controls)
+            _presetNeedsApply = !await SendScenarioCommand(controls.SetPresetAsync(_preset.Name));
+
+        await ResetScenario();
+    }
+
+    private async Task Advance()
+    {
+        if (_disposed) return;
+
+        DateTimeOffset now = Clock.GetUtcNow();
+        try
+        {
+            if (!_pauseFleet || FrameSource is IFleetScenarioControls)
+            {
+                FleetFrame frame = await FrameSource.GetFrameAsync(now, _lifetime.Token);
+                _lastFrame = frame;
+                IReadOnlyList<VehicleReport> reports = _emptyFleet ? [] : frame.Vehicles;
+                if (_pauseTruck && _heldTruck is not null)
+                    reports = reports.Select(v => v.VehicleId == 7 ? _heldTruck : v).ToArray();
+                frame = frame with { Vehicles = reports };
+
+                _state.Accept(frame);
+
+                // The frame source keeps serving its last known frame until a new one arrives, so
+                // only an unseen frame is a new record; counting repeats would flood the raw queue
+                // with duplicates and inflate the incoming-record metric.
+                if (_frameCursor.TryAdvance(frame))
+                {
+                    // Baseline's queue measures the map falling behind, not map startup, so ordered
+                    // intake waits until the map first reports ready. Nothing clears _mapInitialized
+                    // except a mode change, which recreates the map, so the gate stays closed until
+                    // a map initializes. Fleet state above still updates; other modes accept
+                    // immediately.
+                    if (_mapInitialized || _mode.EditGranularity() != MapEditGranularity.Ordered)
+                        _queue?.Accept(frame, _mapPendingReports);
+                    _metrics.RecordIncoming(reports.Count);
+                }
+
+                _sourceError = null;
+            }
+        }
+        catch (OperationCanceledException) when (_lifetime.IsCancellationRequested) { }
+        catch (Exception exception)
+        {
+            _sourceError = $"Telemetry unavailable: {exception.Message}";
+        }
+
+        await ApplyPresetIfPending();
+        _snapshot = _state.CreateView(now);
+        UpdateMapDelta(now);
+    }
+
+    private void UpdateMapDelta(DateTimeOffset now)
+    {
+        if (_queue is not null)
+        {
+            PendingFleetBatch rawBatch = _queue.Capture(
+                _mode.EditGranularity() == MapEditGranularity.Ordered ? int.MaxValue : RawCaptureLimit);
+            // Roster removals are only tracked by the state model; the raw queue holds reports.
+            PendingFleetBatch removedBatch = _state.CaptureDirty();
+            _mapUpdatedVehicles = rawBatch.Reports
+                .Select(report => VehicleListItems.Create(report, now)).ToArray();
+            _mapRemovedVehicleIds = removedBatch.RemovedVehicleIds;
+            _lastMapBatchCount = rawBatch.Reports.Count + _mapRemovedVehicleIds.Count;
+        }
+        else
+        {
+            PendingFleetBatch mapBatch = _state.CaptureDirty();
+            _lastMapBatchCount = mapBatch.Reports.Count + mapBatch.RemovedVehicleIds.Count;
+            Dictionary<int, VehicleListItem> vehicles = _snapshot.Vehicles.ToDictionary(vehicle => vehicle.VehicleId);
+            _mapUpdatedVehicles = mapBatch.Reports
+                .Where(report => vehicles.ContainsKey(report.VehicleId))
+                .Select(report => vehicles[report.VehicleId])
+                .ToArray();
+            _mapRemovedVehicleIds = mapBatch.RemovedVehicleIds;
+        }
+
+        if (_lastMapBatchCount > 0) _mapBatchVersion++;
+    }
+
+    private void RecordMapTelemetry(MapEditTelemetry telemetry)
+    {
+        _mapRetryingAttempt = 0;
+        _metrics.RecordMapCall(telemetry.FeatureCount, telemetry.ApplyMilliseconds);
+    }
+
+    private void MapRetrying(int attempt)
+    {
+        _metrics.RecordFailure();
+        _mapRetryingAttempt = attempt;
+    }
+
+    private async Task RetryTelemetry()
+    {
+        _sourceError = null;
+        await Advance();
+        StateHasChanged();
+    }
+
+    private void SelectVehicle(int id)
+    {
+        _selectionNotice = null;
+        _state.Select(id);
+        _snapshot = _state.CreateView(Clock.GetUtcNow());
+    }
+
+    private void ClearSelection()
+    {
+        _state.Select(null);
+        _snapshot = _state.CreateView(Clock.GetUtcNow());
+    }
+
+    private void SelectionFailed(string message)
+    {
+        _selectionNotice = message;
+    }
+
+    private void MapInitialized()
+    {
+        _mapInitialized = true;
+    }
+
+    private void MapFailed(string message)
+    {
+        _metrics.RecordFailure();
+        _mapRetryingAttempt = 0;
+        _mapError = message;
+    }
+
+    private void ResumeMapUpdates()
+    {
+        DiscardMapBacklog();
+    }
+
+    private void RetryMap()
+    {
+        _simulateMapFailure = false;
+        _mapError = null;
+        _mapRetryingAttempt = 0;
+        _retryVersion++;
+        if (!_mapInitialized)
+        {
+            _mapGeneration++;
+            // The recreated map starts with an empty queue and may never report a count again.
+            _mapPendingReports = 0;
+        }
+    }
+
+    /// <summary>Hosted layers are shown or hidden on the map itself; nothing in the vehicle pipeline
+    /// reads this set, so toggling never disturbs telemetry, selection, or the update loop.</summary>
+    private void ToggleLiveLayer(string id)
+    {
+        HashSet<string> next = [.._liveLayers];
+        if (!next.Remove(id)) next.Add(id);
+        _liveLayers = next;
+    }
+
+    private async Task ToggleTruckPause()
+    {
+        if (FrameSource is IFleetScenarioControls controls)
+        {
+            bool pausing = !_pauseTruck;
+            if (await SendScenarioCommand(pausing ? controls.PauseVehicleAsync(7) : controls.ResumeVehicleAsync(7)))
+                _pauseTruck = pausing;
+            return;
+        }
+
+        _pauseTruck = !_pauseTruck;
+        _heldTruck = _pauseTruck ? _lastFrame?.Vehicles.FirstOrDefault(v => v.VehicleId == 7) : null;
+    }
+
+    private async Task ToggleFleetPause()
+    {
+        if (FrameSource is IFleetScenarioControls controls)
+        {
+            bool pausing = !_pauseFleet;
+            if (await SendScenarioCommand(pausing ? controls.PauseFleetAsync() : controls.ResumeFleetAsync()))
+                _pauseFleet = pausing;
+            return;
+        }
+
+        _pauseFleet = !_pauseFleet;
+    }
+
+    private async Task<bool> SendScenarioCommand(Task command)
+    {
+        try
+        {
+            await command;
+            _commandError = null;
+            return true;
+        }
+        catch (Exception exception)
+        {
+            _commandError = $"Scenario command failed: {exception.Message}";
+            return false;
+        }
+    }
+
+    /// <summary>Sends the requested preset after the first frame, so the simulator runs the workload
+    /// the controls show. A failed send stays pending and is reported as a command error, never as a
+    /// frame-source error.</summary>
+    private async Task ApplyPresetIfPending()
+    {
+        if (FrameSource is not IFleetScenarioControls controls) return;
+        if (!_presetNeedsApply || _sourceError is not null) return;
+
+        if (await SendScenarioCommand(controls.SetPresetAsync(_preset.Name))) _presetNeedsApply = false;
+    }
+
+    private async Task ShowEmptyFleet()
+    {
+        _emptyFleet = true;
+        _pauseFleet = false;
+        // Reports already queued for the map would re-add the vehicles this removes, so drop them first.
+        DiscardMapBacklog();
+        await Advance();
+    }
+
+    private void SimulateMapError()
+    {
+        _simulateMapFailure = true;
+    }
+
+    private async Task ResetScenario()
+    {
+        if (FrameSource is IFleetScenarioControls controls)
+            await SendScenarioCommand(controls.ResetAsync());
+
+        _pauseTruck = false;
+        _pauseFleet = false;
+        _emptyFleet = false;
+        _heldTruck = null;
+        _state.ForgetRun();
+        DiscardMapBacklog();
+        RetryMap();
+        await Advance();
+    }
+
+    private IReadOnlyList<HostedLayerDefinition> _hostedLayers = [];
+    private IReadOnlySet<string> _liveLayers = new HashSet<string>();
+    private readonly CancellationTokenSource _lifetime = new();
+    private readonly FleetFrameCursor _frameCursor = new();
+    private FleetDashboardState _state = new();
+    private FleetDashboardView _snapshot = new([], null, [], null, false);
+    private FleetFrame? _lastFrame;
+    private VehicleReport? _heldTruck;
+    private Task? _updateLoop;
+    private PeriodicTimer? _timer;
+    private string? _mapError;
+    private string? _sourceError;
+    private string? _commandError;
+    private string? _selectionNotice;
+    private int _mapRetryingAttempt;
+    private bool _mapInitialized;
+    private bool _disposed;
+    private bool _pauseTruck;
+    private bool _pauseFleet;
+    private bool _emptyFleet;
+    private bool _simulateMapFailure;
+    private int _retryVersion;
+    private int _mapGeneration;
+    private int _mapPendingReports;
+    private int _discardVersion;
+    private IReadOnlyList<VehicleListItem> _mapUpdatedVehicles = [];
+    private IReadOnlyList<int> _mapRemovedVehicleIds = [];
+    private int _lastMapBatchCount;
+    private long _mapBatchVersion;
+    private DemoMode _mode = DemoMode.Ready;
+    private ScenarioSettings _preset = ScenarioSettings.Normal;
+    private string _requestedMode = DemoMode.Ready.Label();
+    private string _requestedLoad = ScenarioSettings.Normal.Name;
+    private DemoMetrics _metrics = new();
+    private RawTelemetryQueue? _queue;
+    private bool _presetNeedsApply;
+}

@@ -1,0 +1,881 @@
+/* SpatialDispatch board, embedded in a dark-themed blog post. Adapted from the sample's global app.css:
+   only the rules this board uses survive, the variables live on the component root with an --sd- prefix
+   so they cannot collide with the host page, and the root re-establishes the light theme the blog's
+   global body, heading, list, and button rules would otherwise override.
+
+   .spatial-dispatch is the query container and carries the theme; .sd-frame is the fixed-height card.
+   They are separate elements because a container query cannot restyle the container itself. */
+
+.spatial-dispatch {
+    --sd-navy-900: #0a1628;
+    --sd-navy-700: #16324f;
+    --sd-canvas: #eef2f8;
+    --sd-surface: #ffffff;
+    --sd-surface-sunken: #f5f8fc;
+    --sd-surface-raised: #ffffff;
+
+    --sd-ink: #0e1a2b;
+    --sd-muted: #5d6f88;
+    --sd-faint: #8497ad;
+
+    --sd-border: #dce4ef;
+    --sd-border-strong: #c3d0e0;
+    --sd-shadow-sm: 0 1px 2px rgba(10, 22, 40, 0.06);
+    --sd-shadow-md: 0 6px 18px -6px rgba(10, 22, 40, 0.16);
+
+    --sd-accent: #2563eb;
+    --sd-accent-strong: #1d4ed8;
+    --sd-accent-soft: #e8effd;
+    --sd-accent-ring: rgba(37, 99, 235, 0.35);
+
+    --sd-urgent: #e11d48;
+    --sd-urgent-soft: #fdeef2;
+    --sd-ok: #15803d;
+    --sd-ok-soft: #eaf7ef;
+    --sd-ok-border: #bfe3cb;
+    --sd-excluded: #94a3b8;
+    --sd-excluded-soft: #f1f5f9;
+
+    --sd-r-sm: 8px;
+    --sd-r-md: 12px;
+    --sd-r-lg: 18px;
+    --sd-r-pill: 999px;
+
+    --sd-font-sans: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "Helvetica Neue",
+        Arial, sans-serif;
+
+    container-type: inline-size;
+    margin: 1.5rem 0;
+    font-family: var(--sd-font-sans);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.45;
+    letter-spacing: normal;
+    text-align: left;
+    color: var(--sd-ink);
+    -webkit-font-smoothing: antialiased;
+}
+
+.spatial-dispatch *,
+.spatial-dispatch *::before,
+.spatial-dispatch *::after {
+    box-sizing: border-box;
+}
+
+/* Zero-specificity element list, so the blog's margins, list indents, and justified text lose, while every
+   class rule below (same specificity, later in the file) still wins. */
+.spatial-dispatch :where(h2, h3, h4, p, ul, dl, dt, dd, li) {
+    margin: 0;
+    padding: 0;
+    text-align: left;
+}
+
+.sd-frame {
+    height: 760px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--sd-border-strong);
+    border-radius: var(--sd-r-lg);
+    background-color: var(--sd-canvas);
+    background-image:
+        radial-gradient(1200px 480px at 12% -8%, rgba(37, 99, 235, 0.08), transparent 60%),
+        radial-gradient(900px 420px at 100% 0%, rgba(14, 165, 233, 0.06), transparent 55%);
+}
+
+/* ------------------------------------------------------------------ Header bar */
+
+.app-header {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.7rem 1.2rem;
+    color: #eaf1fb;
+    background: linear-gradient(100deg, var(--sd-navy-900) 0%, var(--sd-navy-700) 60%, #1a3c63 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+}
+
+.brand-mark {
+    display: grid;
+    place-items: center;
+    width: 2.35rem;
+    height: 2.35rem;
+    border-radius: 10px;
+    font-weight: 800;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    color: #ffffff;
+    background: linear-gradient(140deg, #3b82f6, #1d4ed8 70%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 6px 14px -8px rgba(56, 130, 246, 0.9);
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+}
+
+.brand-name {
+    font-size: 1.12rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.brand-tagline {
+    margin-top: 0.22rem;
+    font-size: 0.72rem;
+    line-height: 1.3;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: #9fb6d4;
+}
+
+.app-header-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.status-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.32rem 0.75rem;
+    border-radius: var(--sd-r-pill);
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #d7f5e1;
+    background: rgba(21, 128, 61, 0.22);
+    border: 1px solid rgba(74, 222, 128, 0.35);
+}
+
+.status-chip .dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.22);
+    animation: sd-pulse 2.4s ease-in-out infinite;
+}
+
+.header-shift {
+    font-size: 0.82rem;
+    color: #9fb6d4;
+}
+
+/* ------------------------------------------------------------------ Board frame */
+
+.app-shell {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 0.9rem 1rem 1rem;
+}
+
+.board-heading {
+    flex: none;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 0.85rem;
+    margin: 0 0 0.8rem;
+}
+
+.spatial-dispatch .board-heading h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+    color: var(--sd-ink);
+}
+
+.board-subtitle {
+    font-size: 0.9rem;
+    color: var(--sd-muted);
+}
+
+.spatial-dispatch .panel-title h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: -0.005em;
+    color: var(--sd-ink);
+}
+
+.spatial-dispatch .result-panel h4 {
+    margin: 1.1rem 0 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    line-height: 1.3;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--sd-muted);
+}
+
+/* ------------------------------------------------------------------ Layout */
+
+/* Default, for a typical post column (about 640 to 1200px): the jobs run as a strip across the top, and
+   the map shares the remaining height with the recommendation. The sample's three-column layout leaves
+   the map only a sliver at these widths, so it is reserved for wider hosts below. */
+.dispatch-layout {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 18rem;
+    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-areas:
+        "jobs jobs"
+        "map result";
+    gap: 0.8rem;
+}
+
+.jobs-panel {
+    grid-area: jobs;
+}
+
+.map-panel {
+    grid-area: map;
+}
+
+.result-panel {
+    grid-area: result;
+}
+
+.jobs-panel .job-list {
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+}
+
+.panel {
+    position: relative;
+    min-height: 0;
+    background: var(--sd-surface);
+    border: 1px solid var(--sd-border);
+    border-radius: var(--sd-r-lg);
+    box-shadow: var(--sd-shadow-sm);
+    padding: 0.9rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.panel-header {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.65rem;
+    border-bottom: 1px solid var(--sd-border);
+}
+
+.panel-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.panel-title .icon {
+    width: 1.1rem;
+    height: 1.1rem;
+    color: var(--sd-accent);
+    flex: none;
+}
+
+.count-badge {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.6rem;
+    height: 1.6rem;
+    padding: 0 0.45rem;
+    border-radius: var(--sd-r-pill);
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--sd-accent-strong);
+    background: var(--sd-accent-soft);
+}
+
+.map-panel {
+    padding: 0;
+    overflow: hidden;
+}
+
+/* DispatchMap renders no element of its own, so its MapView is styled from here. The blog's global
+   .map-wrapper rule adds padding and margin that would push the map out of its panel. */
+.map-panel ::deep .map-wrapper {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+/* ------------------------------------------------------------------ States */
+
+.state-message {
+    color: var(--sd-muted);
+    background: var(--sd-surface-sunken);
+    border: 1px dashed var(--sd-border-strong);
+    border-radius: var(--sd-r-md);
+    padding: 0.9rem 1rem;
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.state-message.loading {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.state-message.loading::before {
+    content: "";
+    width: 1rem;
+    height: 1rem;
+    flex: none;
+    border-radius: 50%;
+    border: 2px solid var(--sd-border-strong);
+    border-top-color: var(--sd-accent);
+    animation: sd-spin 0.8s linear infinite;
+}
+
+.state-message.error {
+    color: var(--sd-urgent);
+    font-weight: 600;
+    background: var(--sd-urgent-soft);
+    border-color: var(--sd-urgent);
+    border-style: solid;
+}
+
+/* ------------------------------------------------------------------ Jobs */
+
+.job-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.55rem;
+}
+
+.job-button {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    text-align: left;
+    display: grid;
+    align-content: start;
+    gap: 0.35rem;
+    padding: 0.75rem 0.85rem 0.75rem 1rem;
+    border: 1px solid var(--sd-border);
+    border-radius: var(--sd-r-md);
+    background: var(--sd-surface-raised);
+    box-shadow: var(--sd-shadow-sm);
+    cursor: pointer;
+    font: inherit;
+    letter-spacing: normal;
+    color: inherit;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+}
+
+.job-button::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.7rem;
+    bottom: 0.7rem;
+    width: 4px;
+    border-radius: var(--sd-r-pill);
+    background: var(--sd-border-strong);
+}
+
+.job-button:hover {
+    background: var(--sd-surface-raised);
+    border-color: var(--sd-accent);
+    box-shadow: var(--sd-shadow-md);
+}
+
+.job-button:active {
+    transform: translateY(1px);
+}
+
+.job-button:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--sd-accent-ring);
+    border-color: var(--sd-accent);
+}
+
+.job-button.selected {
+    border-color: var(--sd-accent);
+    background: linear-gradient(180deg, #f7faff, var(--sd-surface-raised));
+    box-shadow: var(--sd-shadow-md), inset 0 0 0 1.5px var(--sd-accent);
+}
+
+.job-button.selected::before {
+    background: var(--sd-accent);
+}
+
+.job-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.job-meta {
+    margin-top: 0.1rem;
+}
+
+.job-customer {
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: -0.005em;
+}
+
+.job-summary {
+    color: var(--sd-muted);
+    font-size: 0.9rem;
+}
+
+.job-status,
+.job-assignee {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.job-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--sd-muted);
+}
+
+.job-status::before {
+    content: "";
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--sd-faint);
+    flex: none;
+}
+
+.job-assignee {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--sd-ok);
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 0.84rem;
+}
+
+.job-assignee::before {
+    content: "\2713";
+    display: inline-grid;
+    place-items: center;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    background: var(--sd-ok-soft);
+    color: var(--sd-ok);
+    font-size: 0.68rem;
+    font-weight: 800;
+}
+
+.job-priority {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.16rem 0.55rem;
+    border-radius: var(--sd-r-pill);
+    font-size: 0.68rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: var(--sd-muted);
+    background: var(--sd-excluded-soft);
+    border: 1px solid var(--sd-border);
+    white-space: nowrap;
+}
+
+.job-priority.urgent {
+    color: var(--sd-urgent);
+    background: var(--sd-urgent-soft);
+    border-color: #f6c6d2;
+}
+
+.job-priority.urgent::before {
+    content: "";
+    width: 0.45rem;
+    height: 0.45rem;
+    margin-right: 0.35rem;
+    border-radius: 50%;
+    background: var(--sd-urgent);
+    box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.16);
+}
+
+/* ------------------------------------------------------------------ Recommendation */
+
+.recommendation {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.1rem;
+    margin: 0;
+}
+
+.recommendation dt {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--sd-muted);
+}
+
+.recommendation dd {
+    margin: 0 0 0.7rem;
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.recommendation dd:last-of-type {
+    margin-bottom: 0;
+}
+
+/* The distance is the headline metric of the whole board. */
+.recommendation .recommended-distance {
+    display: inline-flex;
+    justify-self: start;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-top: 0.15rem;
+    padding: 0.45rem 0.85rem;
+    border-radius: var(--sd-r-md);
+    font-size: 1.7rem;
+    color: var(--sd-accent-strong);
+    background: linear-gradient(180deg, #f4f8ff, var(--sd-accent-soft));
+    border: 1px solid #c9dbfb;
+    box-shadow: inset 0 1px 0 #ffffff;
+}
+
+.recommendation .recommended-technician {
+    color: var(--sd-ink);
+}
+
+.route-note {
+    display: flex;
+    gap: 0.5rem;
+    margin: 0 0 0.25rem;
+    padding: 0.6rem 0.75rem;
+    border-radius: var(--sd-r-sm);
+    border-left: 3px solid var(--sd-accent);
+    background: var(--sd-surface-sunken);
+    color: var(--sd-muted);
+    font-size: 0.88rem;
+}
+
+/* ------------------------------------------------------------------ Candidates */
+
+.candidate-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.4rem;
+}
+
+.candidate {
+    width: 100%;
+    margin: 0;
+    text-align: left;
+    font: inherit;
+    letter-spacing: normal;
+    color: inherit;
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 0 0.5rem;
+    padding: 0.55rem 0.7rem;
+    border: 1px solid var(--sd-border);
+    border-left: 4px solid var(--sd-excluded);
+    background: var(--sd-surface-raised);
+    border-radius: var(--sd-r-sm);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.candidate:hover {
+    background: var(--sd-surface-raised);
+    border-color: var(--sd-accent);
+    box-shadow: var(--sd-shadow-sm);
+}
+
+.candidate:focus-visible {
+    outline: none;
+    border-color: var(--sd-accent);
+    box-shadow: 0 0 0 3px var(--sd-accent-ring);
+}
+
+/* The previewed candidate's route is on the map, so its row reads as active. */
+.candidate.selected {
+    border-color: var(--sd-accent);
+    box-shadow: inset 0 0 0 1.5px var(--sd-accent);
+}
+
+.candidate-name {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+}
+
+.candidate-name::before {
+    content: "";
+    width: 0.62rem;
+    height: 0.62rem;
+    border-radius: 50%;
+    flex: none;
+    background: var(--sd-excluded);
+    box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.18);
+}
+
+.candidate-distance {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: var(--sd-muted);
+}
+
+.candidate-outcome {
+    grid-column: 1 / -1;
+    font-size: 0.82rem;
+    color: var(--sd-muted);
+}
+
+.candidate.recommended {
+    border-left-color: var(--sd-ok);
+    border-color: var(--sd-ok-border);
+    background: var(--sd-ok-soft);
+    box-shadow: var(--sd-shadow-sm);
+}
+
+.candidate.recommended .candidate-name::before {
+    background: var(--sd-ok);
+    box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.18);
+}
+
+.candidate.recommended .candidate-outcome {
+    color: var(--sd-ok);
+    font-weight: 700;
+}
+
+.candidate.eligible {
+    border-left-color: #60a5fa;
+}
+
+.candidate.eligible .candidate-name::before {
+    background: #60a5fa;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.18);
+}
+
+.candidate.excludedbyavailability,
+.candidate.excludedbyterritory {
+    background: var(--sd-surface-sunken);
+}
+
+.candidate.excludedbyavailability .candidate-name,
+.candidate.excludedbyterritory .candidate-name {
+    color: var(--sd-muted);
+}
+
+/* ------------------------------------------------------------------ Actions */
+
+.assign-button {
+    position: relative;
+    flex: none;
+    margin: 1.1rem 0 0;
+    width: 100%;
+    padding: 0.85rem 1rem;
+    font: inherit;
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: 0.01em;
+    color: #ffffff;
+    background: linear-gradient(180deg, #2f7d4a, var(--sd-ok));
+    border: 1px solid #116633;
+    border-radius: var(--sd-r-md);
+    box-shadow: 0 10px 20px -12px rgba(21, 128, 61, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.assign-button:hover {
+    background: linear-gradient(180deg, #2f7d4a, var(--sd-ok));
+    filter: brightness(1.06);
+    box-shadow: 0 14px 26px -12px rgba(21, 128, 61, 1), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.assign-button:active {
+    transform: translateY(1px);
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.assign-button:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--sd-accent-ring), 0 10px 20px -12px rgba(21, 128, 61, 0.9);
+}
+
+.assigned-note {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 1.1rem;
+    padding: 0.85rem 1rem;
+    background: var(--sd-ok-soft);
+    border: 1px solid var(--sd-ok-border);
+    border-radius: var(--sd-r-md);
+    font-weight: 700;
+    color: var(--sd-ok);
+}
+
+.assigned-note::before {
+    content: "\2713";
+    display: inline-grid;
+    place-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    flex: none;
+    border-radius: 50%;
+    background: var(--sd-ok);
+    color: #ffffff;
+    font-size: 0.9rem;
+}
+
+/* ------------------------------------------------------------------ Map fallback */
+
+.map-unavailable {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 2rem;
+    text-align: center;
+    color: var(--sd-muted);
+    background:
+        repeating-linear-gradient(45deg, #f8fafc, #f8fafc 12px, #f2f6fb 12px, #f2f6fb 24px);
+}
+
+.map-unavailable p {
+    text-align: center;
+}
+
+.map-unavailable strong {
+    color: var(--sd-ink);
+    font-size: 1.05rem;
+}
+
+.map-error-detail {
+    max-width: 40rem;
+    font-size: 0.82rem;
+    color: var(--sd-urgent);
+    font-weight: 500;
+}
+
+/* ------------------------------------------------------------------ Chrome */
+
+.panel::-webkit-scrollbar {
+    width: 10px;
+}
+
+.panel::-webkit-scrollbar-thumb {
+    background: var(--sd-border-strong);
+    border-radius: var(--sd-r-pill);
+    border: 3px solid var(--sd-surface);
+}
+
+.panel::-webkit-scrollbar-thumb:hover {
+    background: var(--sd-faint);
+}
+
+@keyframes sd-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes sd-pulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.45;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .status-chip .dot,
+    .state-message.loading::before {
+        animation: none;
+    }
+
+    .job-button,
+    .assign-button {
+        transition: none;
+    }
+}
+
+/* ------------------------------------------------------------------ Responsive */
+
+/* Wide hosts get the sample's original three columns: jobs, map, recommendation. */
+@container (min-width: 75rem) {
+    .dispatch-layout {
+        grid-template-columns: 18rem minmax(0, 1fr) 20rem;
+        grid-template-rows: minmax(0, 1fr);
+        grid-template-areas: "jobs map result";
+    }
+
+    .jobs-panel .job-list {
+        grid-template-columns: 1fr;
+    }
+
+    .job-button {
+        height: auto;
+    }
+}
+
+/* Narrow columns (phones) stack everything and let the card grow instead of scrolling inside it. */
+@container (max-width: 40rem) {
+    .sd-frame {
+        height: auto;
+    }
+
+    .header-shift {
+        display: none;
+    }
+
+    .dispatch-layout {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto 22rem auto;
+        grid-template-areas:
+            "jobs"
+            "map"
+            "result";
+    }
+
+    .panel {
+        overflow-y: visible;
+    }
+}

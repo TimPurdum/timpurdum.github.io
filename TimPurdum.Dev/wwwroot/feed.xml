@@ -31,6 +31,14 @@
 <a href="https://techbash.com/schedule" target="_blank">TechBash 2026 schedule</a>
 </div>
 </div>
+<p>Here's the dispatch board running live, right in this page. In the talk the answer came out of SQL Server, but this copy answers from the demo data in memory, so there's no server behind it. Pick a job to see its territory and the closest available technician.</p>
+<div id="spatial-dispatch-live1" class="component-block">
+    <svg class="loading-progress">
+        <circle r="40%" cx="50%" cy="50%" />
+        <circle r="40%" cx="50%" cy="50%" />
+    </svg>
+    <div class="loading-progress-text"></div>
+</div>
 <div class="tb-session" id="data-visualization">
 <p class="tb-when">Thursday, October 15 · 11:30 AM · Sagewood</p>
 <h2>Real-Time Data Visualization in Blazor</h2>
@@ -42,6 +50,14 @@
 <a href="/post/2026/10/15/techbash.html#visualization-resources">Additional resources</a>
 <a href="https://techbash.com/schedule" target="_blank">TechBash 2026 schedule</a>
 </div>
+</div>
+<p>And here's the fleet dashboard, live. The simulator that ran on the server during the talk runs inside this page instead, so the trucks are moving in your browser. Open the preview controls at the bottom to switch pipeline modes and load presets.</p>
+<div id="fleet-dashboard-live2" class="component-block">
+    <svg class="loading-progress">
+        <circle r="40%" cx="50%" cy="50%" />
+        <circle r="40%" cx="50%" cy="50%" />
+    </svg>
+    <div class="loading-progress-text"></div>
 </div>
 <h2 id="running-the-samples">Running the Samples</h2>
 <p>Both applications live in the <a href="https://github.com/dymaptic/GeoBlazor-Samples">dymaptic/GeoBlazor-Samples</a> repository, and each project's <code>README.md</code> has the full setup. A few things worth knowing before you clone:</p>

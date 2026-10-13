@@ -1,0 +1,17 @@
+.fleet-sample .list-heading { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: 1rem 1.2rem; }
+.fleet-sample h3 { margin: 0; font-size: 1rem; }
+.fleet-sample h3 span { color: #52665f; margin-left: .4rem; font-family: var(--fleet-font-data); font-size: .8rem; }
+.fleet-sample .shortcut { color: var(--fleet-teal); font-size: .8rem; border: 1px solid #adc9c2; background: transparent; padding: .4rem .65rem; }
+.fleet-sample .roster { max-height: 200px; overflow-y: auto; list-style: none; margin: 0; padding: 0; scrollbar-color: #adc9c2 transparent; }
+.fleet-sample .roster button { width: 100%; display: grid; grid-template-columns: 2.7rem 1fr auto; align-items: center; gap: .5rem; text-align: left; padding: .65rem 1.2rem; border: 0; border-top: 1px solid #e3ebe6; background: var(--fleet-paper); }
+.fleet-sample .roster button:hover { background: #f0f7f3; }
+.fleet-sample .roster button[aria-pressed="true"] { background: #e0efea; box-shadow: inset 4px 0 var(--fleet-teal); }
+.fleet-sample .truck-number { font-family: var(--fleet-font-data); font-weight: 600; }
+.fleet-sample .route-name { font-size: .83rem; }
+.fleet-sample .vehicle-status { font-size: .7rem; text-transform: uppercase; letter-spacing: .04em; color: #226057; }
+.fleet-sample .vehicle-status::before { content: "●"; padding-right: .35rem; }
+.fleet-sample .vehicle-status.idle { color: #52665f; }
+.fleet-sample .vehicle-status.idle::before { content: "Ⅱ"; }
+.fleet-sample .vehicle-status.stale { color: #8a4d08; }
+.fleet-sample .vehicle-status.stale::before { content: "!"; font-weight: 800; }
+.fleet-sample .empty-copy { margin: 0; padding: 1rem 1.2rem 1.5rem; color: #52665f; }

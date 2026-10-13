@@ -21,7 +21,7 @@ Always clone with `--recurse-submodules`, or run `git submodule update --init --
 
 ## Solution layout & build chain
 
-The solution has three groups of projects, and the build chain between them is non-obvious:
+The solution has four groups of projects, and the build chain between them is non-obvious:
 
 1. **`TimPurdum.Dev.Source`** — Razor class library containing the *content*: markdown posts (`Content/Posts/YYYY-MM-DD-*.md`), pages (`Content/Pages/*.razor`), and the site's custom Razor templates (`Templates/`, inheriting from `BasePageLayout` / `BasePostLayout` / `BaseRootTemplate`). Built first; its compiled DLL is loaded reflectively by the Compiler.
 
@@ -30,7 +30,9 @@ The solution has three groups of projects, and the build chain between them is n
    - `TimPurdum.Dev.BlogGenerator` — the package consumed by the WASM project. Its `TimPurdum.Dev.BlogGenerator.targets` file runs the Compiler `BeforeTargets="Build"`. Also exposes `WebAssemblyHostBuilder.AddGeneratedBlogContent()` (in `DependencyExtension.cs`), which at runtime inspects the loaded HTML and registers root components for every interactive component whose `id` matches `PascalToKebabCase(typeName)`.
    - `TimPurdum.Dev.BlogGenerator.Shared` — `BlogSettings`, `LinkData`, abstract template base classes, default templates.
 
-3. **`TimPurdum.Dev`** — the Blazor WASM project that ships. References `BlogGenerator` (which transitively triggers the generator), references `Source`, and depends on `dymaptic.GeoBlazor.Pro`. `Program.cs` calls `await builder.AddGeneratedBlogContent()` to wire up interactive components in the pre-rendered HTML.
+3. **`TimPurdum.Dev.Samples`** — Razor class library holding TechBash 2026 sample UIs (`FleetDashboardSample` and `SpatialDispatchSample`) adapted from dymaptic/GeoBlazor-Samples under MIT license. Posts embed them via `blazor-component` fences using the fully qualified component name. `Program.cs` registers their services with `AddFleetDashboardSample()` and `AddSpatialDispatchSample(baseAddress)`. Fleet's `routes.geojson` is an `EmbeddedResource` with `LogicalName` `TimPurdum.Dev.Samples.FleetDashboard.routes.geojson`. Spatial's GeoJSON is served from `_content/TimPurdum.Dev.Samples/spatial-dispatch/data/`.
+
+4. **`TimPurdum.Dev`** — the Blazor WASM project that ships. References `BlogGenerator` (which transitively triggers the generator), references `Source`, references `Samples`, and depends on `dymaptic.GeoBlazor.Pro`. `Program.cs` calls `await builder.AddGeneratedBlogContent()` to wire up interactive components in the pre-rendered HTML.
 
 ### Implication for ordering
 
