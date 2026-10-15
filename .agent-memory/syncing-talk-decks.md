@@ -8,7 +8,6 @@ Check the source for `blob:` URLs first. The 2026-10-13 SpatialData build had tw
 
 Preview a slide headlessly with the deck's own Playwright (`D:/PresentationDemos/TechBash2026/SpatialData/node_modules/playwright`) at `?deckPreview&slide=<data-screen-label>`. The parameter takes the screen label, such as `4A`, not a slide index.
 
-
 To sync the DataVisualization assets, grep the source `index.html` for `assets/...` references, then replace the site's `assets/` folder with exactly those files. The deck drops scenes and images between versions, and a plain copy would leave them behind. Add `assets/measurement-environment.txt` too, because a slide names it in a `<code>` span. That deck ignores `?deckPreview&slide=`, so check it by fetching every referenced asset from the page.
 
 The embedded samples in `TimPurdum.Dev.Samples` are adapted copies of dymaptic/GeoBlazor-Samples. PR #10 copied them from `bcf5754`, and PR #13 ported up to `8bb8ade`. Port later changes with `git diff <last port> HEAD -- projects/FleetDashboard projects/SpatialDispatch`. Reword any presenter text that mentions `?mode=` URLs or reloads, because the blog applies modes in place.
