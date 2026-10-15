@@ -2,9 +2,14 @@
 
 `TimPurdum.Dev/wwwroot/appsettings.json` is gitignored (`.gitignore` line 7). CI writes it on every
 deploy from the repository secret `APP_SETTINGS`, which holds the complete JSON document verbatim.
-The workflow step `Copy AppSettings` runs `${{ secrets.APP_SETTINGS }} | Out-File -FilePath
-./TimPurdum.Dev/wwwroot/appsettings.json -Encoding utf8`, which is PowerShell 7, so `-Encoding utf8`
-means UTF-8 without a byte order mark.
+The workflow step `Copy AppSettings` passes the secret in through `env: APP_SETTINGS` and runs
+`$env:APP_SETTINGS | Out-File -FilePath ./TimPurdum.Dev/wwwroot/appsettings.json -Encoding utf8`, which is
+PowerShell 7, so `-Encoding utf8` means UTF-8 without a byte order mark.
+
+Never paste the secret into script text. Until PR #11 the step read `$appSettings = "${{ secrets.APP_SETTINGS }}"`.
+When the secret became multi-line, formatted JSON at 17:26 UTC on 2026-10-13, its first `"` ended that
+string, and every deploy failed with a `ParserError` before building. That hit #8, #9, and #10. A deploy
+failure at this step means the secret's text broke the script, not that the site's code is wrong.
 
 `APP_SETTINGS` is repository-level rather than environment-level. The `github-pages` environment that
 the deploy job names holds no secrets. The document has three top-level keys: `ArcGISApiKey`,
