@@ -22,7 +22,7 @@
       // history row, and the list of what each tick does.
       root => ({ animations: ["row-map", "row-chart", "ticklist"].map((part, index) =>
         animate(root, part, fadeUp, { duration: 400, delay: index * 150 })) }),
-      // Beat 1, "250 ms": four ticks instead of ten, the playheads sweep, and the call-rate line arrives.
+      // Beat 1, "250 ms": four ticks instead of ten, the playheads sweep, and the calls and edit-time line arrives.
       root => ({ animations: [
         animate(root, "map-old", [{ opacity: 1 }, { opacity: 0 }], { duration: 600 }),
         sweep(root, "head-map", { delay: 400, iterations: 2 }),

@@ -5,6 +5,7 @@
 @using TimPurdum.Dev.Samples.FleetDashboard.Streaming
 @inject IFleetFrameSource FrameSource
 @inject TimeProvider Clock
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
 @implements IAsyncDisposable
 
 <div class="fleet-sample">
@@ -74,7 +75,8 @@
                           SelectedVehicleIdChanged="SelectVehicle" Initialized="MapInitialized"
                           EditFailed="MapFailed" SelectionFailed="SelectionFailed"
                           RetryVersion="_retryVersion" SimulateFailure="_simulateMapFailure"
-                          HostedLayerOptions="_hostedLayers" VisibleHostedLayers="_liveLayers" />
+                          HostedLayerOptions="_hostedLayers" VisibleHostedLayers="_liveLayers"
+                          UseImageryBasemap="_useImageryBasemap" />
                 @if (!_mapInitialized && _mapError is null)
                 {
                     <div class="map-notice"><strong>Initializing map</strong><span>The vehicle list is ready to use.</span></div>
@@ -138,12 +140,16 @@
         </p>
         <div class="preview-settings">
             <label for="fleet-preview-mode">Mode</label>
-            <select id="fleet-preview-mode" @bind="_requestedMode">
+            <select id="fleet-preview-mode" @bind="_requestedMode" aria-describedby="fleet-preview-mode-guidance">
                 @foreach (DemoMode mode in SelectableModes)
                 {
-                    <option value="@mode.Label()">@mode.Label()</option>
+                    <option value="@mode.Label()">@mode.DisplayName() · @mode.Label()</option>
                 }
             </select>
+            <div id="fleet-preview-mode-guidance" class="preview-mode-guidance" aria-live="polite">
+                <p><strong>What this mode shows after Apply:</strong> @RequestedMode.WatchingLine()</p>
+                <p><strong>How to demonstrate it:</strong> @RequestedMode.DemonstrationCue()</p>
+            </div>
             <label for="fleet-preview-load">Load</label>
             <select id="fleet-preview-load" @bind="_requestedLoad">
                 @foreach (ScenarioSettings preset in ScenarioSettings.All)
@@ -184,6 +190,8 @@
         // The blog's ArcGIS key is not authorized for the Esri traffic service, and an unauthorized
         // request opens a full-page ArcGIS sign-in dialog. Offer only the layers that need no key.
         _hostedLayers = HostedLayers.Available(hasApiKey: false);
+        // Basemap styles are covered by the blog key, so imagery follows whether a key is configured.
+        _useImageryBasemap = HostedLayers.HasApiKey(Configuration);
         if (_mode.UsesRawQueue()) _queue = new RawTelemetryQueue();
         _presetNeedsApply = FrameSource is IFleetScenarioControls;
         await Advance();
@@ -281,6 +289,15 @@
             _presetNeedsApply = !await SendScenarioCommand(controls.SetPresetAsync(_preset.Name));
 
         await ResetScenario();
+    }
+
+    private DemoMode RequestedMode
+    {
+        get
+        {
+            DemoModeParser.TryParse(_requestedMode, out DemoMode mode);
+            return mode;
+        }
     }
 
     private async Task Advance()
@@ -518,6 +535,7 @@
     }
 
     private IReadOnlyList<HostedLayerDefinition> _hostedLayers = [];
+    private bool _useImageryBasemap;
     private IReadOnlySet<string> _liveLayers = new HashSet<string>();
     private readonly CancellationTokenSource _lifetime = new();
     private readonly FleetFrameCursor _frameCursor = new();

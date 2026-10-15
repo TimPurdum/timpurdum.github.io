@@ -103,6 +103,8 @@
 .fleet-sample .preview-settings { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; padding: .25rem 0 .75rem; font-size: .75rem; }
 .fleet-sample .preview-settings select { min-height: 44px; max-width: 100%; font-size: .75rem; background: var(--fleet-paper); border: 1px solid #b9cbc1; padding: 0 .5rem; }
 .fleet-sample .preview-settings button { background: var(--fleet-paper); border: 1px solid #b9cbc1; font-size: .75rem; }
+.fleet-sample .preview-mode-guidance { flex-basis: 100%; color: #52665f; line-height: 1.5; }
+.fleet-sample .preview-mode-guidance p { margin: .15rem 0; }
 .fleet-sample .scenario-actions { display: flex; gap: .6rem; flex-wrap: wrap; padding: .25rem 0 1rem; }
 .fleet-sample .scenario-actions button { background: var(--fleet-paper); border: 1px solid #b9cbc1; font-size: .75rem; }
 .fleet-sample .scenario-actions button[aria-pressed="true"] { background: #f6e7ce; border-color: var(--fleet-amber); }

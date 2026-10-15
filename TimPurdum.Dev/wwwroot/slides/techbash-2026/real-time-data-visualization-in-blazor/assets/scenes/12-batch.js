@@ -1,12 +1,13 @@
 // Slide 12: a loop of 500 one-feature calls fires one by one, collapses into a single 500-feature
-// call whose bar is longer (the honest cost), splits into chunks of 200, 200 and 100, and a side
-// panel crosses out the two roads we tried.
+// call whose bar is longer (the heavier call), splits into chunks of 200, 200 and 100, and a side
+// panel crosses out the two roads we tried. The result line's two totals pop in after the line lands,
+// since they are the numbers the audience should leave with.
 //
 // The scene animates the slide's own HTML. The loop row is authored dim (it is the "before"), so
 // beat 1 animates it from full brightness down to that authored state, and the two crossed-out roads
 // are authored struck through, so beat 3 draws the strikes in.
 (() => {
-  const { animate, motion: { fadeUp, slideIn } } = window.deckScenes;
+  const { animate, motion: { fadeUp, slideIn, pop } } = window.deckScenes;
   const each = (root, selector, keyframes, options) => [...root.querySelectorAll(selector)].map((element, index) =>
     element.animate(keyframes, { fill: "both", easing: "cubic-bezier(.2,.7,.2,1)", ...options(index) }));
   const grow = [{ opacity: 0, transform: "scaleX(0)" }, { opacity: 1, transform: "none" }];
@@ -31,7 +32,9 @@
         animate(root, "row-one", fadeUp, { duration: 400, delay: 200 }),
         animate(root, "one", grow, { duration: 600, delay: 300 }),
         animate(root, "heavy", grow, { duration: 700, delay: 1000 }),
-        animate(root, "honest", fadeUp, { duration: 450, delay: 1500 })
+        animate(root, "result", fadeUp, { duration: 450, delay: 1500 }),
+        animate(root, "num-slow", pop, { duration: 600, delay: 1950 }),
+        animate(root, "num-fast", pop, { duration: 600, delay: 2250 })
       ] }),
       // Beat 2, "chunks": the one call splits into 200, 200 and 100 features.
       root => ({ animations: [
