@@ -1,11 +1,12 @@
-// Slide 14: records pour into the browser, a view rectangle zooms in to a small part of the fleet,
-// dots outside it drop to a once-a-second blink, Truck 007 drives out of the rectangle and stays
-// bright, and a result card says the experiment did not help here.
+// Slide 15: full frames carry the whole fleet into the browser, a view rectangle zooms in to a small
+// part of it, dots outside drop to a once-a-second blink, Truck 007 drives out of the rectangle and
+// stays bright, and a result card says fewer than 40% of the trucks per frame cut edit time to 27.5 ms.
 //
 // The scene animates the slide's own HTML. The default view holds the whole fleet, so the rectangle
-// starts as the full map and shrinks to its authored size. The final counters are the measured
-// viewport-mode result zoomed in on Truck 007 at the stress preset: a steady ~160 of 500 vehicles
-// per frame, or about 1,600 records a second at 10 frames a second.
+// starts as the full map and shrinks to its authored size. The counters come from the published,
+// interpreted .NET run in demo/measurements/results.json (2026-10-14), the stress preset, 3 runs: the
+// region view reads 500 trucks per frame and 1,827 records a second (the `viewport-region` row);
+// zoomed in on Truck 7 it reads 191 per frame and 705 records a second (`viewport-zoomed`).
 //
 // A property is animated in only one beat (a later animation wins on the same property): beat 0
 // fades the fleet group, beat 2 animates the individual dots.
@@ -25,7 +26,7 @@
         animate(root, "routes", [{ opacity: 0 }, { opacity: 1 }], { duration: 600 }),
         animate(root, "fleet", fadeUp, { duration: 500, delay: 300 })
       ] }),
-      // Beat 1, "receive work": the browser glows hot as 5,000 records a second pour in.
+      // Beat 1, "full frames": the browser glows hot as 500-truck frames pour in, 1,827 records a second.
       root => {
         const stream = root.querySelector(".rx-stream").getBoundingClientRect().width;
         const rate = root.querySelector('[data-part="rate"]');
@@ -45,13 +46,13 @@
             ], index => ({ duration: 700, delay: 300 + index * 130, iterations: 3, easing: "linear" }))
           ],
           tickers: [{ delay: 300, duration: 1600, update: progress => {
-            count(rate, 0, 5000)(progress);
+            count(rate, 0, 1827)(progress);
             count(perFrame, 0, 500)(progress);
           } }]
         };
       },
       // Beat 2, "the rectangle": the view zooms in, inside dots pulse, outside dots dim and blink
-      // once a second, and the records per frame drop.
+      // once a second, and the trucks per frame drop to 191.
       root => {
         const rate = root.querySelector('[data-part="rate"]');
         const perFrame = root.querySelector('[data-part="perframe"]');
@@ -76,8 +77,8 @@
             animate(root, "rule-out", fadeUp, { duration: 400, delay: 1500 })
           ],
           tickers: [{ delay: 1200, duration: 1400, update: progress => {
-            count(rate, 5000, 1600)(progress);
-            count(perFrame, 500, 160)(progress);
+            count(rate, 1827, 705)(progress);
+            count(perFrame, 500, 191)(progress);
           } }]
         };
       },
@@ -97,7 +98,7 @@
         animate(root, "rule-sel", fadeUp, { duration: 400, delay: 3000 }),
         animate(root, "safe", fadeUp, { duration: 400, delay: 3400 })
       ] }),
-      // Beat 4, "the edit time barely moved": the result card.
+      // Beat 4, "fewer trucks": the result card.
       root => ({ animations: [animate(root, "next", slideIn, { duration: 500 })] })
     ]
   });

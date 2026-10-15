@@ -1,0 +1,53 @@
+Measurement environment and protocol
+====================================
+
+Recorded run
+  Dates            2026-10-13 (evening) and 2026-10-14
+  Machine           TimP_Dymaptic
+  CPU               Intel Core i7-14700
+  GPU               hardware GPU (model not recorded by the harness)
+  RAM               64 GB
+  OS                Windows 10.0.26300
+  Browser           Playwright Chromium 153.0.8010.12, headed, hardware GPU
+  Build             dotnet publish -c Release, interpreted .NET and AOT
+                    (RunAOTCompilation=true); sample main at 865312d,
+                    GeoBlazor Core 4.6.2
+  Internal edit chunk size   200 features (package default outside MAUI)
+  Workload          stress: 500 vehicles at 10 frames per second (5,000 records/s offered)
+  Viewport          1600 x 1000
+  Selected vehicle  none (vehicle 7 in viewport-zoomed)
+  Warm-up           30 seconds
+  Window            60 seconds
+  Repeats           3 rounds per build
+
+Protocol
+  Published build (not dotnet build output, which runs the client with
+  debugging on and measured about 30x slower). One condition per harness
+  run, builds alternated each round, three rounds, same preset, 30 s
+  warm-up, 60 s per condition, a fresh browser page per run. Each run was
+  capped at 10 minutes.
+
+Edit p50 over three runs (median of per-run medians, range of per-run medians)
+  Interpreted .NET, published
+  baseline          52.9 map calls/s   p50  7.8 ms (7.0 to 8.1)     p95  26.8 ms   safety stop fired, 3 of 3
+  latest            59.0 map calls/s   p50  6.7 ms (6.5 to 6.8)     p95  25.2 ms
+  batched            7.3 map calls/s   p50 75.1 ms (68.0 to 82.2)   p95 103.5 ms   2 runs, one timed out
+  scheduled         3.66 map calls/s   p50 76.1 ms (65.4 to 78.7)   p95 101.8 ms
+  viewport (zoomed) 3.69 map calls/s   p50 27.5 ms (21.7 to 33.6)   p95  73.1 ms
+  viewport (region) 3.69 map calls/s   p50 71.3 ms (70.8 to 75.1)   p95 102.0 ms
+
+  AOT, published (RunAOTCompilation=true)
+  baseline          92.1 map calls/s   p50  7.0 ms (5.9 to 7.4)     p95  12.3 ms   safety stop fired, 3 of 3
+  latest           106.8 map calls/s   p50  5.8 ms (5.3 to 6.1)     p95  10.0 ms
+  batched            7.4 map calls/s   p50 54.2 ms (44.4 to 70.3)   p95  73.5 ms
+  scheduled         3.68 map calls/s   p50 57.4 ms (51.7 to 57.7)   p95  77.9 ms
+  viewport (zoomed) 3.68 map calls/s   p50 20.3 ms (17.0 to 20.5)   p95  61.8 ms
+  viewport (region) 3.67 map calls/s   p50 53.8 ms (45.8 to 53.8)   p95  73.5 ms
+
+  Dashboard status read Live in every condition. Records accepted per second
+  were 691 to 4,524, not the 5,000 offered. AOT grows dotnet.native.wasm
+  from 2.9 MB to 51 MB.
+
+Caveat
+  One machine under one simulated workload. These are observations, not
+  throughput promises, and not a benchmark of GeoBlazor.

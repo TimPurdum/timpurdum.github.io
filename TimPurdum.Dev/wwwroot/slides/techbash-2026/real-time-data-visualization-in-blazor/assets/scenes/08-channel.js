@@ -1,4 +1,4 @@
-// Slide 8, stage 2: the frame clock ticks, the server snapshots the store into one frame, and sends it to
+// Slide 8, stage 2: the frame clock fires, the server snapshots the store into one frame, and sends it to
 // every browser. The scene keeps its old name, "08-channel", so the data-scene attribute and the script
 // include stay as they were; the channel it once drew is gone.
 //
@@ -41,8 +41,8 @@
     ], { easing: "linear", ...options });
   };
 
-  // Beat 3 timeline in milliseconds. Frame 42 is built at the first tick and sent at SENT; browser 3 holds
-  // the send until DONE. The next tick comes due at DUE, waits, and fires once at DONE, which builds frame 43.
+  // Beat 3 timeline in milliseconds. Frame 42 is built when the clock first fires and sent at SENT; browser 3 holds
+  // the send until DONE. The next frame comes due at DUE, waits, and the clock fires once at DONE, which builds frame 43.
   const TOTAL = 5000;
   const SENT = 1000;
   const DUE = 2200;
@@ -54,7 +54,7 @@
       // Beat 0, on open: the clock, the store, and the send box arrive, with the browsers inside the send box.
       root => ({ animations: ["clock", "pipe", "send"].map((part, index) =>
         animate(root, part, fadeUp, { duration: 450, delay: index * 150 })) }),
-      // Beat 1, "snapshot": the clock ticks, the store's slots flare, and frame 41 is built from them.
+      // Beat 1, "snapshot": the clock fires, the store's slots flare, and frame 41 is built from them.
       root => {
         const slot = center(root, "slot-t6");
         const out = center(root, "out");
@@ -87,8 +87,8 @@
           ...packets
         ] };
       },
-      // Beat 3, "slow send": frame 42 is sent but browser 3 holds the send. The next tick comes due, waits,
-      // and fires once when the send finishes. Frame 43 is then built fresh from the store.
+      // Beat 3, "slow send": frame 42 is sent but browser 3 holds the send. The next frame comes due, waits,
+      // and the clock fires once when the send finishes. Frame 43 is then built fresh from the store.
       root => {
         const slot = center(root, "slot-t6");
         const out = center(root, "out");
@@ -104,7 +104,7 @@
           { boxShadow: CLEAR, offset: (ms + 600) / TOTAL }
         ];
         return { animations: [
-          // The clock box flares at the first tick, and again when the waiting tick finally fires.
+          // The clock box flares when it first fires, and again when the waiting interval finally fires.
           animate(root, "tick", [{ boxShadow: CLEAR, offset: 0 }, ...tickAt(0).slice(1), ...tickAt(DONE)], { duration: TOTAL, easing: "linear" }),
           animate(root, "late", [
             { opacity: 0, offset: 0 },
@@ -171,7 +171,7 @@
             stop(TOTAL, { opacity: 0 })
           ], { duration: TOTAL, easing: "linear" }),
           animate(root, "ring", [{ transform: "rotate(0deg)" }, { transform: "rotate(720deg)" }], { duration: TOTAL, easing: "linear" }),
-          // Frame 43 is built fresh from the store when the waiting tick fires.
+          // Frame 43 is built fresh from the store when the waiting clock fires.
           animate(root, "card-43", [
             { opacity: 0, transform: fromSlots, offset: 0 },
             stop(DONE, { opacity: 0, transform: fromSlots }),

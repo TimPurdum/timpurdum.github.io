@@ -1,17 +1,22 @@
-// Slide 10: reports arrive in a first-in, first-out queue far faster than the single map-edit worker
-// drains it, the pending counter climbs toward the 20,000 safety stop, and when it hits the stop a red
-// banner appears while telemetry keeps arriving behind it.
+// Slide 11, fleet state: on the left (`baseline`) every report becomes its own map edit, so the
+// pending counter climbs to the 20,000 safety stop while the map keeps draining; on the right
+// (`latest`) a newer report replaces Truck 7's waiting one, so pending can't pass the fleet size.
 //
-// Beat 0 plays on open (the pile-up, up to CLIMB). Beat 1 plays at "safety stop" (the last stretch to
-// the cap, the banner, the arrows). The scene animates the slide's own HTML, where the finished
-// slide already shows the full queue, the banner, and 20,000.
+// Beat 0 plays on open (both halves arrive, the queue still empty at 0). Beat 1 plays at "one edit
+// per report", beat 2 at "the safety stop", beat 3 at "one report per truck", beat 4 at "state, not
+// events". The scene animates the slide's own HTML, where the finished slide already shows the full
+// queue, the banner, 20,000, Truck 7 on report 4188, and the rule.
+//
+// Truck 7's slot holds two cards. Report 4182 is shown until 4188 arrives, so beat 3 animates both
+// and nothing else touches them. The two numbers are frame-spaced: the browser sees Truck 7 only in
+// the frames the page reads, so consecutive report numbers would be wrong here.
 (() => {
   const { animate, motion: { fadeUp, pop } } = window.deckScenes;
 
   const CAP = 20000;
-  const CLIMB = 16000;      // where beat 0 leaves the counter
-  const PILE_MS = 4500;     // beat 0 length
-  const STOP_MS = 1800;     // beat 1 climb length
+  const CLIMB = 16000;      // where beat 1 leaves the counter
+  const PILE_MS = 4500;     // beat 1 length
+  const STOP_MS = 1800;     // beat 2 climb length
   const ARRIVALS = 10;
   const DRAINS = 3;
 
@@ -24,19 +29,27 @@
     return { x, y };
   };
 
+  // Writes the counter and the filled cells of the queue row for a pending count.
+  const renderPending = (root, pending) => {
+    const cells = [...root.querySelectorAll('[data-part="q-row"] i')];
+    root.querySelector('[data-part="pending"]').textContent = Math.round(pending).toLocaleString("en-US");
+    const filled = Math.round(pending / CAP * cells.length);
+    cells.forEach((cell, index) => cell.classList.toggle("empty", index >= filled));
+  };
+
   window.deckScenes.register("10-queue", {
     beats: [
-      // Beat 0, on open: reports stream in far faster than the worker drains one, and pending climbs.
+      // Beat 0, on open: both halves arrive. The queue is empty and Pending reads 0, as it does
+      // while the map is still starting up.
+      root => ({ animations: [
+        animate(root, "left", fadeUp, { duration: 450 }),
+        animate(root, "right", fadeUp, { duration: 450, delay: 150 })
+      ] }),
+      // Beat 1, "one edit per report": reports stream in far faster than the one-at-a-time worker
+      // drains them, and Pending climbs.
       root => {
-        const cells = [...root.querySelectorAll('[data-part="q-row"] i')];
-        const pendingText = root.querySelector('[data-part="pending"]');
         const stop = center(root, "stop");
         const worker = center(root, "worker");
-        const render = pending => {
-          pendingText.textContent = Math.round(pending).toLocaleString("en-US");
-          const filled = Math.round(pending / CAP * cells.length);
-          cells.forEach((cell, index) => cell.classList.toggle("empty", index >= filled));
-        };
         const arrive = Array.from({ length: ARRIVALS }, (_, index) => {
           const n = index + 1;
           const to = stop.x - center(root, `in-${n}`).x;
@@ -45,7 +58,7 @@
             { opacity: 1, transform: "none", offset: 0.12 },
             { opacity: 1, transform: `translateX(${to}px)`, offset: 0.85 },
             { opacity: 0, transform: `translateX(${to}px)` }
-          ], { duration: 700, delay: 600 + index * 380, easing: "linear" });
+          ], { duration: 700, delay: 200 + index * 380, easing: "linear" });
         });
         const drain = Array.from({ length: DRAINS }, (_, index) => {
           const n = index + 1;
@@ -54,41 +67,46 @@
             { opacity: 1, transform: "none" },
             { opacity: 1, transform: `translateX(${to}px)`, offset: 0.8 },
             { opacity: 0, transform: `translateX(${to}px)` }
-          ], { duration: 900, delay: 900 + index * 1600 });
+          ], { duration: 900, delay: 500 + index * 1600, easing: "linear" });
         });
         return {
-          animations: [animate(root, "lane", fadeUp, { duration: 400 }), ...arrive, ...drain],
-          tickers: [{ delay: 400, duration: PILE_MS, update: progress => render(CLIMB * progress) }]
+          animations: [...arrive, ...drain],
+          tickers: [{ duration: PILE_MS, update: progress => renderPending(root, CLIMB * progress) }]
         };
       },
-      // Beat 1, "safety stop": the counter reaches the cap, the line flashes, the banner appears,
-      // and the arrows show telemetry still arriving behind it.
-      root => {
-        const cells = [...root.querySelectorAll('[data-part="q-row"] i')];
-        const pendingText = root.querySelector('[data-part="pending"]');
-        // A no-op at progress 0: beat 0's counter owns the start of this stretch, and the runner
+      // Beat 2, "safety stop": the counter reaches the cap, the line flashes, the banner appears,
+      // and the note says intake halted while the map keeps draining.
+      root => ({
+        animations: [
+          animate(root, "stop", [
+            { borderLeftColor: "var(--red)" }, { borderLeftColor: "var(--ink)", offset: 0.4 }, { borderLeftColor: "var(--red)" }
+          ], { duration: 900, delay: STOP_MS - 300, easing: "linear" }),
+          animate(root, "banner", pop, { duration: 500, delay: STOP_MS }),
+          animate(root, "behind", fadeUp, { duration: 400, delay: STOP_MS + 300 }),
+          animate(root, "guard", fadeUp, { duration: 400, delay: STOP_MS + 300 })
+        ],
+        // A no-op at progress 0: beat 1's counter owns the start of this stretch, and the runner
         // rewinds every beat in order, so a write here would leave the counter at the wrong end.
-        const render = progress => {
+        tickers: [{ duration: STOP_MS, update: progress => {
           if (progress === 0) return;
-          const pending = CLIMB + (CAP - CLIMB) * progress;
-          pendingText.textContent = Math.round(pending).toLocaleString("en-US");
-          const filled = Math.round(pending / CAP * cells.length);
-          cells.forEach((cell, index) => cell.classList.toggle("empty", index >= filled));
-        };
-        return {
-          animations: [
-            animate(root, "stop", [
-              { borderLeftColor: "var(--red)" }, { borderLeftColor: "var(--ink)", offset: 0.4 }, { borderLeftColor: "var(--red)" }
-            ], { duration: 900, delay: STOP_MS - 300 }),
-            animate(root, "banner", pop, { duration: 500, delay: STOP_MS }),
-            animate(root, "behind", fadeUp, { duration: 400, delay: STOP_MS + 300 }),
-            ...[1, 2, 3].map(n => animate(root, `arrow-${n}`, [
-              { opacity: 0.2, transform: "translateX(16px)" }, { opacity: 1, transform: "none" }
-            ], { duration: 500, delay: STOP_MS + 500 + n * 150, iterations: 3 }))
-          ],
-          tickers: [{ duration: STOP_MS, update: render }]
-        };
-      }
+          renderPending(root, CLIMB + (CAP - CLIMB) * progress);
+        } }]
+      }),
+      // Beat 3, "one slot": Truck 7's report 4188 arrives and replaces the waiting 4182. Linear
+      // easing keeps 4182 on screen until 4188 has covered it.
+      root => ({ animations: [
+        animate(root, "new-7", [
+          { opacity: 0, transform: "scale(.85)" }, { opacity: 1, transform: "none" }
+        ], { duration: 700, delay: 200, easing: "linear" }),
+        animate(root, "old-7", [{ opacity: 1 }, { opacity: 0 }], { duration: 300, delay: 700, easing: "linear" }),
+        animate(root, "replace-note", fadeUp, { duration: 450, delay: 900 })
+      ] }),
+      // Beat 4, "state, not events": the rule appears under both halves, with the example line that
+      // makes its second half concrete.
+      root => ({ animations: [
+        animate(root, "rule", pop, { duration: 600 }),
+        animate(root, "rule-eg", fadeUp, { duration: 450, delay: 350 })
+      ] })
     ]
   });
 })();

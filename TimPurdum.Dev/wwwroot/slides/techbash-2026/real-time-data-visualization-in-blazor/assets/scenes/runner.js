@@ -1,7 +1,7 @@
 // The explainer-scene runner: mounts each scene's SVG into its slide and plays it one beat at a time.
 //
 // A scene file calls `deckScenes.register(name, { markup, beats })`. The markup is the finished
-// diagram; a scene without markup animates the slide's own authored HTML instead. Either way every path that never starts the scene (preview, reduced motion, the thumbnail rail,
+// diagram; a scene without markup animates the slide's own authored HTML instead. Either way every path that never starts the scene (preview, the thumbnail rail,
 // print) shows the finished slide. `start` rewinds the scene by creating every beat's animations at
 // once, paused on their first keyframe, and then plays beat 0.
 //
