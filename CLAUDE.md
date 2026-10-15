@@ -58,6 +58,8 @@ Posts can embed live Blazor components by placing a fenced block in markdown:
 
 The Compiler emits `MyComponentName.razor` into `TimPurdum.Dev/Components/` and replaces the block with `<div id="my-component-name"></div>`. At runtime, `AddGeneratedBlogContent()` reflects over the entry assembly's `ComponentBase` subclasses and binds each one whose kebab-cased name appears as an `id` in the current page. **Component class names must be unique across the project** (the matching is by `Type.Name`).
 
+The Blazor runtime does not start on page load. `RootTemplate.razor` includes `js/blazor-loader.js` instead of `blazor.webassembly.js`. Pages with no `.component-block` placeholder never download the runtime. Pages with one show a "Load interactive map" button, and clicking it loads the runtime. `404.html` boots Blazor on its own and doesn't use the loader.
+
 `Program.cs` is intentionally tiny — do not add per-component registration there; let the discovery mechanism handle it.
 
 ## Configuration & secrets
@@ -84,11 +86,11 @@ cd TimPurdum.Dev && dotnet run
 # Regenerate site only (after editing posts/templates, without a full WASM rebuild)
 cd BlogGenerator/TimPurdum.Dev.BlogGenerator.Compiler && dotnet run -c Release
 
-# Production publish (matches CI output path TimPurdum.Dev/bin/Release/net10.0/publish/wwwroot)
+# Interpreter publish (same output path as CI, TimPurdum.Dev/bin/Release/net10.0/publish/wwwroot, but CI adds AOT)
 cd TimPurdum.Dev && dotnet publish -c Release
 
-# AOT publish (large; matches Docker build)
-cd TimPurdum.Dev && dotnet publish -c Release /p:RunAOT=true
+# AOT publish (what CI ships; matches Docker build)
+cd TimPurdum.Dev && dotnet publish -c Release -p:RunAOT=true
 
 # Test the AOT build locally via Docker (requires Docker + ~5GB free)
 docker compose up --build
@@ -106,4 +108,4 @@ There are no unit tests in this repo.
 
 ## Deployment
 
-`.github/workflows/static.yml` builds on push to `main` (or `reset`) and deploys `TimPurdum.Dev/bin/Release/net10.0/publish/wwwroot` to GitHub Pages. The default publish (no `RunAOT=true`) is what ships — AOT is only used for the local Docker image. Don't enable AOT in the CI workflow without checking the resulting bundle size.
+`.github/workflows/static.yml` builds on push to `main` (or `reset`) and deploys `TimPurdum.Dev/bin/Release/net10.0/publish/wwwroot` to GitHub Pages. CI publishes with `RunAOT=true`, which needs the `wasm-tools` workload. In the interpreter, GeoBlazor Pro's `AddGeoBlazorPro` takes 20+ seconds and freezes the page. AOT brings startup to about a second, at the cost of a larger bundle (about 11.8 MB Brotli against 7.1 MB, measured 2026-10-15).

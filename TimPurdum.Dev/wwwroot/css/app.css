@@ -51,6 +51,35 @@
     position: relative;
 }
 
+/* Set by js/blazor-loader.js until the reader clicks the load button. */
+.component-block-idle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 8rem;
+}
+
+.component-block-idle .loading-progress,
+.component-block-idle .loading-progress-text {
+    display: none;
+}
+
+.component-load-button {
+    padding: 0.75rem 1.5rem;
+    font: inherit;
+    font-weight: bold;
+    color: #fff;
+    background-color: #1b6ec2;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+}
+
+.component-load-button:hover,
+.component-load-button:focus-visible {
+    background-color: #1861ac;
+}
+
 .loading-progress {
     position: relative;
     display: block;

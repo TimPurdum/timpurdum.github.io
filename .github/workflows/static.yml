@@ -64,10 +64,17 @@ jobs:
           cd BlogGenerator/TimPurdum.Dev.BlogGenerator.Compiler
           dotnet run -c Release
           
+      # AOT because GeoBlazor Pro's AddGeoBlazorPro takes 20+ seconds in the WebAssembly interpreter,
+      # freezing the page; AOT brings Blazor startup down to about a second. The cost is a larger
+      # download (about 11.8 MB Brotli against 7.1 MB), paid only when a reader clicks a "Load
+      # interactive map" button, since js/blazor-loader.js keeps the runtime off every other page.
+      - name: Install wasm-tools workload
+        run: dotnet workload install wasm-tools
+
       - name: Publish app
         run: |
           cd TimPurdum.Dev
-          dotnet publish -c Release
+          dotnet publish -c Release -p:RunAOT=true
 
       # The admin portal is a separate Blazor WASM app that ships alongside the public site under
       # /admin/. Its output only changes when the shell or the BlogGenerator.Admin RCL does — every

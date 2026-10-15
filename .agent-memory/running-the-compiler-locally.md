@@ -15,3 +15,5 @@ This site's Markdig pipeline does not render pipe tables. A Markdown table comes
 Evidence: PR #6 baseline Compiler run. After `SiteTitle` was corrected, it produced no diffs. The draft `2026-09-23-upping-my-p-joy.md` was rewritten on every run. The Packages table rendered as `<p>Package</p>` with 0 `<table>` elements.
 
 Verified: 2026-10-13
+
+Generated components in `TimPurdum.Dev/Components/*.razor` are tracked in git (25 of them as of PR #10), so a new `blazor-component` fence means committing its generated `.razor` alongside the post. Evidence: `git ls-files TimPurdum.Dev/Components`, 2026-10-13.
