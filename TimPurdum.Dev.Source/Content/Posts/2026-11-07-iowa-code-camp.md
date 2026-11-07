@@ -3,60 +3,54 @@ layout: post
 title: Iowa Code Camp 2026 Presentation Links
 subtitle: "Don't Feed the Machine Spaghetti: Code Quality Principles for the AI Era"
 author: Tim Purdum
-description: The two instruction files from my Iowa Code Camp 2026 talk, ready to copy into your own repositories.
-lastmodified: 2026-11-07 04:40:10
+description: The two instruction files from my Iowa Code Camp 2026 talk, plus the deck, ready to copy into your own repositories.
+lastmodified: 2026-11-07 04:41:20
 ---
-If you came to my session at Iowa Code Camp this year, thanks for giving me an hour of your Saturday. The talk had one moving part, the file you put in your repository, and this page is that part, twice.
+At Iowa Code Camp this year I spent the hour arguing that tangled code charges you twice: once when a person reviews it, and again on every turn a model re-reads it. If you were in the room, thanks for spending an hour of your Saturday on that. This page has the two files I use to keep the second bill down, an `AGENTS.md` and a C# style guide, plus the deck I used to argue it.
 
-The deck is up as well: [view the slides](/slides/iowa-code-camp-2026/index.html). That is the same file I drove from the stage, and it runs in the browser with nothing else installed. Arrow keys or Space move through it, `T` toggles the thumbnail rail, `F` goes full screen, `P` opens a presenter view with my notes, and `N` toggles the notes panel over the slide.
+The slides are already online, one HTML file with no build step behind them: [view the deck](/slides/iowa-code-camp-2026/index.html). Arrow keys or Space move through it, `T` toggles the thumbnail rail, `F` goes full screen, `P` opens a presenter view with my notes, and `N` pulls the notes over the current slide.
 
 ## The Two Files
 
-- [`AGENTS.md`](/files/iowa-code-camp-2026/AGENTS.md): my global instruction file, cut from 204 lines to 186. This is the file every session reads before it touches anything, in every repository I work in. Git discipline, the code quality gates, how prose gets written, and the rules for delegating work to subagents all live here.
-- [`CODE_STYLE-CSHARP.md`](/files/iowa-code-camp-2026/CODE_STYLE-CSHARP.md): the C# half of our house style, cut from 264 lines to 184. Formatting, naming, member ordering, design defaults, and the two files that make half of it fail the build.
+- [`AGENTS.md`](/files/iowa-code-camp-2026/AGENTS.md): the file every session reads before it touches anything, cut from 204 lines to 186.
+- [`CODE_STYLE-CSHARP.md`](/files/iowa-code-camp-2026/CODE_STYLE-CSHARP.md): the C# half of our house style, cut from 264 lines to 184.
 
-Both are plain Markdown with no dependencies, and both start with a comment describing what I cut and why. Read that comment first. The editing is the part worth arguing with, more than the rules themselves.
+Nothing to install. Both are Markdown, and each one opens with a comment saying what I cut and why, which is the part I expect you to argue with.
 
-## Why These Two And Not The Rest
+## What Is In The Global File
 
-The instruction set is layered, and each layer fixes a different failure. Repository files fix invention and scope drift. Skills fix repetition. Orchestration fixes an agent that declares success before the work is done. I covered all of it in the talk, and I'm handing you the first layer only, because it is the one that pays on the first day and costs nothing to adopt.
+The section I would keep if the rest had to go is the last one, "What stays always-on". It asks three questions of any rule that wants a line in a file that every session pays for. Would arriving late be the same as not arriving at all? Then the agent can fetch it when the task calls for it, and it does not belong here. Is it only true in one repository? Then it belongs in that repository's own file. Does it have to happen every time, with no judgment in it? Then it belongs in a hook.
 
-My reason is concrete. A global file is read on every session whether or not anything triggers it. A skill is read only when its description matches the task, and I have watched that match not fire often enough to stop trusting it for anything I care about. The rule that has to hold every single time belongs in the file that is always loaded, or in a hook, and nowhere else.
+Without that section the file grows forever, and a file that grows forever stops being read by anyone, including the model holding it in context.
 
-## What Is Actually In The Global File
+Two of the remaining rules earned their place the hard way. One says to target the latest released version of the framework and not the oldest one you are sure of, because an agent once defaulted a new tool to an old long-term-support release "for compatibility" while the current SDK sat installed on the same machine. The other says a defect you stumble onto outside the task is a report and not an edit, after an agent "fixed" a bug in a patch release that turned out to be four years old and nowhere near the work I had asked for.
 
-The three sections people tell me they copied first:
+The git section is short and blunt. Never commit or push to the default branch. When I say "commit everything", that means every modified and untracked file, because my working tree is visible to me and it is not visible to the model, so the model is the wrong party to decide what counts as noise.
 
-- **Git and commit discipline.** Never commit to the default branch, and when I say "commit everything," that means every modified and untracked file, not the ones the agent judges to be noise. My working tree is visible to me and it isn't visible to the model, so the model is the wrong party to decide what belongs.
-- **Write so it can be read without a decoder.** Every project identifier gets a short gloss on first use, one decision per sentence, at most one bold span per paragraph, US spelling. This came out of two analyses that were technically correct and impossible for me to read, because every third phrase pointed at a decision I had recorded somewhere else.
-- **What stays always-on.** Three tests for whether a line earns a place in a file that is billed to every session. If arriving late is the same as not arriving, it doesn't belong. If it's true in one repository rather than all of them, it belongs in that repository's file. If it must happen every time with no judgment, it belongs in a hook.
+## What The Style File Does Differently
 
-That last section is the one I would keep if I could keep only one. Without it the file grows forever, and a file that grows forever stops being read by anyone, including the model that has it in context.
+Seven rows in the style file name a spot where our house rules disagree with the Aviva C# guidelines, with the community rule and its `AV####` number written beside ours. I think the Aviva standard is quite good, which is why those seven disagreements are worth writing down instead of leaving them to be discovered in review. We keep `_camelCase` private fields against their plain `camelCase`, fully capitalized acronyms (`GIS`, `URL`, `WMS`) against their `Gis` and `Url`, block bodies for methods against their expression bodies, and 120 columns against their 130. Saying it out loud, with the source cited, is what stops an agent from repairing your code back to the community default with the best intentions.
 
-## What Is Actually In The Style File
+The last section is worth copying on its own. Two files at the repository root, an `.editorconfig` and a `Directory.Build.props` that sets `EnforceCodeStyleInBuild`, turn the naming rules into `dotnet build` warnings, so a private field named the wrong way fails the build for every person and every agent who tries to build. The acronym rule has no Roslyn analyzer behind it and stays a review finding. The file says so rather than implying the build catches everything.
 
-The divergence table is the most useful page in it. Every house style disagrees with some community standard, and ours disagrees with the Aviva C# guidelines on seven points. We keep `_camelCase` private fields, fully capitalized acronyms like `GIS` and `URL`, and the newspaper metaphor for member ordering. Naming those disagreements, with the community rule and its number beside each one, means an agent or a new hire stops "fixing" our style back to the default.
+## Installing Them
 
-The enforcement section is the second most useful. Two files at the repo root, an `.editorconfig` and a `Directory.Build.props` that sets `EnforceCodeStyleInBuild`, turn the naming rules into `dotnet build` warnings. The acronym rule has no Roslyn analyzer, so it stays a review finding, and the file says so out loud instead of implying that the machine catches everything.
-
-## Putting Them To Use
-
-1. Copy `AGENTS.md` to the file your harness actually reads. Codex, OpenCode, and Pi read `AGENTS.md`; Claude Code reads `CLAUDE.md`. Check the name before you trust it, because an instruction file the harness never loads behaves exactly like no file at all, and you'll never get an error telling you so.
-2. Delete every line in it that isn't true of your work. Mine is already a cut, and yours should be shorter, not longer.
-3. Copy `CODE_STYLE-CSHARP.md` into the repository you're working in today, along with the two enforcement files it describes.
-4. Run `dotnet build` and find out whether your existing code passes your own style. It won't! That gap is the most useful thing you'll learn about your repository this week, and it costs one command.
+1. Put `AGENTS.md` where the tool that runs your agent actually looks. Codex, OpenCode, and Pi read that name, and Claude Code reads `CLAUDE.md`, so use that name there or leave a one-line pointer to the file. I have not tested Cursor or Windsurf, and I do not know whether either picks up `AGENTS.md` without being pointed at it.
+2. Delete every line in it that is not true of your work. Mine is already a cut. Yours should end up shorter than 186 lines, and if it ends up longer you will stop reading it.
+3. Drop `CODE_STYLE-CSHARP.md` into the repository you are working in today, along with the two enforcement files it describes.
+4. Run `dotnet build` and read the warning list. I really did not expect mine to be as long as it was the first time, and that list is the honest place to start.
 
 ## What They Will Not Do
 
-I'd rather be the person who told you the limits than the person who sold you a saving.
+They will not save you tokens. In the benchmark behind the talk, the arm with the instruction file spent more output tokens on two of the three tasks I measured. Context is the budget, and this spends some of it.
 
-- **They will not make the model cheaper.** In the runs behind the talk, the arm with the instruction file spent more output tokens on two of the three tasks I measured. Context is a budget, and this spends some of it.
-- **They will not fix architecture you didn't describe.** A file that never names your seams leaves the agent to invent one, which is how you get a second helper next to the one you already had.
-- **They go stale, and stale instructions are worse than missing ones.** A file that pins a package version you upgraded last month is followed confidently and wrongly. Put the version in one place, and check it when you upgrade.
-- **The sample sizes are small.** Three to five runs per cell, one machine, one week. I'm reporting a direction and an effect size, not a p-value, and the numbers are in the talk rather than on this page.
+They will not fix architecture you never described. A file that does not name your seams leaves the agent to invent one, which is how you end up with a second helper sitting next to the one you already had.
+
+They also go stale, and a stale instruction is worse than a missing one, because it gets followed confidently. Pin the package version in one place (the global file is a good spot, since every session reads it) and look at it when you upgrade.
+
+The sample sizes are small besides: three to five runs per cell, on one machine, in one week. Read the direction and skip the p-value.
 
 ## Get In Touch
 
-If you copy either file and change something that I should have gotten right, I want to hear about it. Ping me on Mastodon at @TimPurdum@dotnet.social, or email me at [tim.purdum@dymaptic.com](mailto:tim.purdum@dymaptic.com). Both reach me, and the file is better with your edits in it.
-
+Copy them, change something, and tell me which line you deleted first, because that is the one I got wrong. Ping me on Mastodon at @TimPurdum@dotnet.social, or email me at [tim.purdum@dymaptic.com](mailto:tim.purdum@dymaptic.com).
 
