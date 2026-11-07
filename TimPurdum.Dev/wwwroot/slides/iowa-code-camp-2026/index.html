@@ -1,0 +1,1054 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Don't Feed the Machine Spaghetti · Iowa Code Camp 2026</title>
+<style>
+  :root {
+    color-scheme: light;
+    /* Bowman palette: forest greens and a lime accent over newsprint neutrals. */
+    --g900:#001f15; --g800:#002e20; --g700:#003d2a; --g600:#004b33; --g500:#00593d;
+    --g400:#4aa378; --g300:#74bd98; --g200:#a3d4bd; --g100:#cde8da; --g50:#e9f4ee;
+    --l500:#83bc43; --l400:#98c75c; --l300:#add27a; --l200:#c9e0a4; --l50:#f1f4e6;
+    --paper:#f5f3ed; --panel:#fdfcf9; --tint:#eff3e2;
+    --ink:#16211c; --slate:#3b463f; --muted:#3b463f; --dim:#6d766e;
+    --rule:#cdc9bd; --rule-soft:#e3dfd5;
+    --text:#16211c;
+    --accent:#83bc43; --accent-2:#00593d; --accent-glow:#83bc4333;
+    --good:#00593d; --warn:#a8761f; --bad:#a3502f; --clay:#a3502f;
+    --mono: ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    --sans: "Segoe UI Variable Display", "Segoe UI", Inter, system-ui, -apple-system, sans-serif;
+    --rail: 17rem;
+  }
+  * { box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: var(--paper); color: var(--text); font-family: var(--sans); }
+  button { font: inherit; }
+
+  /* ---------- shell ---------- */
+  #deck-shell { width: 100%; height: 100%; display: grid; grid-template-columns: var(--rail) minmax(0, 1fr); transition: grid-template-columns 200ms ease; }
+  #deck-shell.rail-hidden { grid-template-columns: 0 minmax(0, 1fr); }
+  #deck-rail { min-width: 0; overflow: auto; border-right: 1px solid var(--rule-soft); background: #edeadf; transition: opacity 160ms ease; }
+  .rail-hidden #deck-rail { opacity: 0; pointer-events: none; }
+  #deck-rail-head { position: sticky; top: 0; z-index: 1; display: flex; justify-content: space-between; gap: .5rem; padding: 1rem 1rem .7rem 3.9rem; background: #edeadf; font-family: var(--mono); font-size: .66rem; letter-spacing: .16em; text-transform: uppercase; color: var(--dim); border-bottom: 1px solid var(--rule-soft); }
+  #deck-thumbnails { display: grid; gap: .7rem; margin: 0; padding: .9rem .8rem 2rem; list-style: none; }
+  .thumbnail { width: 100%; padding: .3rem; border: 1px solid var(--rule-soft); border-radius: .5rem; background: var(--panel); color: var(--text); cursor: pointer; text-align: left; transition: border-color 140ms ease, background 140ms ease; }
+  .thumbnail:hover { border-color: var(--dim); }
+  .thumbnail[aria-current="true"] { border-color: var(--accent); background: #eef4e2; }
+  .thumbnail-preview { position: relative; display: block; aspect-ratio: 16 / 9; overflow: hidden; border-radius: .3rem; background: var(--paper); }
+  .thumbnail-preview .slide { display: block !important; position: absolute; inset: 0; width: 1600px; height: 900px; transform: scale(var(--ts, .13)); transform-origin: top left; pointer-events: none; }
+  .thumbnail-preview .b { opacity: 1 !important; transform: none !important; }
+  .thumbnail-label { display: block; padding: .4rem .25rem .1rem; overflow: hidden; color: var(--muted); font-size: .74rem; text-overflow: ellipsis; white-space: nowrap; }
+  #deck-stage { position: relative; min-width: 0; height: 100%; overflow: hidden; background: radial-gradient(900px 600px at 50% 0%, #e9f4ee 0%, #edeadf 70%); }
+  #slide-frame { position: absolute; left: 50%; top: 50%; width: 1600px; height: 900px; transform: translate(-50%, -50%) scale(var(--s, 1)); transform-origin: center center; overflow: hidden; background: var(--paper); box-shadow: 0 2rem 6rem #16211c1f; }
+
+  /* ---------- slide canvas ---------- */
+  .slide { display: none; position: absolute; inset: 0; padding: 128px 72px 96px; flex-direction: column; justify-content: center; overflow: hidden;
+    background:
+      radial-gradient(1200px 700px at 82% -12%, #e6f0e2 0%, transparent 62%),
+      linear-gradient(180deg, #f5f3ed 0%, #efede4 100%);
+  }
+  .slide[data-deck-active] { display: flex; }
+  .slide::before { content: ""; position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      linear-gradient(to right, #003d2a09 1px, transparent 1px),
+      linear-gradient(to bottom, #003d2a09 1px, transparent 1px);
+    background-size: 110px 110px;
+    -webkit-mask-image: radial-gradient(circle at 50% 42%, #000 28%, transparent 82%);
+    mask-image: radial-gradient(circle at 50% 42%, #000 28%, transparent 82%);
+  }
+  .slide.top { justify-content: flex-start; }
+  .slide.dense { padding-top: 112px; padding-bottom: 78px; }
+  .slide.dense h2 { font-size: 48px; max-width: 30ch; line-height: 1.06; }
+  .slide.dense table.compact th, .slide.dense table.compact td { padding: 7px 16px; }
+  .slide.dense table.compact tr.band th { padding-top: 14px; }
+  .slide.dense .kicker { margin-bottom: 10px; }
+  .chrome { position: absolute; top: 46px; left: 72px; right: 72px; display: flex; align-items: baseline; gap: 1rem; padding-bottom: 14px; border-bottom: 1px solid var(--rule-soft); font-family: var(--mono); font-size: 14px; letter-spacing: .18em; text-transform: uppercase; color: var(--dim); }
+  .chrome-label { white-space: nowrap; }
+  .slide-num { position: absolute; right: 72px; bottom: 42px; font-family: var(--mono); font-size: 14px; letter-spacing: .12em; color: var(--dim); }
+  .kicker { margin: 0 0 18px; font-family: var(--mono); font-size: 17px; letter-spacing: .2em; text-transform: uppercase; color: var(--g600); }
+  h1 { margin: 0; max-width: 15ch; color: var(--g700); font-size: 96px; line-height: .92; letter-spacing: -.035em; font-weight: 700; }
+  h2 { margin: 0; color: var(--g700); font-size: 62px; line-height: 1.02; letter-spacing: -.028em; font-weight: 660; max-width: 22ch; }
+  h2.wide { max-width: 30ch; }
+  .lede { margin: 0; max-width: 44ch; color: var(--muted); font-size: 32px; line-height: 1.36; }
+  .source { margin: 0; font-family: var(--mono); font-size: 14px; letter-spacing: .06em; color: var(--dim); }
+  .em { color: var(--g600); }
+  .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+  /* ---------- builds ---------- */
+  .b { opacity: 0; transform: translateY(26px); transition: opacity 430ms ease, transform 520ms cubic-bezier(.2, .7, .2, 1); }
+  .b.in { opacity: 1; transform: none; }
+  body.no-anim .b, body.preview-mode .b { opacity: 1 !important; transform: none !important; transition: none !important; }
+
+  /* ---------- title ---------- */
+  .title-grid { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1fr) 470px; align-items: end; gap: 40px; }
+  .title-main { max-width: none; }
+  h1 .thin { color: var(--muted); font-weight: 300; }
+  h1 .spag { color: var(--g400); }
+  .title-sub { margin: 30px 0 0; max-width: 30ch; font-size: 34px; line-height: 1.25; color: var(--muted); letter-spacing: -.01em; }
+  .title-meta { position: absolute; left: 72px; right: 72px; bottom: 44px; display: flex; justify-content: space-between; gap: 2rem; font-family: var(--mono); font-size: 15px; letter-spacing: .1em; color: var(--dim); text-transform: uppercase; }
+  .title-meta strong { color: var(--text); font-weight: 600; }
+  .noodles { position: absolute; right: 0; top: 40px; width: 720px; height: 720px; opacity: .55; pointer-events: none; }
+  .noodles path { stroke-dasharray: 2600; stroke-dashoffset: 2600; }
+  .slide[data-deck-active] .noodles path { animation: draw 2600ms cubic-bezier(.3, .8, .2, 1) forwards; }
+  .slide[data-deck-active] .noodles path:nth-child(2) { animation-delay: 160ms; }
+  .slide[data-deck-active] .noodles path:nth-child(3) { animation-delay: 320ms; }
+  .slide[data-deck-active] .noodles path:nth-child(4) { animation-delay: 480ms; }
+  .slide[data-deck-active] .noodles path:nth-child(5) { animation-delay: 640ms; }
+  body.preview-mode .noodles path, body.no-anim .noodles path,
+  .thumbnail-preview .noodles path { animation: none !important; stroke-dashoffset: 0; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+
+  /* ---------- cold open ---------- */
+  .shots { display: grid; grid-template-columns: 1fr 1fr; gap: 34px; margin-top: 40px; }
+  .shot { margin: 0; border: 1px solid var(--rule); border-radius: 14px; overflow: hidden; background: var(--panel); box-shadow: 0 1.4rem 3rem #16211c14; }
+  .shot img { display: block; width: 100%; height: 430px; object-fit: cover; object-position: top left; }
+  .shot figcaption { display: flex; align-items: center; gap: .7rem; padding: 16px 20px; border-top: 1px solid var(--rule-soft); background: #f4f2ea; font-family: var(--mono); font-size: 15px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--dim); }
+  .dot.f { background: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); }
+
+  /* ---------- claim / bullets ---------- */
+  .claim { display: grid; grid-template-columns: 600px minmax(0, 1fr); gap: 64px; align-items: center; }
+  .claim h2 { font-size: 68px; max-width: 15ch; }
+  .bullets { margin: 0; padding: 0; list-style: none; display: grid; gap: 30px; }
+  .bullets li { position: relative; padding-left: 42px; font-size: 34px; line-height: 1.24; color: #16211c; }
+  .bullets li::before { content: ""; position: absolute; left: 0; top: .55em; width: 20px; height: 2px; background: var(--accent); }
+  .bullets li strong { color: var(--text); font-weight: 650; }
+  .bullets.small li { font-size: 30px; }
+
+  /* ---------- context layers ---------- */
+  .layers { display: grid; gap: 14px; margin-top: 40px; }
+  .layer { position: relative; display: grid; grid-template-columns: 60px minmax(0, 1fr) auto; align-items: center; gap: 26px; padding: 20px 28px; border: 1px solid var(--rule-soft); border-left: 3px solid var(--rule); border-radius: 10px; background: #fdfcf9; font-size: 30px; letter-spacing: -.01em; transition: border-color 260ms ease, background 260ms ease, box-shadow 260ms ease, transform 320ms cubic-bezier(.2,.7,.2,1); }
+  .layer .idx { font-family: var(--mono); font-size: 20px; color: var(--dim); }
+  .layer .note { font-family: var(--mono); font-size: 17px; letter-spacing: .06em; color: var(--dim); white-space: nowrap; }
+  .layer.lit { border-color: var(--accent); border-left-color: var(--accent); background: #f3f7e4; box-shadow: 0 0 0 1px var(--accent-glow), 0 0 40px -18px var(--accent); }
+  .layer.lit .note { color: var(--accent-2); }
+  .layer.hot { border-color: var(--accent); border-left-color: var(--accent); background: #f7fadf; transform: translateX(12px); box-shadow: 0 0 0 2px #83bc4366, 0 0 70px -16px var(--accent); }
+  .layer.hot .idx, .layer.hot .note { color: var(--accent-2); }
+
+  /* ---------- token bars ---------- */
+  .meters { display: grid; gap: 34px; margin-top: 44px; }
+  .meter-row { display: grid; grid-template-columns: 260px minmax(0, 1fr); align-items: center; gap: 26px; }
+  .meter-name { font-family: var(--mono); font-size: 17px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .meter-name em { display: block; margin-top: 6px; font-style: normal; letter-spacing: 0; text-transform: none; font-size: 15px; color: var(--dim); }
+  .bar { display: flex; height: 96px; border-radius: 8px; overflow: hidden; background: #eceadf; border: 1px solid var(--rule-soft); }
+  .bar i { display: block; height: 100%; width: 0; transition: width 900ms cubic-bezier(.2, .7, .2, 1); }
+  .b.in .bar i { width: var(--w); }
+  body.preview-mode .bar i, body.preview-mode .mini .track i, body.preview-mode .tb i,
+  .thumbnail-preview .bar i, .thumbnail-preview .mini .track i, .thumbnail-preview .tb i { width: var(--w); }
+  .bar i.skills { background: linear-gradient(180deg, #83bc43, #7cb03a); }
+  .bar i.inst { background: linear-gradient(180deg, #4aa378, #35785a); }
+  .bar i.stand { background: linear-gradient(180deg, #a3d4bd, #7fb99f); }
+  .bar i.rest { background: linear-gradient(180deg, #d8e5dc, #c8d8ce); }
+  .bar.naked { height: 52px; }
+  .bar.naked i { background: linear-gradient(180deg, #a3b3a8, #8c9d92); }
+  .seg-labels { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 30px; margin: 22px 0 0 286px; font-family: var(--mono); font-size: 15px; color: var(--dim); letter-spacing: .04em; }
+  .seg-labels span { display: inline-flex; align-items: flex-start; gap: 10px; }
+  .seg-labels .swatch { margin-top: 4px; flex: none; }
+  .swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+  .swatch.skills { background: var(--accent); }
+  .swatch.inst { background: #4aa378; }
+  .swatch.stand { background: #a3d4bd; }
+  .swatch.rest { background: #d8e5dc; }
+
+  /* ---------- prompt ---------- */
+  .prompt-card { margin-top: 34px; padding: 40px 46px; border: 1px solid var(--rule); border-radius: 14px; background: #fdfcf9; box-shadow: inset 0 1px 0 #16211c0d; }
+  .prompt-card p { margin: 0; font-family: var(--mono); font-size: 27px; line-height: 1.5; color: #16211c; }
+  .prompt-card p .hi { color: var(--accent-2); }
+  .footnote { margin-top: 26px; font-size: 21px; color: var(--dim); }
+  .footnote code, .source code, code.inline { font-family: var(--mono); color: var(--muted); font-size: .95em; }
+
+  /* ---------- two panel test ---------- */
+  .test-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 32px; flex: 1; min-height: 0; }
+  .panel { display: flex; flex-direction: column; padding: 30px 32px 34px; border: 1px solid var(--rule-soft); border-radius: 14px; background: #fdfcf9; }
+  .panel.full { border-color: #c9e0a4; background: linear-gradient(180deg, #f7fae8, #f4f7ea); box-shadow: 0 0 0 1px var(--accent-glow); }
+  .panel h3 { margin: 0 0 6px; font-size: 30px; letter-spacing: -.015em; }
+  .panel .sub { margin: 0 0 22px; font-family: var(--mono); font-size: 15px; letter-spacing: .12em; text-transform: uppercase; color: var(--dim); }
+  .mini { display: grid; gap: 14px; margin-top: auto; padding-top: 26px; }
+  .spec { display: grid; gap: 12px; margin: 30px 0 0; padding: 0; list-style: none; font-family: var(--mono); font-size: 17px; color: var(--dim); }
+  .spec li { position: relative; padding-left: 22px; }
+  .spec li::before { content: ""; position: absolute; left: 0; top: .62em; width: 9px; height: 9px; border: 1px solid var(--rule); border-radius: 2px; }
+  .spec.has li::before { border-color: var(--accent); background: var(--accent-glow); }
+  .mini .row { display: grid; grid-template-columns: 106px minmax(0, 1fr); align-items: center; gap: 14px; font-family: var(--mono); font-size: 15px; color: var(--muted); }
+  .mini .track { height: 30px; border-radius: 5px; background: #e9ecdf; border: 1px solid var(--rule-soft); overflow: hidden; }
+  .mini .track i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #83bc43, #7cb03a); transition: width 800ms cubic-bezier(.2, .7, .2, 1); }
+  .mini .track.grey i { background: linear-gradient(90deg, #a3b3a8, #8c9d92); }
+  .b.in .mini .track i { width: var(--w); }
+  .test-prompt { padding: 24px 30px; border: 1px dashed var(--rule); border-radius: 12px; font-family: var(--mono); font-size: 19px; line-height: 1.5; color: var(--muted); }
+
+  /* ---------- criteria grid ---------- */
+  .criteria { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 30px; margin-top: 38px; }
+  .criterion { display: grid; grid-template-columns: 54px minmax(0, 1fr); align-items: center; gap: 18px; padding: 22px 26px; border: 1px solid var(--rule-soft); border-radius: 10px; background: #fdfcf9; font-size: 29px; }
+  .criterion .n { font-family: var(--mono); font-size: 18px; color: var(--g500); }
+
+  /* ---------- tables ---------- */
+  table.t { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  table.t caption { caption-side: top; padding-bottom: 14px; text-align: left; font-family: var(--mono); font-size: 15px; letter-spacing: .16em; text-transform: uppercase; color: var(--dim); }
+  table.t th, table.t td { padding: 13px 18px; border-bottom: 1px solid var(--rule-soft); text-align: right; font-size: 27px; font-weight: 400; }
+  table.t thead th em { display: block; margin-top: 5px; font-style: normal; font-size: 12px; letter-spacing: .08em; color: var(--dim); letter-spacing: .1em; }
+  table.t thead th { padding-top: 0; font-family: var(--mono); font-size: 15px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); border-bottom-color: var(--rule); }
+  table.t th:first-child, table.t td:first-child { text-align: left; }
+  table.t tbody th { color: #16211c; }
+  table.t td { font-family: var(--mono); color: var(--text); }
+  table.t tr.band th { padding-top: 22px; border-bottom-color: var(--rule); font-family: var(--mono); font-size: 14px; letter-spacing: .18em; text-transform: uppercase; color: var(--g600); }
+  table.t .win { color: var(--accent-2); font-weight: 600; }
+  table.t .muted { color: var(--dim); }
+  table.compact th, table.compact td { padding: 9px 16px; font-size: 24px; }
+  table.compact thead th { font-size: 14px; }
+  table.compact tr.band th { padding-top: 16px; font-size: 13px; }
+  .two-tables { display: grid; grid-template-columns: 1fr; gap: 24px; }
+
+  /* ---------- cost pairs ---------- */
+  .pairs { display: grid; gap: 22px; margin-top: 26px; }
+  .pair { display: grid; grid-template-columns: 130px minmax(0, 1fr) 96px; align-items: center; gap: 24px; }
+  .pair .pname { font-family: var(--mono); font-size: 17px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .pair .track2 { display: grid; gap: 8px; }
+  .pair .tb { position: relative; height: 34px; border-radius: 6px; background: #e9ecdf; border: 1px solid var(--rule-soft); overflow: hidden; }
+  .pair .tb i { display: block; height: 100%; width: 0; transition: width 850ms cubic-bezier(.2, .7, .2, 1); }
+  .b.in .pair .tb i, .b.in .tb i { width: var(--w); }
+  .pair .tb.f i { background: linear-gradient(90deg, #83bc43, #7cb03a); }
+  .pair .tb.n i { background: linear-gradient(90deg, #93a598, #7e9188); }
+  .pair .tb span { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-family: var(--mono); font-size: 15px; color: #16211c; }
+  .pair .delta { justify-self: end; font-family: var(--mono); font-size: 27px; color: var(--accent-2); }
+  .legend { display: flex; gap: 28px; margin: 18px 0 0; font-family: var(--mono); font-size: 15px; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+  .legend span { display: inline-flex; align-items: center; gap: 10px; }
+  .swatch.n { background: #93a598; }
+  .swatch.f { background: var(--accent); }
+  .callout { display: flex; align-items: baseline; gap: 26px; margin-top: 30px; padding-top: 24px; border-top: 1px solid var(--rule); }
+  .callout .big { font-family: var(--mono); font-size: 64px; line-height: 1; color: var(--g600); }
+  .callout p { margin: 0; max-width: 46ch; font-size: 25px; line-height: 1.4; color: var(--muted); }
+  .callout p strong { color: var(--text); font-weight: 650; }
+
+  /* ---------- takeaway ---------- */
+  .takeaway { display: grid; gap: 40px; margin-top: 40px; max-width: 1180px; }
+  .takeaway p { margin: 0; padding-left: 34px; border-left: 2px solid var(--rule); font-size: 42px; line-height: 1.25; letter-spacing: -.015em; color: #16211c; }
+  .takeaway p:nth-child(2) { border-left-color: var(--accent); }
+  .takeaway em { color: var(--accent-2); font-style: normal; }
+
+  /* ---------- monday ---------- */
+  .actions { display: grid; gap: 18px; margin-top: 38px; max-width: 1240px; }
+  .action { display: grid; grid-template-columns: 74px minmax(0, 1fr); align-items: center; gap: 24px; padding: 24px 28px; border: 1px solid var(--rule-soft); border-radius: 12px; background: #fdfcf9; font-size: 31px; line-height: 1.25; }
+  .action .n { font-family: var(--mono); font-size: 34px; color: var(--g500); }
+  .action code { font-family: var(--mono); font-size: .92em; color: var(--accent-2); }
+
+  /* ---------- closing ---------- */
+  .closing { display: grid; grid-template-columns: minmax(0, 1fr) 360px; align-items: center; gap: 70px; }
+  .closing h1 { font-size: 92px; }
+  .closing .lede { margin-top: 26px; max-width: 26ch; }
+  .qr-card { padding: 26px; border: 1px solid var(--rule); border-radius: 16px; background: #ffffff; text-align: center; }
+  .qr-card svg { display: block; width: 100%; height: auto; }
+  .qr-card .qr-url { margin: 16px 0 0; font-family: var(--mono); font-size: 14px; line-height: 1.5; color: #3b463f; word-break: break-all; }
+  .inventory { margin-top: 40px; font-family: var(--mono); font-size: 17px; letter-spacing: .06em; color: var(--dim); }
+  .inventory span { color: var(--muted); }
+
+  /* ---------- chrome: controls ---------- */
+  .deck-control { position: fixed; z-index: 20; display: grid; place-items: center; min-width: 2.9rem; min-height: 2.9rem; border: 1px solid var(--rule); border-radius: 999px; background: #fdfcf9f2; color: var(--text); cursor: pointer; }
+  .deck-control:hover { border-color: var(--accent); }
+  .deck-control:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+  #deck-rail-toggle { top: 1rem; left: 1rem; }
+  #deck-fullscreen { top: 1rem; right: 1rem; }
+  #deck-controls { position: fixed; z-index: 20; left: 50%; bottom: .9rem; transform: translateX(-50%); display: flex; align-items: center; gap: .5rem; padding: .3rem .5rem; border-radius: 999px; background: #fdfcf9cc; backdrop-filter: blur(6px); }
+  #deck-controls button { position: static; }
+  #deck-counter { min-width: 6.5rem; color: var(--muted); text-align: center; font-family: var(--mono); font-size: .82rem; letter-spacing: .1em; }
+  #deck-build { min-width: 3rem; color: var(--dim); font-family: var(--mono); font-size: .72rem; letter-spacing: .1em; }
+  #deck-message { position: fixed; z-index: 40; left: 50%; bottom: 5.5rem; translate: -50%; padding: .7rem 1.1rem; border-radius: .5rem; background: var(--accent); color: #16211c; font-weight: 650; }
+  #progress { position: fixed; top: 0; left: 0; height: 3px; width: 0; background: linear-gradient(90deg, var(--accent), var(--accent-2)); z-index: 26; transition: width 240ms ease; }
+
+  /* ---------- notes panel ---------- */
+  #presenter-notes-panel { position: fixed; z-index: 30; inset: 7% 9%; overflow: auto; padding: 2rem 2.4rem; border: 1px solid var(--rule); border-top: .35rem solid var(--accent); border-radius: 1rem; background: #ffffff; color: #16211c; box-shadow: 0 2rem 6rem #16211c24; }
+  #presenter-notes-panel[hidden] { display: none; }
+  #presenter-notes-panel h2 { margin: 0 3rem 1rem 0; font-size: 1.9rem; letter-spacing: -.01em; }
+  #presenter-notes-content { margin: 0; font-size: 1.45rem; line-height: 1.55; white-space: pre-wrap; }
+  .presenter-notes-close { position: absolute; top: .9rem; right: 1rem; border: 0; background: transparent; color: #16211c; font-size: 1.8rem; cursor: pointer; }
+
+  /* ---------- modes ---------- */
+  body.preview-mode #deck-rail, body.preview-mode #deck-rail-toggle, body.preview-mode #deck-fullscreen, body.preview-mode #deck-controls, body.preview-mode #progress { display: none; }
+  body.preview-mode #deck-shell { display: block; }
+  body.preview-mode #deck-stage { width: 100vw; height: 100vh; }
+  @media (max-width: 900px) { :root { --rail: 11rem; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .b { transition: none; }
+    .b.in .bar i, .b.in .mini .track i, .b.in .tb i { transition: none; }
+    .slide[data-deck-active] .noodles path { animation: none; stroke-dashoffset: 0; }
+    .noodles path { stroke-dashoffset: 0; }
+  }
+
+  @media print {
+    @page { size: 1280px 720px; margin: 0; }
+    html, body { width: auto; height: auto; overflow: visible; background: #fff; }
+    #deck-rail, #deck-rail-toggle, #deck-fullscreen, #deck-controls, #presenter-notes-panel, #deck-message, #progress { display: none !important; }
+    #deck-shell { display: block; }
+    #deck-stage { display: block; width: auto; height: auto; overflow: visible; background: #fff; }
+    #slide-frame { position: static; left: auto; top: auto; margin: 0; display: block; width: auto; height: auto; transform: none; overflow: visible; box-shadow: none; }
+    .slide { display: flex !important; position: relative; zoom: .8; width: 1600px; height: 900px; break-after: page; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    .b { opacity: 1 !important; transform: none !important; }
+  }
+</style>
+</head>
+<body>
+<div id="deck-shell">
+  <nav id="deck-rail" aria-label="Slide thumbnails">
+    <div id="deck-rail-head"><span>Deck</span><span id="deck-rail-count">20 slides</span></div>
+    <ol id="deck-thumbnails"></ol>
+  </nav>
+  <main id="deck-stage">
+    <div id="slide-frame" aria-live="polite">
+
+      <!-- 1 · Title -->
+      <section class="slide" data-slide data-label="Title" data-screen-label="1"
+        data-speaker-notes="Cold open, no preamble. Let the title sit while the tangle draws itself. You have sixty minutes and the demo is the point, so move to the screenshots inside a minute. Controls: space, a click or the next arrow advances one build step, then one slide; the plain arrow keys skip builds; N shows notes, P opens presenter view, F is fullscreen, A turns the builds off if anything misbehaves on stage.">
+        <svg class="noodles" viewBox="0 0 800 800" aria-hidden="true" focusable="false">
+          <g fill="none" stroke="#74bd98" stroke-width="2.6" stroke-linecap="round" stroke-opacity=".9">
+            <path d="M120 210 C 260 120, 380 300, 520 220 S 700 120, 760 250" />
+            <path d="M60 330 C 200 420, 180 220, 340 250 S 470 430, 640 350 S 700 470, 700 520" />
+            <path d="M140 470 C 240 560, 420 430, 470 540 S 380 700, 560 690 S 720 590, 740 680" />
+            <path d="M90 640 C 190 700, 250 600, 340 640 S 420 760, 540 740" />
+            <path d="M300 120 C 420 200, 300 330, 430 380 S 620 330, 660 430" />
+          </g>
+        </svg>
+        <div class="title-grid">
+          <div class="title-main">
+            <p class="kicker b" data-build="1">Iowa Code Camp 2026 · Room 109</p>
+            <h1 class="b" data-build="1">Don't Feed the Machine <span class="spag">Spaghetti</span></h1>
+            <p class="title-sub b" data-build="1">Code quality principles for the AI era</p>
+          </div>
+        </div>
+        <div class="title-meta">
+          <span>3:30 &ndash; 4:30 PM</span>
+          <span><strong>Tim Purdum</strong> · dymaptic</span>
+        </div>
+      </section>
+
+      <!-- 2 · Cold open -->
+      <section class="slide" data-slide data-label="Cold open" data-screen-label="2"
+        data-speaker-notes="Point at the left app, then the right. One prompt, one model, about half an hour each, and both build, serve and render. These screenshots come from the 31 October pair in archive/run1-broken-context: 25.0 minutes for the full-context run and 28.7 for the bare one. Files: results/naked-app.png and results/full-context-app.png. Do not read the counts in the headers yet; they differ by 24 bridges and that is not the point here.">
+        <p class="lede b" data-build="1">Two apps. Same prompt. Same model. <span class="em">About half an hour each.</span></p>
+        <div class="shots">
+          <figure class="shot b" data-build="1">
+            <img src="results/naked-app.png" alt="A dark map app of Iowa showing thousands of colored bridge dots, with a sidebar for condition, year built and county, and a find-bridges-at-risk button.">
+            <figcaption><span class="dot"></span> No context</figcaption>
+          </figure>
+          <figure class="shot b" data-build="1">
+            <img src="results/full-context-app.png" alt="A similar Iowa bridge map built with the full instruction set: filter panel on the left, at-risk query, and a legend for composite condition.">
+            <figcaption><span class="dot f"></span> Full context</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <!-- 3 · The claim -->
+      <section class="slide" data-slide data-label="The claim" data-screen-label="3"
+        data-speaker-notes="Four clicks, one bullet each. The fourth is the pivot into the rest of the talk: the agent cannot infer your standards, so you have to tell it. Say the premise as written, then stop talking and let the fourth line land.">
+        <div class="claim">
+          <h2 class="b" data-build="1">My premise: <span class="em">code quality matters to agents</span></h2>
+          <ul class="bullets">
+            <li class="b" data-build="2">Agents read like humans, <strong>just faster and with better memory</strong></li>
+            <li class="b" data-build="3">Architecture makes it easier to reason and expand <strong>with less context</strong></li>
+            <li class="b" data-build="4">Avoids bugs hidden in <strong>duplicated but divergent code</strong></li>
+            <li class="b" data-build="5">We have to <strong>tell the agents</strong> about our coding standards</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 4 · Context -->
+      <section class="slide" data-slide data-label="Context" data-screen-label="4"
+        data-speaker-notes="One click per row, then one more to light rows two and three, then a last click that singles out row three. That last one is the point: the machine-wide file is the row you control on every repo, at every job, before you have written a line. The skill descriptions are a close second, and the harness text and the prompt you cannot do much about.">
+        <h2 class="b" data-build="1">What constitutes a context?</h2>
+        <div class="layers">
+          <div class="layer b" data-build="2"><span class="idx">01</span><span>Harness instructions</span><span class="note">Claude Code · Codex · Pi</span></div>
+          <div class="layer b" data-build="3" data-lit-at="7"><span class="idx">02</span><span>Harness skill descriptions</span><span class="note">/plan · /new-feature · /bug-fix</span></div>
+          <div class="layer b" data-build="4" data-lit-at="7" data-hot-at="8"><span class="idx">03</span><span>Machine-wide instructions</span><span class="note">CLAUDE.md · AGENTS.md</span></div>
+          <div class="layer b" data-build="5"><span class="idx">04</span><span>Repo instructions</span><span class="note">CLAUDE.md · AGENTS.md</span></div>
+          <div class="layer b" data-build="6"><span class="idx">05</span><span>The prompt</span><span class="note">this one</span></div>
+        </div>
+      </section>
+
+      <!-- 5 · My context -->
+      <section class="slide" data-slide data-label="My context" data-screen-label="5"
+        data-speaker-notes="One click for the big bar, one for the small bar. The measured first request is 14,400 tokens; the two CODE_STYLE files add about 6,900 more, because all nine full-context runs read the C# standard, so they belong in the count. Call it 21,300 against 1,663 for the bare arm, about twelve times less. Only the total, the skills block and the naked arm are measured in tokens; the middle segments are drawn to scale from character counts.">
+        <h2 class="b" data-build="1">My context, once the standards load</h2>
+        <div class="meters">
+          <div class="meter-row b" data-build="2">
+            <div class="meter-name">Full context<em>21,300 tokens</em></div>
+            <div class="bar">
+              <i class="skills" style="--w:36.2%"></i><i class="inst" style="--w:11%"></i><i class="stand" style="--w:32.4%"></i><i class="rest" style="--w:20.4%"></i>
+            </div>
+          </div>
+          <div class="meter-row b" data-build="3">
+            <div class="meter-name">No context<em>1,700 tokens</em></div>
+            <div class="bar naked"><i style="--w:8%"></i></div>
+          </div>
+        </div>
+        <div class="seg-labels b" data-build="2">
+          <span><i class="swatch skills"></i>70 skill descriptions, 30,880 characters, ~7,700 tokens</span>
+          <span><i class="swatch inst"></i>Global AGENTS.md, 9,431 characters</span>
+          <span><i class="swatch stand"></i>The two code style files, 27,719 characters, ~6,900 tokens</span>
+          <span><i class="swatch rest"></i>Prompt, harness text, tool definitions</span>
+        </div>
+        <p class="source b" data-build="3" style="margin-top:30px;max-width:108ch;line-height:1.6">Measured: a real first request carries 14,400 tokens before the agent reads a file. <code class="inline">CODE_STYLE.md</code> and <code class="inline">CODE_STYLE-CSHARP.md</code> add 27,719 characters, about 6,900 tokens, and every full-context run read them, so they sit in the bar. The bare arm starts at 1,663 tokens: about twelve times less context, same prompt, same model.</p>
+      </section>
+
+      <!-- 6 · Gotchas -->
+      <section class="slide" data-slide data-label="Gotchas" data-screen-label="6"
+        data-speaker-notes="Two clicks. KISS applies to context as much as to code: every skill you keep costs every subagent a description, whether that subagent needs the skill or not. The second line is the setup for the next slide: pointing at a file is not the same as reading it.">
+        <h2 class="b" data-build="1" style="max-width:26ch">KISS &mdash; keep it short n sweet</h2>
+        <ul class="bullets" style="margin-top:44px">
+          <li class="b" data-build="2">Every skill adds a description to context, <strong>for every subagent</strong>. Remove the skills you are not using.</li>
+          <li class="b" data-build="3">Keep your main <code class="inline">AGENTS.md</code> concise. Point at other files for specific task context, and use hooks to make sure those files are read.</li>
+        </ul>
+      </section>
+
+      <!-- 7 · The prompt -->
+      <section class="slide top" data-slide data-label="The prompt" data-screen-label="7"
+        data-speaker-notes="Click once for the prompt, once for the footnote. Stress that this is the blank-slate prompt: it names no file, folder, component, render mode or framework version. Everything structural in the next six slides came from the agent, not from me.">
+        <h2 class="b" data-build="1">The prompt</h2>
+        <div class="prompt-card b" data-build="2">
+          <p>Build a .NET web app that shows Iowa bridge conditions on an ArcGIS map, using the GeoBlazor package. Bridges visually distinguishable by condition; narrow the map by condition, year built and county; clicking a bridge shows its details; and a view of the bridges at risk &mdash; built before 1960, more than 5,000 vehicles a day &mdash; that respects whatever narrowing is already in effect. Show Iowa bridges only. It has to run locally and the map has to render in a browser. <span class="hi">Work autonomously: make your own decisions and tell me what you verified.</span></p>
+        </div>
+        <p class="footnote b" data-build="3">Shortened for the slide. The prompt names no file, folder, component, render mode or framework version.</p>
+      </section>
+
+      <!-- 8 · The test -->
+      <section class="slide top" data-slide data-label="The test" data-screen-label="8"
+        data-speaker-notes="Three clicks: the prompt strip, then the bare arm, then the instruction arm with the token bar underneath. Same prompt text across the top of both panels, same typeface, so the only difference the room sees is what sits behind it: 1,700 tokens against 21,300, about twelve times. Artifact for the comparison: results/summary.md.">
+        <h2 class="b" data-build="1">Two conditions, same prompt</h2>
+        <div class="test-grid">
+          <div class="panel b" data-build="2">
+            <h3>No context</h3>
+            <p class="sub">none of it</p>
+            <div class="test-prompt">The same prompt. A bare terminal. Nothing behind it.</div>
+            <ul class="spec">
+              <li>Bare prompt</li>
+              <li>No instruction file</li>
+              <li>No skills, no hooks</li>
+            </ul>
+            <div class="mini">
+              <div class="row"><span>1,700</span><div class="track grey"><i style="--w:8%"></i></div></div>
+              <p class="source" style="margin:12px 0 0">no instructions, no skills</p>
+            </div>
+          </div>
+          <div class="panel full b" data-build="3">
+            <h3>Full context</h3>
+            <p class="sub">my global instructions</p>
+            <div class="test-prompt">The same prompt, with the instructions and the skill library behind it.</div>
+            <ul class="spec has">
+              <li>Same prompt</li>
+              <li>Global AGENTS.md, 9,431 characters</li>
+              <li>70 skill descriptions, 30,880 characters</li>
+              <li>The two standard files, read every run</li>
+              <li>Hooks that gate those files</li>
+            </ul>
+            <div class="mini">
+              <div class="row"><span>21,300</span>
+                <div class="track" style="display:flex">
+                  <i style="--w:36.2%;background:linear-gradient(90deg,#98c75c,#7cb03a)"></i><i style="--w:11%;background:linear-gradient(90deg,#4aa378,#35785a)"></i><i style="--w:32.4%;background:linear-gradient(90deg,#a3d4bd,#7fb99f)"></i><i style="--w:20.4%;background:linear-gradient(90deg,#cde8da,#b6d6c6)"></i>
+                </div>
+              </div>
+              <p class="source" style="margin:12px 0 0">skills, instructions, the two standard files, harness text</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 9 · Criteria -->
+      <section class="slide" data-slide data-label="Criteria" data-screen-label="9"
+        data-speaker-notes="Three clicks, two criteria each. Read them fast. The point of the slide is that every one of these is measured by a script, not eyeballed, which is what makes the rest of the numbers defensible.">
+        <h2 class="b" data-build="1">Criteria</h2>
+        <div class="criteria">
+          <div class="criterion b" data-build="2"><span class="n">01</span><span>Does it run?</span></div>
+          <div class="criterion b" data-build="2"><span class="n">02</span><span>Does it function properly?</span></div>
+          <div class="criterion b" data-build="3"><span class="n">03</span><span>How many tokens spent?</span></div>
+          <div class="criterion b" data-build="3"><span class="n">04</span><span>How much time spent?</span></div>
+          <div class="criterion b" data-build="4"><span class="n">05</span><span>How well structured is the code?</span></div>
+          <div class="criterion b" data-build="4"><span class="n">06</span><span>How many warnings and errors?</span></div>
+        </div>
+      </section>
+
+      <!-- 10 · Problems -->
+      <section class="slide" data-slide data-label="Problems encountered" data-screen-label="10"
+        data-speaker-notes="Three clicks. The third one matters most and gets the laugh: the test harness tried to edit its own context mid-run, which is why the first week of numbers went in the bin. Do not rush past it; it is the reason the later runs are trustworthy.">
+        <p class="kicker b" data-build="1">Problems I ran into</p>
+        <ul class="bullets" style="margin-top:26px;max-width:1180px">
+          <li class="b" data-build="2">Cluttered context, <strong>duplicated skills</strong></li>
+          <li class="b" data-build="3"><code class="inline">AGENTS.md</code> referenced other files, <strong>but they were never read</strong></li>
+          <li class="b" data-build="4">The test running agent <strong>tried to change the prompt context</strong> for the full and no-context runs</li>
+        </ul>
+      </section>
+
+      <!-- 11 · Stage one -->
+      <section class="slide top dense" data-slide data-label="Stage one: build the app" data-screen-label="11"
+        data-speaker-notes="Three clicks: outcome, cost, structure. Read the cost rows plainly: on this stage full context used fewer output tokens and less wall time than the bare arm, 189,957 against 221,186 and 1,547.5 seconds against 2,095.8. That is the opposite of what the room expects, and it is real. Tokens are the summary basis, aborted attempts included. Artifacts: results/summary.md and results/structure-p7.csv.">
+        <h2 class="b" data-build="1">Stage one: build the app from nothing</h2>
+        <table class="t compact" style="margin-top:14px">
+          <thead><tr><th>Measured</th><th>No context</th><th>Full context</th></tr></thead>
+          <tbody>
+            <tr data-build="2"><th>Working map in a browser</th><td>3 of 3</td><td>3 of 3</td></tr>
+            <tr data-build="2"><th>Build green, zero warnings</th><td>3 of 3</td><td>3 of 3</td></tr>
+            <tr class="band" data-build="3"><th colspan="3">Cost</th></tr>
+            <tr data-build="3"><th>Output tokens, median</th><td>221,186</td><td>189,957</td></tr>
+            <tr data-build="3"><th>Wall time, median</th><td>2,095.8 s</td><td>1,547.5 s</td></tr>
+            <tr class="band" data-build="4"><th colspan="3">Structure of the tree</th></tr>
+            <tr data-build="4"><th>Files holding NBI field names</th><td>3 / 3 / 4</td><td>0 / 2 / 4</td></tr>
+            <tr data-build="4"><th><code class="inline">.editorconfig</code> and build props</th><td>0 of 3</td><td>2 of 3</td></tr>
+            <tr data-build="4"><th>Solution file</th><td>0 of 3</td><td>2 of 3</td></tr>
+            <tr data-build="4"><th>Test project</th><td>0 of 3</td><td>1 of 3</td></tr>
+            <tr data-build="4"><th>Deepest folder</th><td>3 · 7 · 7</td><td>4 · 3 · 4</td></tr>
+            <tr data-build="4"><th>Files holding more than one type</th><td>5</td><td>2</td></tr>
+            <tr data-build="4"><th>Lines of <code class="inline">.cs</code> and <code class="inline">.razor</code>, median</th><td>1,092</td><td>1,554</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 12 · Stage two -->
+      <section class="slide" data-slide data-label="Stage two: add a feature" data-screen-label="12"
+        data-speaker-notes="Three clicks, one row each. County comparison, added to the same six apps, seeded from each arm's own build. Here the bare arm wins all three pairs on both tokens and time. Say that too; one stage does not make a trend.">
+        <h2 class="b" data-build="1">Stage two: add a feature</h2>
+        <p class="lede b" data-build="1" style="margin-top:20px;font-size:28px">County comparison, added to the same six apps.</p>
+        <table class="t" style="margin-top:30px">
+          <thead><tr><th>Measure</th><th>No context</th><th>Full context</th></tr></thead>
+          <tbody>
+            <tr data-build="2"><th>Output tokens, median</th><td class="win">104,723</td><td>205,149</td></tr>
+            <tr data-build="3"><th>Wall time, median</th><td class="win">528.8 s</td><td>769.1 s</td></tr>
+            <tr data-build="4"><th>Wins, paired</th><td class="win">3 of 3</td><td>0 of 3</td></tr>
+          </tbody>
+        </table>
+        <p class="source b" data-build="4" style="margin-top:22px">Each stage seeds from the app the same arm and repetition produced in the stage before.</p>
+      </section>
+
+      <!-- 13 · Stage three -->
+      <section class="slide top dense" data-slide data-label="Stage three: a second feature" data-screen-label="13"
+        data-speaker-notes="Two clicks: the feature, then what three stages did to the code. Read the .razor row aloud: the worst file in the set is a full-context run with 902 lines inside its markup, and a run that was told one type per file still puts seven types in one client. Layering and housekeeping are what the standards bought; they did not buy smaller components. Artifact: results/structure-p6.csv.">
+        <h2 class="b" data-build="1">Stage three: CSV export, rows must match the app's own count</h2>
+        <table class="t compact" style="margin-top:14px">
+          <thead><tr><th>Measure</th><th>No context</th><th>Full context</th></tr></thead>
+          <tbody>
+            <tr data-build="2"><th>Output tokens, median</th><td class="win">79,424</td><td>145,486</td></tr>
+            <tr data-build="2"><th>Wall time, median</th><td>836.8 s</td><td class="win">500.8 s</td></tr>
+            <tr data-build="2"><th>Wins, paired</th><td class="win">3 of 3</td><td>0 of 3</td></tr>
+          </tbody>
+        </table>
+        <div class="two-tables">
+          <p class="kicker b" data-build="3" style="margin:20px 0 8px">After three stages, what the code looks like</p>
+          <table class="t compact">
+            <thead><tr><th>Measure</th><th>No context</th><th>Full context</th></tr></thead>
+            <tbody>
+              <tr data-build="3"><th>Files outside the UI folder</th><td>1 · 8 · 1</td><td>18 · 30 · 4</td></tr>
+              <tr data-build="3"><th>Interfaces</th><td>0 · 0 · 0</td><td>0 · 3 · 0</td></tr>
+              <tr data-build="3"><th>Test files</th><td>0 · 0 · 0</td><td>0 · 5 · 0</td></tr>
+              <tr data-build="3"><th>Largest file, lines</th><td>361 · 862 · 320</td><td>899 · 272 · 410</td></tr>
+              <tr data-build="3"><th>Code inside <code class="inline">.razor</code> blocks</th><td>630 · 486 · 632</td><td>528 · 496 · 902</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 14 · The cost -->
+      <section class="slide" data-slide data-label="Full context costs more at every stage" data-screen-label="14"
+        data-speaker-notes="Three clicks for the three pairs, then the median. 23 percent more output tokens across all three stages, paired by repetition; the pairs are what carry this slide, not the per-stage medians. Wall time on the same basis: 3,082 seconds against 3,706. If someone asks why the headline is smaller than the stage medians suggest, the answer is retries: aborted attempts count.">
+        <h2 class="b" data-build="1">Full context costs more at every stage</h2>
+        <p class="legend b" data-build="1"><span><i class="swatch n"></i>No context</span><span><i class="swatch f"></i>Full context</span></p>
+        <div class="pairs">
+          <div class="pair b" data-build="2">
+            <span class="pname">Pair 1</span>
+            <div class="track2">
+              <div class="tb n"><i style="--w:83.7%"></i><span>450,059</span></div>
+              <div class="tb f"><i style="--w:95.9%"></i><span>515,519</span></div>
+            </div>
+            <span class="delta">+15%</span>
+          </div>
+          <div class="pair b" data-build="3">
+            <span class="pname">Pair 2</span>
+            <div class="track2">
+              <div class="tb n"><i style="--w:77.7%"></i><span>417,917</span></div>
+              <div class="tb f"><i style="--w:100%"></i><span>537,855</span></div>
+            </div>
+            <span class="delta">+29%</span>
+          </div>
+          <div class="pair b" data-build="4">
+            <span class="pname">Pair 3</span>
+            <div class="track2">
+              <div class="tb n"><i style="--w:61.5%"></i><span>330,656</span></div>
+              <div class="tb f"><i style="--w:95.8%"></i><span>515,372</span></div>
+            </div>
+            <span class="delta">+56%</span>
+          </div>
+        </div>
+        <div class="callout b" data-build="5">
+          <span class="big">23%</span>
+          <p>Median of the three: <strong>417,917 against 515,519</strong>, to build the same app and add the same two features. Wall time, same basis: 3,082 s against 3,706 s.</p>
+        </div>
+      </section>
+
+      <!-- 15 · Analyser -->
+      <section class="slide top" data-slide data-label="What the analyser saw" data-screen-label="15"
+        data-speaker-notes="Two clicks: the table, then the caveat. SonarQube is a rule counter, not a reviewer, so do not oversell it. The five vulnerability findings are the second full-context repetition carrying its own browser-verification script into the repo, not app code; the bugs column is genuinely zero everywhere. Artifact: results/sonar.csv.">
+        <h2 class="b" data-build="1">What the analyser saw</h2>
+        <p class="lede b" data-build="1" style="font-size:26px;margin-top:14px">SonarQube, all eighteen runs.</p>
+        <table class="t compact" style="margin-top:16px">
+          <thead><tr><th>Median per stage</th><th>No context<em>build · feature · feature</em></th><th>Full context<em>build · feature · feature</em></th></tr></thead>
+          <tbody>
+            <tr data-build="2"><th>Code smells</th><td>3 · 4 · 4</td><td>2 · 2 · 3</td></tr>
+            <tr data-build="2"><th>Debt, minutes</th><td>10 · 15 · 15</td><td>5 · 5 · 5</td></tr>
+            <tr data-build="2"><th>Debt per 1,000 lines, minutes</th><td>7.0 · 8.7 · 7.3</td><td>3.2 · 2.6 · 2.3</td></tr>
+            <tr data-build="2"><th>Cognitive complexity</th><td>91 · 134 · 161</td><td>101 · 163 · 197</td></tr>
+            <tr data-build="2"><th>Cognitive complexity per 1,000 lines</th><td>64 · 78 · 79</td><td>66 · 83 · 90</td></tr>
+          </tbody>
+        </table>
+        <p class="footnote b" data-build="3" style="max-width:112ch">Zero bugs in all eighteen runs, and every project rated A on maintainability and reliability. One caveat: the second full-context repetition carried its own browser-verification script into the repo, and SonarQube scores one vulnerability there, so three of the eighteen runs are rated D on security.</p>
+      </section>
+
+      <!-- 16 · Where the error goes -->
+      <section class="slide top" data-slide data-label="Where the error goes" data-screen-label="16"
+        data-speaker-notes="Two clicks: the two panels, then the numbers. Both of these stop the exception, so both apps work; the difference is what survives it. The console write keeps a message and drops the stack, the request and the category, and in server-rendered Blazor it lands where nobody reads it. SonarQube charges five minutes for each synchronous console write, twenty in that one naked run, and nothing at all for the logger, because there is no async hazard to flag. Be straight about the spread: one app on each side makes this choice, and three of the six never log anything at all.">
+        <h2 class="b" data-build="1">Where the error goes</h2>
+        <div class="test-grid b" data-build="2" style="margin-top:18px">
+          <div class="panel">
+            <h3>No context</h3>
+            <p class="sub">the message only</p>
+            <pre style="margin:12px 0 0;padding:14px 16px;background:var(--paper);border:1px solid var(--rule);border-left:3px solid var(--clay);font-family:var(--mono);font-size:15px;line-height:1.55;white-space:pre-wrap;color:var(--ink)">catch (Exception ex)
+{
+    Console.Error.WriteLine(
+        $"Could not count bridges: {ex.Message}");
+}</pre>
+            <p class="source" style="margin:14px 0 0">9 calls, all in one app &#183; 20 minutes of debt</p>
+          </div>
+          <div class="panel full">
+            <h3>Full context</h3>
+            <p class="sub">the whole exception</p>
+            <pre style="margin:12px 0 0;padding:14px 16px;background:var(--paper);border:1px solid var(--rule);border-left:3px solid var(--accent);font-family:var(--mono);font-size:15px;line-height:1.55;white-space:pre-wrap;color:var(--ink)">catch (Exception exception)
+{
+    Logger.LogError(exception,
+        "Highlighting the selected bridge failed.");
+}</pre>
+            <p class="source" style="margin:14px 0 0">8 injection sites &#183; 0 minutes of debt</p>
+          </div>
+        </div>
+        <table class="t compact b" data-build="3" style="margin-top:20px">
+          <thead><tr><th>All eighteen runs</th><th>No context</th><th>Full context</th></tr></thead>
+          <tbody>
+            <tr><th><code class="inline">Console.Error.WriteLine</code></th><td>9</td><td>0</td></tr>
+            <tr><th><code class="inline">ILogger&lt;T&gt;</code> injected</th><td>3</td><td>8</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 17 · Where the code lives -->
+      <section class="slide top" data-slide data-label="Where the code lives" data-screen-label="17"
+        data-speaker-notes="Two clicks: the two trees, then the caption. Read the left column out loud as a shopping list: a service, a second service, a feature-service client, the filter state and the county table, all sitting in Components/Bridges next to the markup. The right column did the same work one folder up. Be fair: two of the three naked apps do keep a Models folder, and one full-context app kept everything in the UI folder, so this is a habit the standard nudges, not a switch it flips. Artifact: results/structure-p5.csv and tools/arch-compare.py.">
+        <h2 class="b" data-build="1">Where the code lives</h2>
+        <div class="test-grid b" data-build="2" style="margin-top:16px">
+          <div class="panel">
+            <h3>No context</h3>
+            <p class="sub">everything in the UI folder</p>
+            <pre style="margin:12px 0 0;padding:14px 16px;background:var(--paper);border:1px solid var(--rule);border-left:3px solid var(--clay);font-family:var(--mono);font-size:14px;line-height:1.5;white-space:pre;color:var(--ink);overflow-x:auto">Components/
+  Bridges/
+    BridgeMap.razor
+    BridgeSidebar.razor
+    CountyComparison.razor
+    BridgeExportService.cs
+    CountyComparisonService.cs
+    NbiFeatureService.cs
+    BridgeFilterState.cs
+    IowaCounties.cs
+Program.cs</pre>
+            <p class="source" style="margin:14px 0 0">1 file outside the UI folder</p>
+          </div>
+          <div class="panel full">
+            <h3>Full context</h3>
+            <p class="sub">a layer above it</p>
+            <pre style="margin:12px 0 0;padding:14px 16px;background:var(--paper);border:1px solid var(--rule);border-left:3px solid var(--accent);font-family:var(--mono);font-size:14px;line-height:1.5;white-space:pre;color:var(--ink);overflow-x:auto">Components/   markup only
+Models/       nine types
+  BridgeFilters.cs
+  BridgeDetail.cs
+  BridgeExportRow.cs
+  CountyComparison.cs
+Services/     six types
+  BridgeCatalogClient.cs
+  BridgeCsvWriter.cs
+  BridgeExportService.cs
+  BridgeDetailReader.cs
+Extensions/
+Program.cs</pre>
+            <p class="source" style="margin:14px 0 0">18 files outside the UI folder</p>
+          </div>
+        </div>
+        <p class="footnote b" data-build="3" style="max-width:112ch;margin-top:18px">Two of three each way: one naked app does keep a <code class="inline">Models</code> folder, and one full-context app kept everything in the UI folder.</p>
+      </section>
+
+      <!-- 18 · Takeaway -->
+      <section class="slide" data-slide data-label="The Takeaway" data-screen-label="18"
+        data-speaker-notes="Two clicks. The first is the concession and it is the honest headline: a strong model writes a working app without your guidelines. The second is the cost. Do not oversell the second half; the structure numbers are small and inconsistent, and the room will believe the concession more than the caveat.">
+        <h2 class="b" data-build="1">The takeaway</h2>
+        <div class="takeaway">
+          <p class="b" data-build="2">Agents have gotten <em>really</em> good at coding, even without specific guidelines.</p>
+          <p class="b" data-build="3">Context can still slightly improve architecture and lower debt, but it costs more tokens and is not reliably faster.</p>
+        </div>
+      </section>
+
+      <!-- 19 · Monday -->
+      <section class="slide top" data-slide data-label="What to do Monday" data-screen-label="19"
+        data-speaker-notes="Four clicks, four actions. Ask the room which one they will do this week before you move on; the answers are usually the second and the fourth. Keep the QR slide ready behind this one.">
+        <h2 class="b" data-build="1">What to do Monday</h2>
+        <div class="actions">
+          <div class="action b" data-build="2"><span class="n">01</span><span>Review and streamline your global <code>CLAUDE.md</code> / <code>AGENTS.md</code></span></div>
+          <div class="action b" data-build="3"><span class="n">02</span><span>Delete the skills that are not being used</span></div>
+          <div class="action b" data-build="4"><span class="n">03</span><span>Add the rules that are really important to you</span></div>
+          <div class="action b" data-build="5"><span class="n">04</span><span>Enforce reading of important guidelines: keep them in the global file, or add hooks and gates</span></div>
+        </div>
+      </section>
+
+      <!-- 20 · Thank you -->
+      <section class="slide" data-slide data-label="Thank you" data-screen-label="20"
+        data-speaker-notes="Leave this up for the whole Q and A, and leave ten minutes for it. The question that comes will be whether this transfers to their codebase. The honest answer: greenfield work on a familiar stack favors the bare arm most, and their tangled repo is still untested. Everything is in the repository, so anyone can rerun it; if the numbers differ, I want to hear about it.">
+        <div class="closing">
+          <div>
+            <h1 class="b" data-build="1">Thank you!</h1>
+            <p class="lede b" data-build="1" style="margin-top:22px">Questions?</p>
+            <p class="inventory b" data-build="1">Instruction template · the gate · the prompts · the runner · <span>all 18 measured runs</span></p>
+          </div>
+          <div class="qr-card b" data-build="1">
+            <svg viewBox="0 0 33 33" shape-rendering="crispEdges" role="img" aria-label="QR code linking to the write-up at timpurdum.dev">
+              <rect width="33" height="33" fill="#ffffff" />
+              <path stroke="#16211c" stroke-width="1.05" fill="none" d="M0 0.5h7m1 0h2m2 0h2m2 0h1m1 0h1m1 0h2m4 0h7m-33 1h1m5 0h1m1 0h2m2 0h3m3 0h3m1 0h1m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h5m1 0h1m1 0h3m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m2 0h2m1 0h1m1 0h1m1 0h2m2 0h2m2 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h1m3 0h2m2 0h1m1 0h1m4 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m2 0h3m1 0h1m1 0h2m4 0h3m2 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-21 1h5m6 0h1m-24 1h1m2 0h6m8 0h1m2 0h1m2 0h1m1 0h1m2 0h1m1 0h3m-33 1h5m6 0h3m1 0h2m2 0h1m2 0h2m4 0h4m-32 1h3m2 0h2m1 0h2m2 0h2m1 0h1m1 0h1m3 0h5m2 0h3m1 0h1m-31 1h2m1 0h1m2 0h1m3 0h2m1 0h4m1 0h1m2 0h5m2 0h2m-32 1h4m2 0h1m1 0h2m1 0h3m1 0h1m3 0h2m1 0h3m1 0h2m3 0h2m-30 1h2m2 0h2m1 0h1m1 0h1m1 0h1m3 0h1m1 0h1m2 0h1m3 0h1m2 0h1m-31 1h3m2 0h2m1 0h2m2 0h1m1 0h2m2 0h2m1 0h1m4 0h1m1 0h3m-28 1h1m1 0h1m1 0h2m1 0h4m2 0h1m1 0h1m1 0h1m1 0h4m4 0h1m1 0h1m-33 1h3m3 0h4m3 0h4m3 0h1m1 0h2m1 0h5m-30 1h1m2 0h3m2 0h2m2 0h5m1 0h4m3 0h2m1 0h1m1 0h3m-32 1h1m1 0h1m1 0h2m1 0h5m1 0h2m1 0h1m1 0h3m1 0h1m2 0h2m1 0h4m-31 1h1m5 0h2m1 0h6m2 0h1m2 0h1m5 0h3m-31 1h1m2 0h6m2 0h1m4 0h2m1 0h2m2 0h2m2 0h1m1 0h1m2 0h1m-33 1h2m1 0h1m1 0h1m3 0h3m2 0h1m2 0h3m2 0h2m3 0h3m-30 1h1m1 0h3m1 0h1m1 0h2m1 0h1m9 0h3m1 0h2m1 0h1m2 0h2m-33 1h1m6 0h1m2 0h4m1 0h1m1 0h1m2 0h1m2 0h1m3 0h1m1 0h2m-31 1h2m1 0h1m1 0h3m5 0h2m1 0h1m3 0h1m3 0h5m2 0h1m-24 1h1m2 0h1m3 0h1m1 0h1m6 0h1m3 0h1m1 0h2m-32 1h7m1 0h2m1 0h1m3 0h2m2 0h1m2 0h3m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m1 0h1m9 0h2m3 0h2m3 0h3m-31 1h1m1 0h3m1 0h1m1 0h5m2 0h1m1 0h4m1 0h7m2 0h2m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h1m1 0h2m1 0h7m1 0h2m1 0h1m2 0h3m-33 1h1m1 0h3m1 0h1m4 0h1m1 0h4m1 0h2m1 0h1m1 0h1m1 0h1m1 0h2m2 0h2m-33 1h1m5 0h1m4 0h1m2 0h1m4 0h2m1 0h1m2 0h4m1 0h3m-33 1h7m1 0h6m1 0h1m1 0h1m1 0h1m2 0h1m1 0h1m2 0h2" />
+            </svg>
+            <p class="qr-url">timpurdum.dev/post/2026/11/7/<br>iowa-code-camp.html</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<div id="progress" aria-hidden="true"></div>
+<button id="deck-rail-toggle" class="deck-control" type="button" aria-pressed="true" title="Hide slide thumbnails (T)" aria-label="Hide slide thumbnails">&#9776;</button>
+<button id="deck-fullscreen" class="deck-control" type="button" title="Toggle fullscreen (F)" aria-label="Toggle fullscreen">&#9974;</button>
+<div id="deck-controls" role="group" aria-label="Slide navigation">
+  <button id="deck-previous" class="deck-control" type="button" aria-label="Previous slide or build step">&#8592;</button>
+  <span id="deck-counter" aria-live="polite"></span>
+  <span id="deck-build" aria-hidden="true"></span>
+  <button id="deck-next" class="deck-control" type="button" aria-label="Next slide or build step">&#8594;</button>
+</div>
+<p id="deck-message" role="status" hidden></p>
+<aside id="presenter-notes-panel" hidden aria-hidden="true" aria-labelledby="presenter-notes-title">
+  <button class="presenter-notes-close" type="button" aria-label="Close presenter notes">&times;</button>
+  <h2 id="presenter-notes-title">Current slide notes</h2>
+  <p id="presenter-notes-content"></p>
+</aside>
+
+<script>
+(() => {
+  const params = new URLSearchParams(location.search);
+  const isPreview = params.has("deckPreview");
+  const slides = [...document.querySelectorAll("section[data-slide]")].filter(slide => !slide.hasAttribute("data-deck-skip"));
+  const frame = document.getElementById("slide-frame");
+  const stage = document.getElementById("deck-stage");
+  const shell = document.getElementById("deck-shell");
+  const rail = document.getElementById("deck-rail");
+  const railToggle = document.getElementById("deck-rail-toggle");
+  const thumbnails = document.getElementById("deck-thumbnails");
+  const railCount = document.getElementById("deck-rail-count");
+  const counter = document.getElementById("deck-counter");
+  const buildLabel = document.getElementById("deck-build");
+  const message = document.getElementById("deck-message");
+  const progress = document.getElementById("progress");
+  const notesPanel = document.getElementById("presenter-notes-panel");
+  const notesTitle = document.getElementById("presenter-notes-title");
+  const notesContent = document.getElementById("presenter-notes-content");
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  let currentIndex = 0;
+  let presenterWindow = null;
+  let railVisible = true;
+  let shown = 1;
+  let animationsOn = !reduced;
+
+  try { railVisible = localStorage.getItem("machine-spaghetti.railVisible") !== "0"; } catch { }
+  if (isPreview) document.body.classList.add("preview-mode");
+  if (!animationsOn) document.body.classList.add("no-anim");
+  railCount.textContent = slides.length + " slides";
+
+  /* ---------- slide chrome ---------- */
+  slides.forEach((slide, index) => {
+    const number = slide.dataset.screenLabel || String(index + 1);
+    const chrome = document.createElement("div");
+    chrome.className = "chrome";
+    const label = document.createElement("span");
+    label.className = "chrome-label";
+    label.textContent = number.padStart(2, "0") + " \u00b7 " + (slide.dataset.label || "Slide");
+    chrome.append(label);
+    slide.insertBefore(chrome, slide.firstChild);
+    const counterEl = document.createElement("span");
+    counterEl.className = "slide-num";
+    counterEl.textContent = number + " / " + slides.length;
+    slide.append(counterEl);
+  });
+
+  /* ---------- builds ---------- */
+  const buildItems = slide => [...slide.querySelectorAll("[data-build]")];
+  const maxBuild = slide => {
+    let max = 1;
+    for (const el of slide.querySelectorAll("[data-build]")) max = Math.max(max, Number(el.dataset.build) || 1);
+    for (const el of slide.querySelectorAll("[data-lit-at]")) max = Math.max(max, Number(el.dataset.litAt) || 0);
+    for (const el of slide.querySelectorAll("[data-hot-at]")) max = Math.max(max, Number(el.dataset.hotAt) || 0);
+    return max;
+  };
+
+  const applyBuilds = (slide, stop, animate) => {
+    let order = 0;
+    for (const el of buildItems(slide)) {
+      const step = Number(el.dataset.build) || 1;
+      const on = step <= stop;
+      const stagger = animate && step === stop && animationsOn && !reduced;
+      el.style.transitionDelay = stagger ? (order++ * 75) + "ms" : "0ms";
+      el.classList.toggle("in", on);
+    }
+    for (const el of slide.querySelectorAll("[data-lit-at]")) {
+      el.classList.toggle("lit", stop >= (Number(el.dataset.litAt) || 1));
+    }
+    for (const el of slide.querySelectorAll("[data-hot-at]")) {
+      el.classList.toggle("hot", stop >= (Number(el.dataset.hotAt) || 1));
+    }
+  };
+
+  /* ---------- navigation ---------- */
+  const previewUrl = index => {
+    const url = new URL(location.href);
+    url.searchParams.set("deckPreview", "1");
+    url.searchParams.set("slide", String(index + 1));
+    url.hash = String(index + 1);
+    return url.href;
+  };
+
+  const syncChrome = () => {
+    counter.textContent = String(currentIndex + 1).padStart(2, "0") + " / " + slides.length;
+    progress.style.width = ((currentIndex + 1) / slides.length * 100) + "%";
+    const max = maxBuild(slides[currentIndex]);
+    buildLabel.textContent = animationsOn && max > 1 ? shown + "/" + max : "";
+  };
+
+  const updateNotes = () => {
+    const slide = slides[currentIndex];
+    notesTitle.textContent = "Slide " + (slide.dataset.screenLabel || currentIndex + 1) + " notes";
+    notesContent.textContent = slide.dataset.speakerNotes || "No presenter notes for this slide.";
+  };
+
+  const goTo = (index, options = {}) => {
+    const { updateHash = true, direction = 1 } = options;
+    currentIndex = Math.max(0, Math.min(index, slides.length - 1));
+    const slide = slides[currentIndex];
+    slides.forEach((item, i) => item.toggleAttribute("data-deck-active", i === currentIndex));
+    [...thumbnails.children].forEach((item, i) => {
+      const button = item.firstElementChild;
+      if (!button) return;
+      const current = i === currentIndex;
+      button.setAttribute("aria-current", String(current));
+      if (current && railVisible) button.scrollIntoView({ block: "nearest" });
+    });
+    const max = maxBuild(slide);
+    shown = isPreview || !animationsOn ? max : (direction < 0 ? max : 1);
+    applyBuilds(slide, shown, true);
+    syncChrome();
+    updateNotes();
+    syncPresenterWindow();
+    if (updateHash) history.pushState(null, "", "#" + (currentIndex + 1));
+    document.dispatchEvent(new CustomEvent("slidechange", { detail: { index: currentIndex } }));
+  };
+
+  const next = () => {
+    const slide = slides[currentIndex];
+    const max = maxBuild(slide);
+    if (animationsOn && shown < max) {
+      shown += 1;
+      applyBuilds(slide, shown, true);
+      syncChrome();
+      return;
+    }
+    if (currentIndex === slides.length - 1) return;
+    goTo(currentIndex + 1, { direction: 1 });
+  };
+
+  const previous = () => {
+    if (animationsOn && shown > 1) {
+      shown -= 1;
+      applyBuilds(slides[currentIndex], shown, false);
+      syncChrome();
+      return;
+    }
+    if (currentIndex === 0) return;
+    goTo(currentIndex - 1, { direction: -1 });
+  };
+
+  /* ---------- presenter ---------- */
+  const buildPresenterWindow = () => {
+    const doc = presenterWindow.document;
+    doc.title = document.title + " \u00b7 Presenter view";
+    doc.head.innerHTML = '<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>:root{color-scheme:dark;font-family:"Segoe UI",system-ui,sans-serif}*{box-sizing:border-box}body{margin:0;height:100vh;overflow:hidden;background:#f2efe6;color:#16211c}main{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:1rem;padding:1rem}.header,.footer{display:flex;align-items:center;justify-content:space-between;gap:1rem}.warning{color:#00593d;font-weight:700}.grid{min-height:0;display:grid;grid-template-columns:minmax(0,1.45fr) minmax(20rem,.8fr);gap:1rem}.previews{min-height:0;display:grid;grid-template-rows:minmax(0,1fr) minmax(9rem,.42fr);gap:1rem}section,aside{min-height:0;overflow:hidden;border:1px solid #cdc9bd;border-radius:.8rem;background:#fdfcf9}.label{display:flex;justify-content:space-between;padding:.55rem 1rem;color:#3b463f;font-size:.85rem}.label strong{color:#16211c}iframe{width:100%;height:calc(100% - 2.2rem);border:0;background:#f2efe6;pointer-events:none}aside{overflow:auto;padding:1.3rem;border-top:.35rem solid #83bc43;background:#ffffff;color:#16211c}aside h1{font-size:1.15rem;margin:0 0 .7rem}aside p{font-size:1.3rem;line-height:1.5;white-space:pre-wrap}.controls{display:flex;gap:.6rem}.controls button{padding:.6rem 1rem;border:1px solid #83bc43;border-radius:999px;background:#fdfcf9;color:#16211c;cursor:pointer}</style>';
+    doc.body.innerHTML = '<main><header class="header"><strong>Presenter view</strong><span class="warning">Share the deck window, not this one</span></header><div class="grid"><div class="previews"><section><div class="label"><span>Current</span><strong id="presenter-current-label"></strong></div><iframe id="presenter-current-slide" title="Current slide preview"></iframe></section><section><div class="label"><span>Next</span><strong id="presenter-next-label"></strong></div><iframe id="presenter-next-slide" title="Next slide preview"></iframe></section></div><aside><h1 id="presenter-window-title">Notes</h1><p id="presenter-window-notes" aria-live="polite"></p></aside></div><footer class="footer"><div class="controls"><button id="presenter-previous">\u2190 Previous</button><button id="presenter-next">Next \u2192</button></div><span>Arrow keys navigate \u00b7 Escape closes</span></footer></main>';
+    doc.getElementById("presenter-previous").addEventListener("click", () => previous());
+    doc.getElementById("presenter-next").addEventListener("click", () => next());
+    presenterWindow.addEventListener("keydown", event => handleKey(event));
+  };
+
+  const syncPresenterWindow = () => {
+    if (!presenterWindow || presenterWindow.closed) return;
+    const doc = presenterWindow.document;
+    const current = slides[currentIndex];
+    const following = slides[currentIndex + 1];
+    const currentLabel = doc.getElementById("presenter-current-label");
+    if (!currentLabel) return;
+    currentLabel.textContent = current.dataset.label || "Slide " + (currentIndex + 1);
+    const currentFrame = doc.getElementById("presenter-current-slide");
+    if (currentFrame.getAttribute("src") !== previewUrl(currentIndex)) currentFrame.src = previewUrl(currentIndex);
+    doc.getElementById("presenter-window-title").textContent = "Slide " + (current.dataset.screenLabel || currentIndex + 1) + " notes";
+    doc.getElementById("presenter-window-notes").textContent = current.dataset.speakerNotes || "No presenter notes for this slide.";
+    doc.getElementById("presenter-next-label").textContent = following ? (following.dataset.label || "Slide " + (currentIndex + 2)) : "End of deck";
+    const nextFrame = doc.getElementById("presenter-next-slide");
+    if (following) nextFrame.src = previewUrl(currentIndex + 1); else nextFrame.removeAttribute("src");
+  };
+
+  const openPresenter = () => {
+    notesPanel.hidden = true;
+    notesPanel.setAttribute("aria-hidden", "true");
+    if (presenterWindow && !presenterWindow.closed) { syncPresenterWindow(); presenterWindow.focus(); return; }
+    presenterWindow = window.open("", "_blank", "popup=yes,width=1440,height=900");
+    if (!presenterWindow) {
+      showMessage("Presenter window was blocked. Allow pop-ups and press P again.");
+      return;
+    }
+    buildPresenterWindow();
+    syncPresenterWindow();
+    presenterWindow.focus();
+  };
+
+  /* ---------- modes, rail, notes ---------- */
+  const showMessage = text => {
+    message.textContent = text;
+    message.hidden = !text;
+    if (text) setTimeout(() => { message.hidden = true; }, 4500);
+  };
+
+  let thumbScaleFrame = 0;
+  const sizeThumbnails = () => {
+    cancelAnimationFrame(thumbScaleFrame);
+    thumbScaleFrame = requestAnimationFrame(() => {
+      for (const preview of thumbnails.querySelectorAll(".thumbnail-preview")) {
+        preview.style.setProperty("--ts", String(preview.clientWidth / 1600));
+      }
+    });
+  };
+
+  const updateRail = () => {
+    shell.classList.toggle("rail-hidden", !railVisible);
+    rail.inert = !railVisible;
+    railToggle.setAttribute("aria-pressed", String(railVisible));
+    thumbnails.setAttribute("aria-hidden", String(!railVisible));
+    railToggle.setAttribute("aria-label", (railVisible ? "Hide" : "Show") + " slide thumbnails");
+    railToggle.title = (railVisible ? "Hide" : "Show") + " slide thumbnails (T)";
+    try { localStorage.setItem("machine-spaghetti.railVisible", railVisible ? "1" : "0"); } catch { }
+    sizeThumbnails();
+  };
+
+  const toggleNotes = () => {
+    notesPanel.hidden = !notesPanel.hidden;
+    notesPanel.setAttribute("aria-hidden", String(notesPanel.hidden));
+    updateNotes();
+    if (!notesPanel.hidden) notesPanel.querySelector(".presenter-notes-close").focus();
+  };
+
+  const closeNotes = () => {
+    notesPanel.hidden = true;
+    notesPanel.setAttribute("aria-hidden", "true");
+  };
+
+  const toggleAnimations = () => {
+    animationsOn = !animationsOn;
+    document.body.classList.toggle("no-anim", !animationsOn);
+    const slide = slides[currentIndex];
+    if (!animationsOn) { shown = maxBuild(slide); applyBuilds(slide, shown, false); }
+    else { shown = 1; applyBuilds(slide, shown, true); }
+    syncChrome();
+    showMessage(animationsOn ? "Builds back on" : "Builds off: one click per slide");
+  };
+
+  const rescale = () => {
+    const scale = Math.min(stage.clientWidth / 1600, stage.clientHeight / 900);
+    frame.style.setProperty("--s", String(scale));
+    sizeThumbnails();
+  };
+
+  /* ---------- keys ---------- */
+  const isEditable = target => Boolean(target && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)));
+
+  const handleKey = event => {
+    const target = event.composedPath ? event.composedPath()[0] : event.target;
+    if (isEditable(target) || event.metaKey || event.ctrlKey || event.altKey) return;
+    const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+    if (key === "n") toggleNotes();
+    else if (key === "t") { railVisible = !railVisible; updateRail(); }
+    else if (key === "p") { if (!isPreview) openPresenter(); }
+    else if (key === "f") document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+    else if (key === "a") toggleAnimations();
+    else if (key === "Escape" && !notesPanel.hidden) closeNotes();
+    else return;
+    event.preventDefault();
+  };
+
+  window.addEventListener("keydown", event => {
+    const target = event.composedPath ? event.composedPath()[0] : event.target;
+    if (isEditable(target) || event.metaKey || event.ctrlKey || event.altKey) return;
+    if (event.key === "Escape" && !notesPanel.hidden) { closeNotes(); event.preventDefault(); return; }
+    const key = event.key;
+    if (key === "ArrowLeft" || key === "PageUp") { previous(); event.preventDefault(); }
+    else if (key === "ArrowRight" || key === "PageDown" || key === " ") { next(); event.preventDefault(); }
+    else if (key === "Home") { goTo(0, { direction: -1 }); event.preventDefault(); }
+    else if (key === "End") { goTo(slides.length - 1, { direction: 1 }); event.preventDefault(); }
+    else handleKey(event);
+  });
+
+  /* ---------- thumbnails ---------- */
+  slides.forEach((slide, index) => {
+    const item = document.createElement("li");
+    const button = document.createElement("button");
+    const preview = document.createElement("span");
+    const label = document.createElement("span");
+    button.className = "thumbnail";
+    button.type = "button";
+    button.setAttribute("aria-label", "Go to slide " + (index + 1) + ": " + (slide.dataset.label || "Untitled"));
+    preview.className = "thumbnail-preview";
+    const clone = slide.cloneNode(true);
+    clone.removeAttribute("data-deck-active");
+    preview.append(clone);
+    label.className = "thumbnail-label";
+    label.textContent = (index + 1) + ". " + (slide.dataset.label || "Untitled");
+    button.append(preview, label);
+    button.addEventListener("click", () => goTo(index, { direction: 1 }));
+    item.append(button);
+    thumbnails.append(item);
+  });
+
+  /* ---------- wiring ---------- */
+  railToggle.addEventListener("click", () => { railVisible = !railVisible; updateRail(); });
+  document.getElementById("deck-previous").addEventListener("click", previous);
+  document.getElementById("deck-next").addEventListener("click", next);
+  document.getElementById("deck-fullscreen").addEventListener("click", () => {
+    document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+  });
+  notesPanel.querySelector(".presenter-notes-close").addEventListener("click", closeNotes);
+  frame.addEventListener("click", event => {
+    if (event.target.closest("a, button")) return;
+    next();
+  });
+  window.addEventListener("hashchange", () => goTo((Number(location.hash.slice(1)) || 1) - 1, { updateHash: false, direction: 0 }));
+  window.addEventListener("popstate", () => goTo((Number(location.hash.slice(1)) || 1) - 1, { updateHash: false, direction: 0 }));
+  window.addEventListener("resize", rescale);
+  if ("ResizeObserver" in window) new ResizeObserver(sizeThumbnails).observe(thumbnails);
+
+  updateRail();
+  rescale();
+  const requested = Number(params.get("slide") || location.hash.slice(1));
+  goTo(Number.isFinite(requested) && requested > 0 ? requested - 1 : 0, { updateHash: false, direction: 1 });
+})();
+</script>
+</body>
+</html>
