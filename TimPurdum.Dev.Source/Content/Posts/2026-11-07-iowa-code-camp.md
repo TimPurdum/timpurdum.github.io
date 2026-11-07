@@ -4,9 +4,11 @@ title: Iowa Code Camp 2026 Presentation Links
 subtitle: "Don't Feed the Machine Spaghetti: Code Quality Principles for the AI Era"
 author: Tim Purdum
 description: The two instruction files from my Iowa Code Camp 2026 talk, ready to copy into your own repositories.
-lastmodified: 2026-11-07 03:46:37
+lastmodified: 2026-11-07 04:40:10
 ---
 If you came to my session at Iowa Code Camp this year, thanks for giving me an hour of your Saturday. The talk had one moving part, the file you put in your repository, and this page is that part, twice.
+
+The deck is up as well: [view the slides](/slides/iowa-code-camp-2026/index.html). That is the same file I drove from the stage, and it runs in the browser with nothing else installed. Arrow keys or Space move through it, `T` toggles the thumbnail rail, `F` goes full screen, `P` opens a presenter view with my notes, and `N` toggles the notes panel over the slide.
 
 ## The Two Files
 
@@ -56,4 +58,5 @@ I'd rather be the person who told you the limits than the person who sold you a 
 ## Get In Touch
 
 If you copy either file and change something that I should have gotten right, I want to hear about it. Ping me on Mastodon at @TimPurdum@dotnet.social, or email me at [tim.purdum@dymaptic.com](mailto:tim.purdum@dymaptic.com). Both reach me, and the file is better with your edits in it.
+
 
