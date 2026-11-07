@@ -95,9 +95,20 @@
   .slide[data-deck-active] .noodles path:nth-child(3) { animation-delay: 320ms; }
   .slide[data-deck-active] .noodles path:nth-child(4) { animation-delay: 480ms; }
   .slide[data-deck-active] .noodles path:nth-child(5) { animation-delay: 640ms; }
+  /* The title slide carries the presenter row along the bottom edge, where the page counter
+     would sit on top of "Tim Purdum · dymaptic". The chrome line already numbers the slide. */
+  .title-slide .slide-num { display: none; }
   body.preview-mode .noodles path, body.no-anim .noodles path,
   .thumbnail-preview .noodles path { animation: none !important; stroke-dashoffset: 0; }
   @keyframes draw { to { stroke-dashoffset: 0; } }
+
+  /* ---------- who I am ---------- */
+  .who { position: relative; z-index: 1; }
+  .who h2 { max-width: none; font-size: 88px; }
+  .who-role { margin: 24px 0 0; font-family: var(--mono); font-size: 24px; letter-spacing: .16em; text-transform: uppercase; color: var(--g600); }
+  .who-logos { display: flex; align-items: stretch; gap: 30px; margin-top: 60px; }
+  .logo-card { display: flex; align-items: center; justify-content: center; height: 200px; min-width: 450px; padding: 0 52px; border: 1px solid var(--rule-soft); border-radius: 14px; background: #ffffff; box-shadow: 0 1.2rem 2.6rem #16211c12; }
+  .logo-card img { display: block; height: 104px; width: auto; }
 
   /* ---------- cold open ---------- */
   .shots { display: grid; grid-template-columns: 1fr 1fr; gap: 34px; margin-top: 40px; }
@@ -282,14 +293,14 @@
 <body>
 <div id="deck-shell">
   <nav id="deck-rail" aria-label="Slide thumbnails">
-    <div id="deck-rail-head"><span>Deck</span><span id="deck-rail-count">20 slides</span></div>
+    <div id="deck-rail-head"><span>Deck</span><span id="deck-rail-count">21 slides</span></div>
     <ol id="deck-thumbnails"></ol>
   </nav>
   <main id="deck-stage">
     <div id="slide-frame" aria-live="polite">
 
       <!-- 1 · Title -->
-      <section class="slide" data-slide data-label="Title" data-screen-label="1">
+      <section class="slide title-slide" data-slide data-label="Title" data-screen-label="1">
         <svg class="noodles" viewBox="0 0 800 800" aria-hidden="true" focusable="false">
           <g fill="none" stroke="#74bd98" stroke-width="2.6" stroke-linecap="round" stroke-opacity=".9">
             <path d="M120 210 C 260 120, 380 300, 520 220 S 700 120, 760 250" />
@@ -312,8 +323,25 @@
         </div>
       </section>
 
-      <!-- 2 · Cold open -->
-      <section class="slide" data-slide data-label="Cold open" data-screen-label="2">
+      <!-- 2 · Who I am -->
+      <section class="slide" data-slide data-label="Who I am" data-screen-label="2">
+        <div class="who">
+          <p class="kicker b" data-build="1">Who is talking</p>
+          <h2 class="b" data-build="1">Tim Purdum</h2>
+          <p class="who-role b" data-build="2">Application Development Manager</p>
+          <div class="who-logos">
+            <div class="logo-card b" data-build="2">
+              <img src="images/dymaptic-logo.png" alt="dymaptic, a Bowman company">
+            </div>
+            <div class="logo-card b" data-build="3">
+              <img src="images/geoblazor-logo.png" alt="GeoBlazor by dymaptic">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3 · Cold open -->
+      <section class="slide" data-slide data-label="Cold open" data-screen-label="3">
         <p class="lede b" data-build="1">Two apps. Same prompt. Same model. <span class="em">About half an hour each.</span></p>
         <div class="shots">
           <figure class="shot b" data-build="1">
@@ -327,21 +355,21 @@
         </div>
       </section>
 
-      <!-- 3 · The claim -->
-      <section class="slide" data-slide data-label="The claim" data-screen-label="3">
+      <!-- 4 · The claim -->
+      <section class="slide" data-slide data-label="The claim" data-screen-label="4">
         <div class="claim">
           <h2 class="b" data-build="1">My premise: <span class="em">code quality matters to agents</span></h2>
           <ul class="bullets">
-            <li class="b" data-build="2">Agents read like humans, <strong>just faster and with better memory</strong></li>
+            <li class="b" data-build="2">Agents read like humans, <strong>just faster and with better memory</strong> &mdash; until they forget everything!</li>
             <li class="b" data-build="3">Architecture makes it easier to reason and expand <strong>with less context</strong></li>
-            <li class="b" data-build="4">Avoids bugs hidden in <strong>duplicated but divergent code</strong></li>
-            <li class="b" data-build="5">We have to <strong>tell the agents</strong> about our coding standards</li>
+            <li class="b" data-build="4">We have to <strong>tell the agents</strong> about our coding standards</li>
+            <li class="b" data-build="5"><strong>Up-front context</strong> can save time down the road</li>
           </ul>
         </div>
       </section>
 
-      <!-- 4 · Context -->
-      <section class="slide" data-slide data-label="Context" data-screen-label="4">
+      <!-- 5 · Context -->
+      <section class="slide" data-slide data-label="Context" data-screen-label="5">
         <h2 class="b" data-build="1">What constitutes a context?</h2>
         <div class="layers">
           <div class="layer b" data-build="2"><span class="idx">01</span><span>Harness instructions</span><span class="note">Claude Code · Codex · Pi</span></div>
@@ -352,8 +380,8 @@
         </div>
       </section>
 
-      <!-- 5 · My context -->
-      <section class="slide" data-slide data-label="My context" data-screen-label="5">
+      <!-- 6 · My context -->
+      <section class="slide" data-slide data-label="My context" data-screen-label="6">
         <h2 class="b" data-build="1">My context, once the standards load</h2>
         <div class="meters">
           <div class="meter-row b" data-build="2">
@@ -376,8 +404,8 @@
         <p class="source b" data-build="3" style="margin-top:30px;max-width:108ch;line-height:1.6">Measured: a real first request carries 14,400 tokens before the agent reads a file. <code class="inline">CODE_STYLE.md</code> and <code class="inline">CODE_STYLE-CSHARP.md</code> add 27,719 characters, about 6,900 tokens, and every full-context run read them, so they sit in the bar. The bare arm starts at 1,663 tokens: about twelve times less context, same prompt, same model.</p>
       </section>
 
-      <!-- 6 · Gotchas -->
-      <section class="slide" data-slide data-label="Gotchas" data-screen-label="6">
+      <!-- 7 · Gotchas -->
+      <section class="slide" data-slide data-label="Gotchas" data-screen-label="7">
         <h2 class="b" data-build="1" style="max-width:26ch">KISS &mdash; keep it short n sweet</h2>
         <ul class="bullets" style="margin-top:44px">
           <li class="b" data-build="2">Every skill adds a description to context, <strong>for every subagent</strong>. Remove the skills you are not using.</li>
@@ -385,8 +413,8 @@
         </ul>
       </section>
 
-      <!-- 7 · The prompt -->
-      <section class="slide top" data-slide data-label="The prompt" data-screen-label="7">
+      <!-- 8 · The prompt -->
+      <section class="slide top" data-slide data-label="The prompt" data-screen-label="8">
         <h2 class="b" data-build="1">The prompt</h2>
         <div class="prompt-card b" data-build="2">
           <p>Build a .NET web app that shows Iowa bridge conditions on an ArcGIS map, using the GeoBlazor package. Bridges visually distinguishable by condition; narrow the map by condition, year built and county; clicking a bridge shows its details; and a view of the bridges at risk &mdash; built before 1960, more than 5,000 vehicles a day &mdash; that respects whatever narrowing is already in effect. Show Iowa bridges only. It has to run locally and the map has to render in a browser. <span class="hi">Work autonomously: make your own decisions and tell me what you verified.</span></p>
@@ -394,8 +422,8 @@
         <p class="footnote b" data-build="3">Shortened for the slide. The prompt names no file, folder, component, render mode or framework version.</p>
       </section>
 
-      <!-- 8 · The test -->
-      <section class="slide top" data-slide data-label="The test" data-screen-label="8">
+      <!-- 9 · The test -->
+      <section class="slide top" data-slide data-label="The test" data-screen-label="9">
         <h2 class="b" data-build="1">Two conditions, same prompt</h2>
         <div class="test-grid">
           <div class="panel b" data-build="2">
@@ -435,8 +463,8 @@
         </div>
       </section>
 
-      <!-- 9 · Criteria -->
-      <section class="slide" data-slide data-label="Criteria" data-screen-label="9">
+      <!-- 10 · Criteria -->
+      <section class="slide" data-slide data-label="Criteria" data-screen-label="10">
         <h2 class="b" data-build="1">Criteria</h2>
         <div class="criteria">
           <div class="criterion b" data-build="2"><span class="n">01</span><span>Does it run?</span></div>
@@ -448,8 +476,8 @@
         </div>
       </section>
 
-      <!-- 10 · Problems -->
-      <section class="slide" data-slide data-label="Problems encountered" data-screen-label="10">
+      <!-- 11 · Problems -->
+      <section class="slide" data-slide data-label="Problems encountered" data-screen-label="11">
         <p class="kicker b" data-build="1">Problems I ran into</p>
         <ul class="bullets" style="margin-top:26px;max-width:1180px">
           <li class="b" data-build="2">Cluttered context, <strong>duplicated skills</strong></li>
@@ -458,8 +486,8 @@
         </ul>
       </section>
 
-      <!-- 11 · Stage one -->
-      <section class="slide top dense" data-slide data-label="Stage one: build the app" data-screen-label="11">
+      <!-- 12 · Stage one -->
+      <section class="slide top dense" data-slide data-label="Stage one: build the app" data-screen-label="12">
         <h2 class="b" data-build="1">Stage one: build the app from nothing</h2>
         <table class="t compact" style="margin-top:14px">
           <thead><tr><th>Measured</th><th>No context</th><th>Full context</th></tr></thead>
@@ -481,8 +509,8 @@
         </table>
       </section>
 
-      <!-- 12 · Stage two -->
-      <section class="slide" data-slide data-label="Stage two: add a feature" data-screen-label="12">
+      <!-- 13 · Stage two -->
+      <section class="slide" data-slide data-label="Stage two: add a feature" data-screen-label="13">
         <h2 class="b" data-build="1">Stage two: add a feature</h2>
         <p class="lede b" data-build="1" style="margin-top:20px;font-size:28px">County comparison, added to the same six apps.</p>
         <table class="t" style="margin-top:30px">
@@ -496,8 +524,8 @@
         <p class="source b" data-build="4" style="margin-top:22px">Each stage seeds from the app the same arm and repetition produced in the stage before.</p>
       </section>
 
-      <!-- 13 · Stage three -->
-      <section class="slide top dense" data-slide data-label="Stage three: a second feature" data-screen-label="13">
+      <!-- 14 · Stage three -->
+      <section class="slide top dense" data-slide data-label="Stage three: a second feature" data-screen-label="14">
         <h2 class="b" data-build="1">Stage three: CSV export, rows must match the app's own count</h2>
         <table class="t compact" style="margin-top:14px">
           <thead><tr><th>Measure</th><th>No context</th><th>Full context</th></tr></thead>
@@ -522,8 +550,8 @@
         </div>
       </section>
 
-      <!-- 14 · The cost -->
-      <section class="slide" data-slide data-label="Full context costs more at every stage" data-screen-label="14">
+      <!-- 15 · The cost -->
+      <section class="slide" data-slide data-label="Full context costs more at every stage" data-screen-label="15">
         <h2 class="b" data-build="1">Full context costs more at every stage</h2>
         <p class="legend b" data-build="1"><span><i class="swatch n"></i>No context</span><span><i class="swatch f"></i>Full context</span></p>
         <div class="pairs">
@@ -558,8 +586,8 @@
         </div>
       </section>
 
-      <!-- 15 · Analyser -->
-      <section class="slide top" data-slide data-label="What the analyser saw" data-screen-label="15">
+      <!-- 16 · Analyser -->
+      <section class="slide top" data-slide data-label="What the analyser saw" data-screen-label="16">
         <h2 class="b" data-build="1">What the analyser saw</h2>
         <p class="lede b" data-build="1" style="font-size:26px;margin-top:14px">SonarQube, all eighteen runs.</p>
         <table class="t compact" style="margin-top:16px">
@@ -575,8 +603,8 @@
         <p class="footnote b" data-build="3" style="max-width:112ch">Zero bugs in all eighteen runs, and every project rated A on maintainability and reliability. One caveat: the second full-context repetition carried its own browser-verification script into the repo, and SonarQube scores one vulnerability there, so three of the eighteen runs are rated D on security.</p>
       </section>
 
-      <!-- 16 · Where the error goes -->
-      <section class="slide top" data-slide data-label="Where the error goes" data-screen-label="16">
+      <!-- 17 · Where the error goes -->
+      <section class="slide top" data-slide data-label="Where the error goes" data-screen-label="17">
         <h2 class="b" data-build="1">Where the error goes</h2>
         <div class="test-grid b" data-build="2" style="margin-top:18px">
           <div class="panel">
@@ -609,8 +637,8 @@
         </table>
       </section>
 
-      <!-- 17 · Where the code lives -->
-      <section class="slide top" data-slide data-label="Where the code lives" data-screen-label="17">
+      <!-- 18 · Where the code lives -->
+      <section class="slide top" data-slide data-label="Where the code lives" data-screen-label="18">
         <h2 class="b" data-build="1">Where the code lives</h2>
         <div class="test-grid b" data-build="2" style="margin-top:16px">
           <div class="panel">
@@ -651,8 +679,8 @@ Program.cs</pre>
         <p class="footnote b" data-build="3" style="max-width:112ch;margin-top:18px">Two of three each way: one naked app does keep a <code class="inline">Models</code> folder, and one full-context app kept everything in the UI folder.</p>
       </section>
 
-      <!-- 18 · Takeaway -->
-      <section class="slide" data-slide data-label="The Takeaway" data-screen-label="18">
+      <!-- 19 · Takeaway -->
+      <section class="slide" data-slide data-label="The Takeaway" data-screen-label="19">
         <h2 class="b" data-build="1">The takeaway</h2>
         <div class="takeaway">
           <p class="b" data-build="2">Agents have gotten <em>really</em> good at coding, even without specific guidelines.</p>
@@ -660,8 +688,8 @@ Program.cs</pre>
         </div>
       </section>
 
-      <!-- 19 · Monday -->
-      <section class="slide top" data-slide data-label="What to do Monday" data-screen-label="19">
+      <!-- 20 · Monday -->
+      <section class="slide top" data-slide data-label="What to do Monday" data-screen-label="20">
         <h2 class="b" data-build="1">What to do Monday</h2>
         <div class="actions">
           <div class="action b" data-build="2"><span class="n">01</span><span>Review and streamline your global <code>CLAUDE.md</code> / <code>AGENTS.md</code></span></div>
@@ -671,8 +699,8 @@ Program.cs</pre>
         </div>
       </section>
 
-      <!-- 20 · Thank you -->
-      <section class="slide" data-slide data-label="Thank you" data-screen-label="20">
+      <!-- 21 · Thank you -->
+      <section class="slide" data-slide data-label="Thank you" data-screen-label="21">
         <div class="closing">
           <div>
             <h1 class="b" data-build="1">Thank you!</h1>
