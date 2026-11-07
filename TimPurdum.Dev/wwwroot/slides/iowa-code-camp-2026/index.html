@@ -254,13 +254,6 @@
   #deck-message { position: fixed; z-index: 40; left: 50%; bottom: 5.5rem; translate: -50%; padding: .7rem 1.1rem; border-radius: .5rem; background: var(--accent); color: #16211c; font-weight: 650; }
   #progress { position: fixed; top: 0; left: 0; height: 3px; width: 0; background: linear-gradient(90deg, var(--accent), var(--accent-2)); z-index: 26; transition: width 240ms ease; }
 
-  /* ---------- notes panel ---------- */
-  #presenter-notes-panel { position: fixed; z-index: 30; inset: 7% 9%; overflow: auto; padding: 2rem 2.4rem; border: 1px solid var(--rule); border-top: .35rem solid var(--accent); border-radius: 1rem; background: #ffffff; color: #16211c; box-shadow: 0 2rem 6rem #16211c24; }
-  #presenter-notes-panel[hidden] { display: none; }
-  #presenter-notes-panel h2 { margin: 0 3rem 1rem 0; font-size: 1.9rem; letter-spacing: -.01em; }
-  #presenter-notes-content { margin: 0; font-size: 1.45rem; line-height: 1.55; white-space: pre-wrap; }
-  .presenter-notes-close { position: absolute; top: .9rem; right: 1rem; border: 0; background: transparent; color: #16211c; font-size: 1.8rem; cursor: pointer; }
-
   /* ---------- modes ---------- */
   body.preview-mode #deck-rail, body.preview-mode #deck-rail-toggle, body.preview-mode #deck-fullscreen, body.preview-mode #deck-controls, body.preview-mode #progress { display: none; }
   body.preview-mode #deck-shell { display: block; }
@@ -277,7 +270,7 @@
   @media print {
     @page { size: 1280px 720px; margin: 0; }
     html, body { width: auto; height: auto; overflow: visible; background: #fff; }
-    #deck-rail, #deck-rail-toggle, #deck-fullscreen, #deck-controls, #presenter-notes-panel, #deck-message, #progress { display: none !important; }
+    #deck-rail, #deck-rail-toggle, #deck-fullscreen, #deck-controls, #deck-message, #progress { display: none !important; }
     #deck-shell { display: block; }
     #deck-stage { display: block; width: auto; height: auto; overflow: visible; background: #fff; }
     #slide-frame { position: static; left: auto; top: auto; margin: 0; display: block; width: auto; height: auto; transform: none; overflow: visible; box-shadow: none; }
@@ -296,8 +289,7 @@
     <div id="slide-frame" aria-live="polite">
 
       <!-- 1 · Title -->
-      <section class="slide" data-slide data-label="Title" data-screen-label="1"
-        data-speaker-notes="Cold open, no preamble. Let the title sit while the tangle draws itself. You have sixty minutes and the demo is the point, so move to the screenshots inside a minute. Controls: space, a click or the next arrow advances one build step, then one slide; the plain arrow keys skip builds; N shows notes, P opens presenter view, F is fullscreen, A turns the builds off if anything misbehaves on stage.">
+      <section class="slide" data-slide data-label="Title" data-screen-label="1">
         <svg class="noodles" viewBox="0 0 800 800" aria-hidden="true" focusable="false">
           <g fill="none" stroke="#74bd98" stroke-width="2.6" stroke-linecap="round" stroke-opacity=".9">
             <path d="M120 210 C 260 120, 380 300, 520 220 S 700 120, 760 250" />
@@ -321,8 +313,7 @@
       </section>
 
       <!-- 2 · Cold open -->
-      <section class="slide" data-slide data-label="Cold open" data-screen-label="2"
-        data-speaker-notes="Point at the left app, then the right. One prompt, one model, about half an hour each, and both build, serve and render. These screenshots come from the 31 October pair in archive/run1-broken-context: 25.0 minutes for the full-context run and 28.7 for the bare one. Files: results/naked-app.png and results/full-context-app.png. Do not read the counts in the headers yet; they differ by 24 bridges and that is not the point here.">
+      <section class="slide" data-slide data-label="Cold open" data-screen-label="2">
         <p class="lede b" data-build="1">Two apps. Same prompt. Same model. <span class="em">About half an hour each.</span></p>
         <div class="shots">
           <figure class="shot b" data-build="1">
@@ -337,8 +328,7 @@
       </section>
 
       <!-- 3 · The claim -->
-      <section class="slide" data-slide data-label="The claim" data-screen-label="3"
-        data-speaker-notes="Four clicks, one bullet each. The fourth is the pivot into the rest of the talk: the agent cannot infer your standards, so you have to tell it. Say the premise as written, then stop talking and let the fourth line land.">
+      <section class="slide" data-slide data-label="The claim" data-screen-label="3">
         <div class="claim">
           <h2 class="b" data-build="1">My premise: <span class="em">code quality matters to agents</span></h2>
           <ul class="bullets">
@@ -351,8 +341,7 @@
       </section>
 
       <!-- 4 · Context -->
-      <section class="slide" data-slide data-label="Context" data-screen-label="4"
-        data-speaker-notes="One click per row, then one more to light rows two and three, then a last click that singles out row three. That last one is the point: the machine-wide file is the row you control on every repo, at every job, before you have written a line. The skill descriptions are a close second, and the harness text and the prompt you cannot do much about.">
+      <section class="slide" data-slide data-label="Context" data-screen-label="4">
         <h2 class="b" data-build="1">What constitutes a context?</h2>
         <div class="layers">
           <div class="layer b" data-build="2"><span class="idx">01</span><span>Harness instructions</span><span class="note">Claude Code · Codex · Pi</span></div>
@@ -364,8 +353,7 @@
       </section>
 
       <!-- 5 · My context -->
-      <section class="slide" data-slide data-label="My context" data-screen-label="5"
-        data-speaker-notes="One click for the big bar, one for the small bar. The measured first request is 14,400 tokens; the two CODE_STYLE files add about 6,900 more, because all nine full-context runs read the C# standard, so they belong in the count. Call it 21,300 against 1,663 for the bare arm, about twelve times less. Only the total, the skills block and the naked arm are measured in tokens; the middle segments are drawn to scale from character counts.">
+      <section class="slide" data-slide data-label="My context" data-screen-label="5">
         <h2 class="b" data-build="1">My context, once the standards load</h2>
         <div class="meters">
           <div class="meter-row b" data-build="2">
@@ -389,8 +377,7 @@
       </section>
 
       <!-- 6 · Gotchas -->
-      <section class="slide" data-slide data-label="Gotchas" data-screen-label="6"
-        data-speaker-notes="Two clicks. KISS applies to context as much as to code: every skill you keep costs every subagent a description, whether that subagent needs the skill or not. The second line is the setup for the next slide: pointing at a file is not the same as reading it.">
+      <section class="slide" data-slide data-label="Gotchas" data-screen-label="6">
         <h2 class="b" data-build="1" style="max-width:26ch">KISS &mdash; keep it short n sweet</h2>
         <ul class="bullets" style="margin-top:44px">
           <li class="b" data-build="2">Every skill adds a description to context, <strong>for every subagent</strong>. Remove the skills you are not using.</li>
@@ -399,8 +386,7 @@
       </section>
 
       <!-- 7 · The prompt -->
-      <section class="slide top" data-slide data-label="The prompt" data-screen-label="7"
-        data-speaker-notes="Click once for the prompt, once for the footnote. Stress that this is the blank-slate prompt: it names no file, folder, component, render mode or framework version. Everything structural in the next six slides came from the agent, not from me.">
+      <section class="slide top" data-slide data-label="The prompt" data-screen-label="7">
         <h2 class="b" data-build="1">The prompt</h2>
         <div class="prompt-card b" data-build="2">
           <p>Build a .NET web app that shows Iowa bridge conditions on an ArcGIS map, using the GeoBlazor package. Bridges visually distinguishable by condition; narrow the map by condition, year built and county; clicking a bridge shows its details; and a view of the bridges at risk &mdash; built before 1960, more than 5,000 vehicles a day &mdash; that respects whatever narrowing is already in effect. Show Iowa bridges only. It has to run locally and the map has to render in a browser. <span class="hi">Work autonomously: make your own decisions and tell me what you verified.</span></p>
@@ -409,8 +395,7 @@
       </section>
 
       <!-- 8 · The test -->
-      <section class="slide top" data-slide data-label="The test" data-screen-label="8"
-        data-speaker-notes="Three clicks: the prompt strip, then the bare arm, then the instruction arm with the token bar underneath. Same prompt text across the top of both panels, same typeface, so the only difference the room sees is what sits behind it: 1,700 tokens against 21,300, about twelve times. Artifact for the comparison: results/summary.md.">
+      <section class="slide top" data-slide data-label="The test" data-screen-label="8">
         <h2 class="b" data-build="1">Two conditions, same prompt</h2>
         <div class="test-grid">
           <div class="panel b" data-build="2">
@@ -451,8 +436,7 @@
       </section>
 
       <!-- 9 · Criteria -->
-      <section class="slide" data-slide data-label="Criteria" data-screen-label="9"
-        data-speaker-notes="Three clicks, two criteria each. Read them fast. The point of the slide is that every one of these is measured by a script, not eyeballed, which is what makes the rest of the numbers defensible.">
+      <section class="slide" data-slide data-label="Criteria" data-screen-label="9">
         <h2 class="b" data-build="1">Criteria</h2>
         <div class="criteria">
           <div class="criterion b" data-build="2"><span class="n">01</span><span>Does it run?</span></div>
@@ -465,8 +449,7 @@
       </section>
 
       <!-- 10 · Problems -->
-      <section class="slide" data-slide data-label="Problems encountered" data-screen-label="10"
-        data-speaker-notes="Three clicks. The third one matters most and gets the laugh: the test harness tried to edit its own context mid-run, which is why the first week of numbers went in the bin. Do not rush past it; it is the reason the later runs are trustworthy.">
+      <section class="slide" data-slide data-label="Problems encountered" data-screen-label="10">
         <p class="kicker b" data-build="1">Problems I ran into</p>
         <ul class="bullets" style="margin-top:26px;max-width:1180px">
           <li class="b" data-build="2">Cluttered context, <strong>duplicated skills</strong></li>
@@ -476,8 +459,7 @@
       </section>
 
       <!-- 11 · Stage one -->
-      <section class="slide top dense" data-slide data-label="Stage one: build the app" data-screen-label="11"
-        data-speaker-notes="Three clicks: outcome, cost, structure. Read the cost rows plainly: on this stage full context used fewer output tokens and less wall time than the bare arm, 189,957 against 221,186 and 1,547.5 seconds against 2,095.8. That is the opposite of what the room expects, and it is real. Tokens are the summary basis, aborted attempts included. Artifacts: results/summary.md and results/structure-p7.csv.">
+      <section class="slide top dense" data-slide data-label="Stage one: build the app" data-screen-label="11">
         <h2 class="b" data-build="1">Stage one: build the app from nothing</h2>
         <table class="t compact" style="margin-top:14px">
           <thead><tr><th>Measured</th><th>No context</th><th>Full context</th></tr></thead>
@@ -500,8 +482,7 @@
       </section>
 
       <!-- 12 · Stage two -->
-      <section class="slide" data-slide data-label="Stage two: add a feature" data-screen-label="12"
-        data-speaker-notes="Three clicks, one row each. County comparison, added to the same six apps, seeded from each arm's own build. Here the bare arm wins all three pairs on both tokens and time. Say that too; one stage does not make a trend.">
+      <section class="slide" data-slide data-label="Stage two: add a feature" data-screen-label="12">
         <h2 class="b" data-build="1">Stage two: add a feature</h2>
         <p class="lede b" data-build="1" style="margin-top:20px;font-size:28px">County comparison, added to the same six apps.</p>
         <table class="t" style="margin-top:30px">
@@ -516,8 +497,7 @@
       </section>
 
       <!-- 13 · Stage three -->
-      <section class="slide top dense" data-slide data-label="Stage three: a second feature" data-screen-label="13"
-        data-speaker-notes="Two clicks: the feature, then what three stages did to the code. Read the .razor row aloud: the worst file in the set is a full-context run with 902 lines inside its markup, and a run that was told one type per file still puts seven types in one client. Layering and housekeeping are what the standards bought; they did not buy smaller components. Artifact: results/structure-p6.csv.">
+      <section class="slide top dense" data-slide data-label="Stage three: a second feature" data-screen-label="13">
         <h2 class="b" data-build="1">Stage three: CSV export, rows must match the app's own count</h2>
         <table class="t compact" style="margin-top:14px">
           <thead><tr><th>Measure</th><th>No context</th><th>Full context</th></tr></thead>
@@ -543,8 +523,7 @@
       </section>
 
       <!-- 14 · The cost -->
-      <section class="slide" data-slide data-label="Full context costs more at every stage" data-screen-label="14"
-        data-speaker-notes="Three clicks for the three pairs, then the median. 23 percent more output tokens across all three stages, paired by repetition; the pairs are what carry this slide, not the per-stage medians. Wall time on the same basis: 3,082 seconds against 3,706. If someone asks why the headline is smaller than the stage medians suggest, the answer is retries: aborted attempts count.">
+      <section class="slide" data-slide data-label="Full context costs more at every stage" data-screen-label="14">
         <h2 class="b" data-build="1">Full context costs more at every stage</h2>
         <p class="legend b" data-build="1"><span><i class="swatch n"></i>No context</span><span><i class="swatch f"></i>Full context</span></p>
         <div class="pairs">
@@ -580,8 +559,7 @@
       </section>
 
       <!-- 15 · Analyser -->
-      <section class="slide top" data-slide data-label="What the analyser saw" data-screen-label="15"
-        data-speaker-notes="Two clicks: the table, then the caveat. SonarQube is a rule counter, not a reviewer, so do not oversell it. The five vulnerability findings are the second full-context repetition carrying its own browser-verification script into the repo, not app code; the bugs column is genuinely zero everywhere. Artifact: results/sonar.csv.">
+      <section class="slide top" data-slide data-label="What the analyser saw" data-screen-label="15">
         <h2 class="b" data-build="1">What the analyser saw</h2>
         <p class="lede b" data-build="1" style="font-size:26px;margin-top:14px">SonarQube, all eighteen runs.</p>
         <table class="t compact" style="margin-top:16px">
@@ -598,8 +576,7 @@
       </section>
 
       <!-- 16 · Where the error goes -->
-      <section class="slide top" data-slide data-label="Where the error goes" data-screen-label="16"
-        data-speaker-notes="Two clicks: the two panels, then the numbers. Both of these stop the exception, so both apps work; the difference is what survives it. The console write keeps a message and drops the stack, the request and the category, and in server-rendered Blazor it lands where nobody reads it. SonarQube charges five minutes for each synchronous console write, twenty in that one naked run, and nothing at all for the logger, because there is no async hazard to flag. Be straight about the spread: one app on each side makes this choice, and three of the six never log anything at all.">
+      <section class="slide top" data-slide data-label="Where the error goes" data-screen-label="16">
         <h2 class="b" data-build="1">Where the error goes</h2>
         <div class="test-grid b" data-build="2" style="margin-top:18px">
           <div class="panel">
@@ -633,8 +610,7 @@
       </section>
 
       <!-- 17 · Where the code lives -->
-      <section class="slide top" data-slide data-label="Where the code lives" data-screen-label="17"
-        data-speaker-notes="Two clicks: the two trees, then the caption. Read the left column out loud as a shopping list: a service, a second service, a feature-service client, the filter state and the county table, all sitting in Components/Bridges next to the markup. The right column did the same work one folder up. Be fair: two of the three naked apps do keep a Models folder, and one full-context app kept everything in the UI folder, so this is a habit the standard nudges, not a switch it flips. Artifact: results/structure-p5.csv and tools/arch-compare.py.">
+      <section class="slide top" data-slide data-label="Where the code lives" data-screen-label="17">
         <h2 class="b" data-build="1">Where the code lives</h2>
         <div class="test-grid b" data-build="2" style="margin-top:16px">
           <div class="panel">
@@ -676,8 +652,7 @@ Program.cs</pre>
       </section>
 
       <!-- 18 · Takeaway -->
-      <section class="slide" data-slide data-label="The Takeaway" data-screen-label="18"
-        data-speaker-notes="Two clicks. The first is the concession and it is the honest headline: a strong model writes a working app without your guidelines. The second is the cost. Do not oversell the second half; the structure numbers are small and inconsistent, and the room will believe the concession more than the caveat.">
+      <section class="slide" data-slide data-label="The Takeaway" data-screen-label="18">
         <h2 class="b" data-build="1">The takeaway</h2>
         <div class="takeaway">
           <p class="b" data-build="2">Agents have gotten <em>really</em> good at coding, even without specific guidelines.</p>
@@ -686,8 +661,7 @@ Program.cs</pre>
       </section>
 
       <!-- 19 · Monday -->
-      <section class="slide top" data-slide data-label="What to do Monday" data-screen-label="19"
-        data-speaker-notes="Four clicks, four actions. Ask the room which one they will do this week before you move on; the answers are usually the second and the fourth. Keep the QR slide ready behind this one.">
+      <section class="slide top" data-slide data-label="What to do Monday" data-screen-label="19">
         <h2 class="b" data-build="1">What to do Monday</h2>
         <div class="actions">
           <div class="action b" data-build="2"><span class="n">01</span><span>Review and streamline your global <code>CLAUDE.md</code> / <code>AGENTS.md</code></span></div>
@@ -698,8 +672,7 @@ Program.cs</pre>
       </section>
 
       <!-- 20 · Thank you -->
-      <section class="slide" data-slide data-label="Thank you" data-screen-label="20"
-        data-speaker-notes="Leave this up for the whole Q and A, and leave ten minutes for it. The question that comes will be whether this transfers to their codebase. The honest answer: greenfield work on a familiar stack favors the bare arm most, and their tangled repo is still untested. Everything is in the repository, so anyone can rerun it; if the numbers differ, I want to hear about it.">
+      <section class="slide" data-slide data-label="Thank you" data-screen-label="20">
         <div class="closing">
           <div>
             <h1 class="b" data-build="1">Thank you!</h1>
@@ -730,11 +703,6 @@ Program.cs</pre>
   <button id="deck-next" class="deck-control" type="button" aria-label="Next slide or build step">&#8594;</button>
 </div>
 <p id="deck-message" role="status" hidden></p>
-<aside id="presenter-notes-panel" hidden aria-hidden="true" aria-labelledby="presenter-notes-title">
-  <button class="presenter-notes-close" type="button" aria-label="Close presenter notes">&times;</button>
-  <h2 id="presenter-notes-title">Current slide notes</h2>
-  <p id="presenter-notes-content"></p>
-</aside>
 
 <script>
 (() => {
@@ -752,13 +720,9 @@ Program.cs</pre>
   const buildLabel = document.getElementById("deck-build");
   const message = document.getElementById("deck-message");
   const progress = document.getElementById("progress");
-  const notesPanel = document.getElementById("presenter-notes-panel");
-  const notesTitle = document.getElementById("presenter-notes-title");
-  const notesContent = document.getElementById("presenter-notes-content");
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   let currentIndex = 0;
-  let presenterWindow = null;
   let railVisible = true;
   let shown = 1;
   let animationsOn = !reduced;
@@ -812,25 +776,11 @@ Program.cs</pre>
   };
 
   /* ---------- navigation ---------- */
-  const previewUrl = index => {
-    const url = new URL(location.href);
-    url.searchParams.set("deckPreview", "1");
-    url.searchParams.set("slide", String(index + 1));
-    url.hash = String(index + 1);
-    return url.href;
-  };
-
   const syncChrome = () => {
     counter.textContent = String(currentIndex + 1).padStart(2, "0") + " / " + slides.length;
     progress.style.width = ((currentIndex + 1) / slides.length * 100) + "%";
     const max = maxBuild(slides[currentIndex]);
     buildLabel.textContent = animationsOn && max > 1 ? shown + "/" + max : "";
-  };
-
-  const updateNotes = () => {
-    const slide = slides[currentIndex];
-    notesTitle.textContent = "Slide " + (slide.dataset.screenLabel || currentIndex + 1) + " notes";
-    notesContent.textContent = slide.dataset.speakerNotes || "No presenter notes for this slide.";
   };
 
   const goTo = (index, options = {}) => {
@@ -849,8 +799,6 @@ Program.cs</pre>
     shown = isPreview || !animationsOn ? max : (direction < 0 ? max : 1);
     applyBuilds(slide, shown, true);
     syncChrome();
-    updateNotes();
-    syncPresenterWindow();
     if (updateHash) history.pushState(null, "", "#" + (currentIndex + 1));
     document.dispatchEvent(new CustomEvent("slidechange", { detail: { index: currentIndex } }));
   };
@@ -879,49 +827,7 @@ Program.cs</pre>
     goTo(currentIndex - 1, { direction: -1 });
   };
 
-  /* ---------- presenter ---------- */
-  const buildPresenterWindow = () => {
-    const doc = presenterWindow.document;
-    doc.title = document.title + " \u00b7 Presenter view";
-    doc.head.innerHTML = '<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>:root{color-scheme:dark;font-family:"Segoe UI",system-ui,sans-serif}*{box-sizing:border-box}body{margin:0;height:100vh;overflow:hidden;background:#f2efe6;color:#16211c}main{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:1rem;padding:1rem}.header,.footer{display:flex;align-items:center;justify-content:space-between;gap:1rem}.warning{color:#00593d;font-weight:700}.grid{min-height:0;display:grid;grid-template-columns:minmax(0,1.45fr) minmax(20rem,.8fr);gap:1rem}.previews{min-height:0;display:grid;grid-template-rows:minmax(0,1fr) minmax(9rem,.42fr);gap:1rem}section,aside{min-height:0;overflow:hidden;border:1px solid #cdc9bd;border-radius:.8rem;background:#fdfcf9}.label{display:flex;justify-content:space-between;padding:.55rem 1rem;color:#3b463f;font-size:.85rem}.label strong{color:#16211c}iframe{width:100%;height:calc(100% - 2.2rem);border:0;background:#f2efe6;pointer-events:none}aside{overflow:auto;padding:1.3rem;border-top:.35rem solid #83bc43;background:#ffffff;color:#16211c}aside h1{font-size:1.15rem;margin:0 0 .7rem}aside p{font-size:1.3rem;line-height:1.5;white-space:pre-wrap}.controls{display:flex;gap:.6rem}.controls button{padding:.6rem 1rem;border:1px solid #83bc43;border-radius:999px;background:#fdfcf9;color:#16211c;cursor:pointer}</style>';
-    doc.body.innerHTML = '<main><header class="header"><strong>Presenter view</strong><span class="warning">Share the deck window, not this one</span></header><div class="grid"><div class="previews"><section><div class="label"><span>Current</span><strong id="presenter-current-label"></strong></div><iframe id="presenter-current-slide" title="Current slide preview"></iframe></section><section><div class="label"><span>Next</span><strong id="presenter-next-label"></strong></div><iframe id="presenter-next-slide" title="Next slide preview"></iframe></section></div><aside><h1 id="presenter-window-title">Notes</h1><p id="presenter-window-notes" aria-live="polite"></p></aside></div><footer class="footer"><div class="controls"><button id="presenter-previous">\u2190 Previous</button><button id="presenter-next">Next \u2192</button></div><span>Arrow keys navigate \u00b7 Escape closes</span></footer></main>';
-    doc.getElementById("presenter-previous").addEventListener("click", () => previous());
-    doc.getElementById("presenter-next").addEventListener("click", () => next());
-    presenterWindow.addEventListener("keydown", event => handleKey(event));
-  };
-
-  const syncPresenterWindow = () => {
-    if (!presenterWindow || presenterWindow.closed) return;
-    const doc = presenterWindow.document;
-    const current = slides[currentIndex];
-    const following = slides[currentIndex + 1];
-    const currentLabel = doc.getElementById("presenter-current-label");
-    if (!currentLabel) return;
-    currentLabel.textContent = current.dataset.label || "Slide " + (currentIndex + 1);
-    const currentFrame = doc.getElementById("presenter-current-slide");
-    if (currentFrame.getAttribute("src") !== previewUrl(currentIndex)) currentFrame.src = previewUrl(currentIndex);
-    doc.getElementById("presenter-window-title").textContent = "Slide " + (current.dataset.screenLabel || currentIndex + 1) + " notes";
-    doc.getElementById("presenter-window-notes").textContent = current.dataset.speakerNotes || "No presenter notes for this slide.";
-    doc.getElementById("presenter-next-label").textContent = following ? (following.dataset.label || "Slide " + (currentIndex + 2)) : "End of deck";
-    const nextFrame = doc.getElementById("presenter-next-slide");
-    if (following) nextFrame.src = previewUrl(currentIndex + 1); else nextFrame.removeAttribute("src");
-  };
-
-  const openPresenter = () => {
-    notesPanel.hidden = true;
-    notesPanel.setAttribute("aria-hidden", "true");
-    if (presenterWindow && !presenterWindow.closed) { syncPresenterWindow(); presenterWindow.focus(); return; }
-    presenterWindow = window.open("", "_blank", "popup=yes,width=1440,height=900");
-    if (!presenterWindow) {
-      showMessage("Presenter window was blocked. Allow pop-ups and press P again.");
-      return;
-    }
-    buildPresenterWindow();
-    syncPresenterWindow();
-    presenterWindow.focus();
-  };
-
-  /* ---------- modes, rail, notes ---------- */
+  /* ---------- modes, rail ---------- */
   const showMessage = text => {
     message.textContent = text;
     message.hidden = !text;
@@ -949,18 +855,6 @@ Program.cs</pre>
     sizeThumbnails();
   };
 
-  const toggleNotes = () => {
-    notesPanel.hidden = !notesPanel.hidden;
-    notesPanel.setAttribute("aria-hidden", String(notesPanel.hidden));
-    updateNotes();
-    if (!notesPanel.hidden) notesPanel.querySelector(".presenter-notes-close").focus();
-  };
-
-  const closeNotes = () => {
-    notesPanel.hidden = true;
-    notesPanel.setAttribute("aria-hidden", "true");
-  };
-
   const toggleAnimations = () => {
     animationsOn = !animationsOn;
     document.body.classList.toggle("no-anim", !animationsOn);
@@ -984,12 +878,9 @@ Program.cs</pre>
     const target = event.composedPath ? event.composedPath()[0] : event.target;
     if (isEditable(target) || event.metaKey || event.ctrlKey || event.altKey) return;
     const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
-    if (key === "n") toggleNotes();
-    else if (key === "t") { railVisible = !railVisible; updateRail(); }
-    else if (key === "p") { if (!isPreview) openPresenter(); }
+    if (key === "t") { railVisible = !railVisible; updateRail(); }
     else if (key === "f") document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
     else if (key === "a") toggleAnimations();
-    else if (key === "Escape" && !notesPanel.hidden) closeNotes();
     else return;
     event.preventDefault();
   };
@@ -997,7 +888,6 @@ Program.cs</pre>
   window.addEventListener("keydown", event => {
     const target = event.composedPath ? event.composedPath()[0] : event.target;
     if (isEditable(target) || event.metaKey || event.ctrlKey || event.altKey) return;
-    if (event.key === "Escape" && !notesPanel.hidden) { closeNotes(); event.preventDefault(); return; }
     const key = event.key;
     if (key === "ArrowLeft" || key === "PageUp") { previous(); event.preventDefault(); }
     else if (key === "ArrowRight" || key === "PageDown" || key === " ") { next(); event.preventDefault(); }
@@ -1034,7 +924,6 @@ Program.cs</pre>
   document.getElementById("deck-fullscreen").addEventListener("click", () => {
     document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
   });
-  notesPanel.querySelector(".presenter-notes-close").addEventListener("click", closeNotes);
   frame.addEventListener("click", event => {
     if (event.target.closest("a, button")) return;
     next();

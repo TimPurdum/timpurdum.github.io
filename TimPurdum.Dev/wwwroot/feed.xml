@@ -1,33 +1,50 @@
-<?xml version="1.0" encoding="utf-8"?><rss version="2.0"><channel><title>TimPurdum.Dev</title><link>https://www.timpurdum.dev/</link><description>Tim Purdum is the visionary behind the GeoBlazor mapping library and serves as the Director of Product Development at dymaptic. With a robust background in .NET and web technologies, Tim has been focused on Geographic Information Systems (GIS) since 2021. He is a sought-after speaker at numerous conferences, including Visual Studio Live, TechBash, Iowa Code Camp, and DevUp. Tim lives in Cedar Falls, Iowa.</description><item><link>https://www.timpurdum.dev/post/2026/11/7/iowa-code-camp</link><author>Tim Purdum</author><title>Iowa Code Camp 2026 Presentation Links</title><description>Don't Feed the Machine Spaghetti: Code Quality Principles for the AI Era</description><pubDate>Sat, 07 Nov 2026 00:00:00 -0600</pubDate><content type="html" xml:base="https://www.timpurdum.dev/post/2026/11/7/iowa-code-camp"><![CDATA[<p>At Iowa Code Camp this year I spent the hour arguing that tangled code charges you twice: once when a person reviews it, and again on every turn a model re-reads it. If you were in the room, thanks for spending an hour of your Saturday on that. This page has the two files I use to keep the second bill down, an <code>AGENTS.md</code> and a C# style guide, plus the deck I used to argue it.</p>
-<p>The slides are already online, one HTML file with no build step behind them: <a href="/slides/iowa-code-camp-2026/index.html">view the deck</a>. Arrow keys or Space move through it, <code>T</code> toggles the thumbnail rail, <code>F</code> goes full screen, <code>P</code> opens a presenter view with my notes, and <code>N</code> pulls the notes over the current slide.</p>
-<h2 id="the-two-files">The Two Files</h2>
-<ul>
-<li><a href="/files/iowa-code-camp-2026/AGENTS.md"><code>AGENTS.md</code></a>: the file every session reads before it touches anything, cut from 204 lines to 186.</li>
-<li><a href="/files/iowa-code-camp-2026/CODE_STYLE-CSHARP.md"><code>CODE_STYLE-CSHARP.md</code></a>: the C# half of our house style, cut from 264 lines to 184.</li>
-</ul>
-<p>Nothing to install. Both are Markdown, and each one opens with a comment saying what I cut and why, which is the part I expect you to argue with.</p>
-<h2 id="what-is-in-the-global-file">What Is In The Global File</h2>
-<p>The section I would keep if the rest had to go is the last one, &quot;What stays always-on&quot;. It asks three questions of any rule that wants a line in a file that every session pays for. Would arriving late be the same as not arriving at all? Then the agent can fetch it when the task calls for it, and it does not belong here. Is it only true in one repository? Then it belongs in that repository's own file. Does it have to happen every time, with no judgment in it? Then it belongs in a hook.</p>
-<p>Without that section the file grows forever, and a file that grows forever stops being read by anyone, including the model holding it in context.</p>
-<p>Two of the remaining rules earned their place the hard way. One says to target the latest released version of the framework and not the oldest one you are sure of, because an agent once defaulted a new tool to an old long-term-support release &quot;for compatibility&quot; while the current SDK sat installed on the same machine. The other says a defect you stumble onto outside the task is a report and not an edit, after an agent &quot;fixed&quot; a bug in a patch release that turned out to be four years old and nowhere near the work I had asked for.</p>
-<p>The git section is short and blunt. Never commit or push to the default branch. When I say &quot;commit everything&quot;, that means every modified and untracked file, because my working tree is visible to me and it is not visible to the model, so the model is the wrong party to decide what counts as noise.</p>
-<h2 id="what-the-style-file-does-differently">What The Style File Does Differently</h2>
-<p>Seven rows in the style file name a spot where our house rules disagree with the Aviva C# guidelines, with the community rule and its <code>AV####</code> number written beside ours. I think the Aviva standard is quite good, which is why those seven disagreements are worth writing down instead of leaving them to be discovered in review. We keep <code>_camelCase</code> private fields against their plain <code>camelCase</code>, fully capitalized acronyms (<code>GIS</code>, <code>URL</code>, <code>WMS</code>) against their <code>Gis</code> and <code>Url</code>, block bodies for methods against their expression bodies, and 120 columns against their 130. Saying it out loud, with the source cited, is what stops an agent from repairing your code back to the community default with the best intentions.</p>
-<p>The last section is worth copying on its own. Two files at the repository root, an <code>.editorconfig</code> and a <code>Directory.Build.props</code> that sets <code>EnforceCodeStyleInBuild</code>, turn the naming rules into <code>dotnet build</code> warnings, so a private field named the wrong way fails the build for every person and every agent who tries to build. The acronym rule has no Roslyn analyzer behind it and stays a review finding. The file says so rather than implying the build catches everything.</p>
-<h2 id="installing-them">Installing Them</h2>
-<ol>
-<li>Put <code>AGENTS.md</code> where the tool that runs your agent actually looks. Codex, OpenCode, and Pi read that name, and Claude Code reads <code>CLAUDE.md</code>, so use that name there or leave a one-line pointer to the file. I have not tested Cursor or Windsurf, and I do not know whether either picks up <code>AGENTS.md</code> without being pointed at it.</li>
-<li>Delete every line in it that is not true of your work. Mine is already a cut. Yours should end up shorter than 186 lines, and if it ends up longer you will stop reading it.</li>
-<li>Drop <code>CODE_STYLE-CSHARP.md</code> into the repository you are working in today, along with the two enforcement files it describes.</li>
-<li>Run <code>dotnet build</code> and read the warning list. I really did not expect mine to be as long as it was the first time, and that list is the honest place to start.</li>
-</ol>
-<h2 id="what-they-will-not-do">What They Will Not Do</h2>
-<p>They will not save you tokens. In the benchmark behind the talk, the arm with the instruction file spent more output tokens on two of the three tasks I measured. Context is the budget, and this spends some of it.</p>
-<p>They will not fix architecture you never described. A file that does not name your seams leaves the agent to invent one, which is how you end up with a second helper sitting next to the one you already had.</p>
-<p>They also go stale, and a stale instruction is worse than a missing one, because it gets followed confidently. Pin the package version in one place (the global file is a good spot, since every session reads it) and look at it when you upgrade.</p>
-<p>The sample sizes are small besides: three to five runs per cell, on one machine, in one week. Read the direction and skip the p-value.</p>
+<?xml version="1.0" encoding="utf-8"?><rss version="2.0"><channel><title>TimPurdum.Dev</title><link>https://www.timpurdum.dev/</link><description>Tim Purdum is the visionary behind the GeoBlazor mapping library and serves as the Director of Product Development at dymaptic. With a robust background in .NET and web technologies, Tim has been focused on Geographic Information Systems (GIS) since 2021. He is a sought-after speaker at numerous conferences, including Visual Studio Live, TechBash, Iowa Code Camp, and DevUp. Tim lives in Cedar Falls, Iowa.</description><item><link>https://www.timpurdum.dev/post/2026/11/7/iowa-code-camp</link><author>Tim Purdum</author><title>Iowa Code Camp 2026 Presentation Links</title><description>Don't Feed the Machine Spaghetti: Code Quality Principles for the AI Era</description><pubDate>Sat, 07 Nov 2026 00:00:00 -0600</pubDate><content type="html" xml:base="https://www.timpurdum.dev/post/2026/11/7/iowa-code-camp"><![CDATA[<style>
+.icc-hero { background: linear-gradient(135deg, #00593D 0%, #16211C 100%); color: #FFFFFF; padding: 2rem; border-radius: 12px; margin: 2rem auto; text-align: center; }
+.icc-hero h2 { color: #FFFFFF; margin: 0 0 0.5rem 0; border: none; }
+.icc-hero p { margin: 0.25rem 0; font-size: 1.1rem; text-align: center; }
+.icc-hero .icc-when { font-family: "Courier New", monospace; font-size: 0.85rem; color: #83BC43; text-transform: uppercase; letter-spacing: 1px; margin-top: 1rem; }
+.icc-card { background: #F5F3ED; color: #16211C; border-left: 6px solid #83BC43; border-radius: 8px; padding: 1.5rem 2rem; margin: 2rem auto; box-shadow: 0 6px 18px rgba(22, 33, 28, 0.12); }
+.icc-card h2 { color: #00593D; margin-top: 0; }
+.icc-card .icc-tag { font-family: "Courier New", monospace; font-size: 0.85rem; color: #3B463F; text-transform: uppercase; letter-spacing: 1px; }
+.icc-card code { background: #EFF3E2; color: #00593D; border: 1px solid #CDC9BD; border-radius: 4px; padding: 0.05rem 0.35rem; }
+.icc-card p a { color: #00593D; font-weight: 600; }
+.icc-card img { width: 100%; height: auto; border: 1px solid #CDC9BD; border-radius: 6px; margin: 1rem 0; }
+.icc-links a { display: block; color: #00593D; font-weight: 600; text-decoration: none; padding: 0.4rem 0; border-bottom: 1px dotted #CDC9BD; }
+.icc-links a:hover { color: #A3502F; }
+.icc-links span { display: block; font-weight: normal; color: #3B463F; font-size: 0.95rem; }
+.icc-geoblazor { background: linear-gradient(135deg, #16211C 0%, #00593D 100%); padding: 2rem; border-radius: 12px; margin: 2rem auto; text-align: center; }
+.icc-geoblazor a { color: #FFFFFF; font-size: 1.6rem; font-weight: bold; text-decoration: none; }
+.icc-geoblazor p { color: #FFFFFF; margin-top: 0.75rem; text-align: center; }
+</style>
+<div class="icc-hero">
+<h2>Don't Feed the Machine Spaghetti</h2>
+<p>Code Quality Principles for the AI Era</p>
+<p class="icc-when">Iowa Code Camp 2026 · Saturday, November 7 · Room 109</p>
+</div>
+<p>Thanks for coming to my Iowa Code Camp session on code quality with AI, &quot;Don't Feed the Machine Spaghetti&quot;! Below are the resources I shared.</p>
+<div class="icc-card" id="slides">
+<p class="icc-tag">The deck</p>
+<h2>Slides</h2>
+<a href="/slides/iowa-code-camp-2026/index.html" target="_blank"><img src="/slides/iowa-code-camp-2026/results/full-context-app.png" alt="The Iowa Bridge Inventory app from the talk, showing 23,692 Iowa bridges colored by condition" /></a>
+<p>The deck is a single HTML file: <a href="/slides/iowa-code-camp-2026/index.html" target="_blank">view the deck</a>. Arrow keys or Space move through it, <code>T</code> toggles the thumbnail rail, and <code>F</code> goes full screen.</p>
+<div class="icc-links">
+<a href="/slides/iowa-code-camp-2026/index.html" target="_blank">View the deck</a>
+</div>
+</div>
+<div class="icc-card" id="context-files">
+<p class="icc-tag">Copy these into your repositories</p>
+<h2>Global Context Files</h2>
+<div class="icc-links">
+<a href="/files/iowa-code-camp-2026/AGENTS.md" target="_blank"><code>AGENTS.md</code><span>Global instructions for my agents.</span></a>
+<a href="/files/iowa-code-camp-2026/CODE_STYLE-CSHARP.md" target="_blank"><code>CODE_STYLE-CSHARP.md</code><span>C#-specific code guidelines developed by my team.</span></a>
+</div>
+</div>
 <h2 id="get-in-touch">Get In Touch</h2>
-<p>Copy them, change something, and tell me which line you deleted first, because that is the one I got wrong. Ping me on Mastodon at &commat;TimPurdum&commat;dotnet.social, or email me at <a href="mailto:tim.purdum&commat;dymaptic.com">tim.purdum&commat;dymaptic.com</a>.</p>
+<p>Email me at <a href="mailto:tim.purdum&commat;dymaptic.com">tim.purdum&commat;dymaptic.com</a>.</p>
+<div class="icc-geoblazor">
+<a href="https://www.geoblazor.com" target="_blank">Discover GeoBlazor</a>
+<p>Interactive ArcGIS maps for your Blazor applications, with an open-source core.</p>
+</div>
 ]]></content></item><item><link>https://www.timpurdum.dev/post/2026/10/15/techbash</link><author>Tim Purdum</author><title>TechBash 2026 Presentation Links</title><description>Spatial Data in .NET and Real-Time Data Visualization in Blazor</description><pubDate>Thu, 15 Oct 2026 00:00:00 -0500</pubDate><content type="html" xml:base="https://www.timpurdum.dev/post/2026/10/15/techbash"><![CDATA[<style>
 .tb-hero { background: linear-gradient(135deg, #693CB2 0%, #3B1F6E 100%); color: #FFFFFF; padding: 2rem; border-radius: 12px; margin: 2rem auto; text-align: center; }
 .tb-hero h2 { color: #FFFFFF; margin: 0 0 0.5rem 0; border: none; }

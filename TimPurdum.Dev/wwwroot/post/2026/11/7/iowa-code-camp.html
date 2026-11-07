@@ -29,36 +29,53 @@
 
     <div class="trigger"><a class="page-link" href="/"><span class="home-icon"><svg viewBox="0 0 24 24" width="24px" height="24px"><path d="M12,3L2,12h3v7h5v-5h4v5h5v-7h3L12,3z" fill="#4FD1C5"></path></svg></span></a><a class="page-link" href="/post/2022/11/7/static-site-with-jekyll.html">Creating a static website with Jekyll</a><a class="page-link" href="/post/2022/11/19/mastodon-feed-in-jekyll.html">Adding a Mastodon Feed to your Blog</a><a class="page-link" href="/post/2022/12/10/let-the-sunshine-in-blazor.html">Let the Sunshine In</a><a class="page-link" href="/post/2023/4/22/creating-geoblazor.html">Creating GeoBlazor</a><a class="page-link" href="/post/2023/7/22/linq-and-javascript.html">LINQ Equivalents in JavaScript</a><a class="page-link" href="/post/2023/10/8/using-esbuild-with-blazor.html">Using ESBuild with Blazor</a><a class="page-link" href="/post/2023/10/14/comparing-blazor-net-7-8.html">Comparing Blazor Project Structure in .NET 7 and 8</a><a class="page-link" href="/post/2024/5/1/vslive-chicago.html">VS Live Chicago Presentation Links</a><a class="page-link" href="/post/2024/9/25/tech-bash.html">TechBash 2024 Presentation Links</a><a class="page-link" href="/post/2024/10/26/iowa-code-camp.html">Iowa Code Camp 2024 Presentation Links</a><a class="page-link" href="/post/2025/4/26/geographically-visualizing-customer-data.html">Geographically Visualizing Customer Data with Blazor and ArcGIS</a><a class="page-link" href="/post/2025/5/11/comparing-blazor-and-react.html">Blazor vs. Next.js: Getting Started with Interactive Web Applications</a><a class="page-link" href="/post/2025/8/6/devup.html">DevUp 2025</a><a class="page-link" href="/post/2025/9/25/blazor-day.html">BlazorDay 2025: Render Modes</a><a class="page-link" href="/post/2025/11/1/map-challenge-points.html">30 Day Map Challenge: Day 1 - Points</a><a class="page-link" href="/post/2025/11/2/map-challenge-lines.html">30 Day Map Challenge: Day 2 - Lines</a><a class="page-link" href="/post/2025/11/5/tech-bash.html">TechBash 2025 Presentation Links</a><a class="page-link" href="/post/2025/11/19/live-360.html">Live360 2025 Presentation Links</a><a class="page-link" href="/post/2025/12/21/over-the-river.html">Over the River and Through the Woods</a><a class="page-link" href="/post/2026/6/2/itag.html">ITAG 2026 Presentation Links &#x2014; The Case File</a><a class="page-link" href="/post/2026/10/15/techbash.html">TechBash 2026 Presentation Links</a><a class="page-link" href="/post/2026/11/7/iowa-code-camp.html">Iowa Code Camp 2026 Presentation Links</a><p class="rss-subscribe">subscribe <a href="/feed.xml">via RSS</a></p></div></nav></div></header>
 <main class="page-content" aria-label="content"><div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header"><h1 class="post-title p-name" itemprop="name headline">Iowa Code Camp 2026 Presentation Links</h1><h2 class="post-subtitle" itemprop="name subtitle">Don't Feed the Machine Spaghetti: Code Quality Principles for the AI Era</h2><p class="post-meta"><time class="dt-published" datetime="2026-11-07T00:00:00Z" itemprop="datePublished">Nov 07, 2026</time></p></header>
-            <div class="post-content e-content" itemprop="articleBody"><p>At Iowa Code Camp this year I spent the hour arguing that tangled code charges you twice: once when a person reviews it, and again on every turn a model re-reads it. If you were in the room, thanks for spending an hour of your Saturday on that. This page has the two files I use to keep the second bill down, an <code>AGENTS.md</code> and a C# style guide, plus the deck I used to argue it.</p>
-<p>The slides are already online, one HTML file with no build step behind them: <a href="/slides/iowa-code-camp-2026/index.html">view the deck</a>. Arrow keys or Space move through it, <code>T</code> toggles the thumbnail rail, <code>F</code> goes full screen, <code>P</code> opens a presenter view with my notes, and <code>N</code> pulls the notes over the current slide.</p>
-<h2 id="the-two-files">The Two Files</h2>
-<ul>
-<li><a href="/files/iowa-code-camp-2026/AGENTS.md"><code>AGENTS.md</code></a>: the file every session reads before it touches anything, cut from 204 lines to 186.</li>
-<li><a href="/files/iowa-code-camp-2026/CODE_STYLE-CSHARP.md"><code>CODE_STYLE-CSHARP.md</code></a>: the C# half of our house style, cut from 264 lines to 184.</li>
-</ul>
-<p>Nothing to install. Both are Markdown, and each one opens with a comment saying what I cut and why, which is the part I expect you to argue with.</p>
-<h2 id="what-is-in-the-global-file">What Is In The Global File</h2>
-<p>The section I would keep if the rest had to go is the last one, &quot;What stays always-on&quot;. It asks three questions of any rule that wants a line in a file that every session pays for. Would arriving late be the same as not arriving at all? Then the agent can fetch it when the task calls for it, and it does not belong here. Is it only true in one repository? Then it belongs in that repository's own file. Does it have to happen every time, with no judgment in it? Then it belongs in a hook.</p>
-<p>Without that section the file grows forever, and a file that grows forever stops being read by anyone, including the model holding it in context.</p>
-<p>Two of the remaining rules earned their place the hard way. One says to target the latest released version of the framework and not the oldest one you are sure of, because an agent once defaulted a new tool to an old long-term-support release &quot;for compatibility&quot; while the current SDK sat installed on the same machine. The other says a defect you stumble onto outside the task is a report and not an edit, after an agent &quot;fixed&quot; a bug in a patch release that turned out to be four years old and nowhere near the work I had asked for.</p>
-<p>The git section is short and blunt. Never commit or push to the default branch. When I say &quot;commit everything&quot;, that means every modified and untracked file, because my working tree is visible to me and it is not visible to the model, so the model is the wrong party to decide what counts as noise.</p>
-<h2 id="what-the-style-file-does-differently">What The Style File Does Differently</h2>
-<p>Seven rows in the style file name a spot where our house rules disagree with the Aviva C# guidelines, with the community rule and its <code>AV####</code> number written beside ours. I think the Aviva standard is quite good, which is why those seven disagreements are worth writing down instead of leaving them to be discovered in review. We keep <code>_camelCase</code> private fields against their plain <code>camelCase</code>, fully capitalized acronyms (<code>GIS</code>, <code>URL</code>, <code>WMS</code>) against their <code>Gis</code> and <code>Url</code>, block bodies for methods against their expression bodies, and 120 columns against their 130. Saying it out loud, with the source cited, is what stops an agent from repairing your code back to the community default with the best intentions.</p>
-<p>The last section is worth copying on its own. Two files at the repository root, an <code>.editorconfig</code> and a <code>Directory.Build.props</code> that sets <code>EnforceCodeStyleInBuild</code>, turn the naming rules into <code>dotnet build</code> warnings, so a private field named the wrong way fails the build for every person and every agent who tries to build. The acronym rule has no Roslyn analyzer behind it and stays a review finding. The file says so rather than implying the build catches everything.</p>
-<h2 id="installing-them">Installing Them</h2>
-<ol>
-<li>Put <code>AGENTS.md</code> where the tool that runs your agent actually looks. Codex, OpenCode, and Pi read that name, and Claude Code reads <code>CLAUDE.md</code>, so use that name there or leave a one-line pointer to the file. I have not tested Cursor or Windsurf, and I do not know whether either picks up <code>AGENTS.md</code> without being pointed at it.</li>
-<li>Delete every line in it that is not true of your work. Mine is already a cut. Yours should end up shorter than 186 lines, and if it ends up longer you will stop reading it.</li>
-<li>Drop <code>CODE_STYLE-CSHARP.md</code> into the repository you are working in today, along with the two enforcement files it describes.</li>
-<li>Run <code>dotnet build</code> and read the warning list. I really did not expect mine to be as long as it was the first time, and that list is the honest place to start.</li>
-</ol>
-<h2 id="what-they-will-not-do">What They Will Not Do</h2>
-<p>They will not save you tokens. In the benchmark behind the talk, the arm with the instruction file spent more output tokens on two of the three tasks I measured. Context is the budget, and this spends some of it.</p>
-<p>They will not fix architecture you never described. A file that does not name your seams leaves the agent to invent one, which is how you end up with a second helper sitting next to the one you already had.</p>
-<p>They also go stale, and a stale instruction is worse than a missing one, because it gets followed confidently. Pin the package version in one place (the global file is a good spot, since every session reads it) and look at it when you upgrade.</p>
-<p>The sample sizes are small besides: three to five runs per cell, on one machine, in one week. Read the direction and skip the p-value.</p>
+            <div class="post-content e-content" itemprop="articleBody"><style>
+.icc-hero { background: linear-gradient(135deg, #00593D 0%, #16211C 100%); color: #FFFFFF; padding: 2rem; border-radius: 12px; margin: 2rem auto; text-align: center; }
+.icc-hero h2 { color: #FFFFFF; margin: 0 0 0.5rem 0; border: none; }
+.icc-hero p { margin: 0.25rem 0; font-size: 1.1rem; text-align: center; }
+.icc-hero .icc-when { font-family: "Courier New", monospace; font-size: 0.85rem; color: #83BC43; text-transform: uppercase; letter-spacing: 1px; margin-top: 1rem; }
+.icc-card { background: #F5F3ED; color: #16211C; border-left: 6px solid #83BC43; border-radius: 8px; padding: 1.5rem 2rem; margin: 2rem auto; box-shadow: 0 6px 18px rgba(22, 33, 28, 0.12); }
+.icc-card h2 { color: #00593D; margin-top: 0; }
+.icc-card .icc-tag { font-family: "Courier New", monospace; font-size: 0.85rem; color: #3B463F; text-transform: uppercase; letter-spacing: 1px; }
+.icc-card code { background: #EFF3E2; color: #00593D; border: 1px solid #CDC9BD; border-radius: 4px; padding: 0.05rem 0.35rem; }
+.icc-card p a { color: #00593D; font-weight: 600; }
+.icc-card img { width: 100%; height: auto; border: 1px solid #CDC9BD; border-radius: 6px; margin: 1rem 0; }
+.icc-links a { display: block; color: #00593D; font-weight: 600; text-decoration: none; padding: 0.4rem 0; border-bottom: 1px dotted #CDC9BD; }
+.icc-links a:hover { color: #A3502F; }
+.icc-links span { display: block; font-weight: normal; color: #3B463F; font-size: 0.95rem; }
+.icc-geoblazor { background: linear-gradient(135deg, #16211C 0%, #00593D 100%); padding: 2rem; border-radius: 12px; margin: 2rem auto; text-align: center; }
+.icc-geoblazor a { color: #FFFFFF; font-size: 1.6rem; font-weight: bold; text-decoration: none; }
+.icc-geoblazor p { color: #FFFFFF; margin-top: 0.75rem; text-align: center; }
+</style>
+<div class="icc-hero">
+<h2>Don't Feed the Machine Spaghetti</h2>
+<p>Code Quality Principles for the AI Era</p>
+<p class="icc-when">Iowa Code Camp 2026 · Saturday, November 7 · Room 109</p>
+</div>
+<p>Thanks for coming to my Iowa Code Camp session on code quality with AI, &quot;Don't Feed the Machine Spaghetti&quot;! Below are the resources I shared.</p>
+<div class="icc-card" id="slides">
+<p class="icc-tag">The deck</p>
+<h2>Slides</h2>
+<a href="/slides/iowa-code-camp-2026/index.html" target="_blank"><img src="/slides/iowa-code-camp-2026/results/full-context-app.png" alt="The Iowa Bridge Inventory app from the talk, showing 23,692 Iowa bridges colored by condition" /></a>
+<p>The deck is a single HTML file: <a href="/slides/iowa-code-camp-2026/index.html" target="_blank">view the deck</a>. Arrow keys or Space move through it, <code>T</code> toggles the thumbnail rail, and <code>F</code> goes full screen.</p>
+<div class="icc-links">
+<a href="/slides/iowa-code-camp-2026/index.html" target="_blank">View the deck</a>
+</div>
+</div>
+<div class="icc-card" id="context-files">
+<p class="icc-tag">Copy these into your repositories</p>
+<h2>Global Context Files</h2>
+<div class="icc-links">
+<a href="/files/iowa-code-camp-2026/AGENTS.md" target="_blank"><code>AGENTS.md</code><span>Global instructions for my agents.</span></a>
+<a href="/files/iowa-code-camp-2026/CODE_STYLE-CSHARP.md" target="_blank"><code>CODE_STYLE-CSHARP.md</code><span>C#-specific code guidelines developed by my team.</span></a>
+</div>
+</div>
 <h2 id="get-in-touch">Get In Touch</h2>
-<p>Copy them, change something, and tell me which line you deleted first, because that is the one I got wrong. Ping me on Mastodon at &commat;TimPurdum&commat;dotnet.social, or email me at <a href="mailto:tim.purdum&commat;dymaptic.com">tim.purdum&commat;dymaptic.com</a>.</p>
+<p>Email me at <a href="mailto:tim.purdum&commat;dymaptic.com">tim.purdum&commat;dymaptic.com</a>.</p>
+<div class="icc-geoblazor">
+<a href="https://www.geoblazor.com" target="_blank">Discover GeoBlazor</a>
+<p>Interactive ArcGIS maps for your Blazor applications, with an open-source core.</p>
+</div>
 </div></article></div></main>
 <footer class="site-footer h-card"><div class="wrapper"><ul class="contact-list"><li class="p-name">Tim Purdum</li><li><a class="u-email" href="mailto:tim.purdum@dymaptic.com">tim.purdum@dymaptic.com</a></li></ul>
     <ul class="social-media-list"><li><a href="https://github.com/TimPurdum"><svg width="16" height="16" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8C0 11.54 2.29 14.53 5.47 15.59C5.87 15.66 6.02 15.42 6.02 15.21C6.02 15.02 6.01 14.39 6.01 13.72C4 14.09 3.48 13.23 3.32 12.78C3.23 12.55 2.84 11.84 2.5 11.65C2.22 11.5 1.82 11.13 2.49 11.12C3.12 11.11 3.57 11.7 3.72 11.94C4.44 13.15 5.59 12.81 6.05 12.6C6.12 12.08 6.33 11.73 6.56 11.53C4.78 11.33 2.92 10.64 2.92 7.58C2.92 6.71 3.23 5.99 3.74 5.43C3.66 5.23 3.38 4.41 3.82 3.31C3.82 3.31 4.49 3.1 6.02 4.13C6.66 3.95 7.34 3.86 8.02 3.86C8.7 3.86 9.38 3.95 10.02 4.13C11.55 3.09 12.22 3.31 12.22 3.31C12.66 4.41 12.38 5.23 12.3 5.43C12.81 5.99 13.12 6.7 13.12 7.58C13.12 10.65 11.25 11.33 9.47 11.53C9.76 11.78 10.01 12.26 10.01 13.01C10.01 14.08 10 14.94 10 15.21C10 15.42 10.15 15.67 10.55 15.59C13.71 14.53 16 11.53 16 8C16 3.58 12.42 0 8 0Z" transform="scale(64)" fill="white"></path></svg>
